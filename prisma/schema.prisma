@@ -1,0 +1,199 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String                 @id @default(uuid())
+  username         String                 @unique
+  avatarId         String                 @default("avatar_1")
+  frameId          String                 @default("none")
+  nameColor        String                 @default("#38bdf8") // default sky-400
+  title            String                 @default("Novice")
+  xp               Int                    @default(0)
+  level            Int                    @default(1)
+  coins            Int                    @default(100) // Lifetime/profile coins
+  gamesPlayed      Int                    @default(0)
+  gamesWon         Int                    @default(0)
+  triviaAccuracy   Float                  @default(0.0)
+  correctAnswers   Int                    @default(0)
+  incorrectAnswers Int                    @default(0)
+  streak           Int                    @default(0)
+  longestStreak    Int                    @default(0)
+  favoriteCategory String                 @default("None")
+  unlockedAvatars  String                 @default("avatar_1,avatar_2,avatar_3,avatar_4,avatar_5")
+  unlockedFrames   String                 @default("none")
+  unlockedTitles   String                 @default("Novice")
+  unlockedBadges   String                 @default("none")
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  achievements     UserAchievement[]
+  missions         UserMission[]
+  players          Player[]
+  history          MatchHistoryPlayer[]
+}
+
+model Room {
+  id              String       @id @default(uuid())
+  code            String       @unique // 6-character room code
+  mode            String       // "DUEL", "TEAM", "FFA"
+  status          String       @default("LOBBY") // "LOBBY", "ACTIVE", "FINISHED"
+  maxPlayers      Int          @default(4)
+  round           Int          @default(1)
+  currentTurn     Int          @default(0)
+  activeEvent     String?
+  eventRoundsLeft Int          @default(0)
+  winnerId        String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  players         Player[]
+  teams           Team[]
+  actions         RoomAction[]
+  turns           Turn[]
+}
+
+model Player {
+  id                 String   @id @default(uuid())
+  roomId             String
+  room               Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId             String?
+  team               Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  order              Int      @default(0)
+  position           Int      @default(0)
+  coins              Int      @default(15) // Match-specific coins
+  shieldActive       Boolean  @default(false)
+  trapImmunity       Boolean  @default(false)
+  doubleCoinsActive  Boolean  @default(false)
+  extraTimeActive    Boolean  @default(false)
+  luckyDiceActive    Boolean  @default(false)
+  lastRoll           Int?
+  isReady            Boolean  @default(false)
+  isHost             Boolean  @default(false)
+  isConnected        Boolean  @default(true)
+  lastActive         DateTime @default(now())
+}
+
+model Team {
+  id       String   @id @default(uuid())
+  roomId   String
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  name     String   // e.g. "Team Alpha", "Team Omega"
+  color    String   // Hex or color identifier
+  position Int      @default(0)
+  coins    Int      @default(15)
+  players  Player[]
+}
+
+model Turn {
+  id                    String   @id @default(uuid())
+  roomId                String
+  room                  Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  round                 Int
+  turnNumber            Int
+  activePlayerId        String
+  status                String   // "ROLLING", "TRIVIA", "TILE_EFFECT", "REWARD", "COMPLETED"
+  rollValue             Int?
+  questionId            String?
+  questionCategory      String?
+  questionDifficulty    String?
+  questionText          String?
+  questionOptions       String?  // JSON string
+  questionCorrectAnswer String?
+  timeRemaining         Int?
+  selectedAnswer        String?
+  isAnswerCorrect       Boolean?
+  tileType              String?
+  tileEffectTriggered   Boolean  @default(false)
+  createdAt             DateTime @default(now())
+}
+
+model TriviaQuestion {
+  id            String   @id @default(uuid())
+  category      String
+  difficulty    String   // "EASY", "MEDIUM", "HARD"
+  question      String
+  options       String   // JSON string array
+  correctAnswer String
+  createdAt     DateTime @default(now())
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  title       String   @unique
+  description String
+  icon        String   // Icon component identifier
+  badgeId     String
+  xpReward    Int
+  coinReward  Int
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+}
+
+model DailyMission {
+  id          String   @id @default(uuid())
+  title       String   @unique
+  description String
+  type        String   // "WIN_MATCH", "EARN_COINS", "CORRECT_ANSWERS", "LAND_ON_TILE"
+  target      Int
+  xpReward    Int
+  coinReward  Int
+}
+
+model UserMission {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missionId   String
+  progress    Int      @default(0)
+  isCompleted Boolean  @default(false)
+  isClaimed   Boolean  @default(false)
+  lastUpdated DateTime @default(now())
+}
+
+model MatchHistory {
+  id             String               @id @default(uuid())
+  mode           String
+  winnerUsername String
+  roundCount     Int
+  durationMinutes Int                 @default(0)
+  createdAt      DateTime             @default(now())
+  players        MatchHistoryPlayer[]
+}
+
+model MatchHistoryPlayer {
+  id               String       @id @default(uuid())
+  matchId          String
+  match            MatchHistory @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username         String
+  avatarId         String
+  coinsEarned      Int
+  xpEarned         Int
+  correctAnswers   Int
+  incorrectAnswers Int
+  longestStreak    Int
+  rank             Int
+}
+
+model RoomAction {
+  id             String   @id @default(uuid())
+  roomId         String
+  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  playerUsername String?
+  actionType     String   // "JOIN", "LEAVE", "ROLL", "ANSWER", "SHOP", "TILE", "EVENT", "CHAT"
+  details        String   // JSON string
+  createdAt      DateTime @default(now())
+}
