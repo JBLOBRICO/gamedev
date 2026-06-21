@@ -404,6 +404,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                     options={JSON.parse(currentTurnRecord.questionOptions || '[]')}
                     correctAnswer={currentTurnRecord.questionCorrectAnswer || ''}
                     timeLimit={currentTurnRecord.timeRemaining || 15}
+                    rollValue={currentTurnRecord.rollValue || 1}
                     onSubmitAnswer={submitAnswer}
                   />
                   {!isMyTurn && activePlayer && (

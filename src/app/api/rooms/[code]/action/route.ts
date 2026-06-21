@@ -520,7 +520,11 @@ export async function POST(
       }
 
       // Select trivia question
-      const category = details?.category || 'General Knowledge';
+      let category = details?.category;
+      if (!category || category === 'Random') {
+        const cats = ['General Knowledge', 'Science', 'History', 'Movies', 'Music', 'Sports', 'Geography'];
+        category = cats[Math.floor(Math.random() * cats.length)];
+      }
       const difficulty = details?.difficulty || 'MEDIUM';
 
       if (typeof category !== 'string' || typeof difficulty !== 'string') {

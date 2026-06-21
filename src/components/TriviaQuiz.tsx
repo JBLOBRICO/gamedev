@@ -12,6 +12,7 @@ interface TriviaQuizProps {
   options: string[]; // parsed array
   correctAnswer: string;
   timeLimit: number;
+  rollValue: number;
   onSubmitAnswer: (answer: string) => void;
 }
 
@@ -22,6 +23,7 @@ export default function TriviaQuiz({
   options,
   correctAnswer,
   timeLimit,
+  rollValue,
   onSubmitAnswer,
 }: TriviaQuizProps) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -89,6 +91,9 @@ export default function TriviaQuiz({
           </span>
           <span className={`ml-2 text-[10px] font-extrabold uppercase tracking-widest border px-2.5 py-0.5 rounded-full ${getDifficultyColor(difficulty)}`}>
             {difficulty}
+          </span>
+          <span className="ml-2 text-[10px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-950/40 border border-emerald-900/40 px-2.5 py-0.5 rounded-full">
+            Rolled: {rollValue}
           </span>
         </div>
 
