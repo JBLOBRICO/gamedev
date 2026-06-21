@@ -34,12 +34,15 @@ export default function TileInteractPanel({
 
   const getTileTheme = () => {
     switch (tileType) {
-      case 'TRAP': return { icon: <AlertOctagon className="w-8 h-8 text-rose-500 animate-bounce" />, border: 'border-rose-900/40 bg-rose-950/20' };
-      case 'TREASURE': return { icon: <Trophy className="w-8 h-8 text-amber-400" />, border: 'border-amber-900/40 bg-amber-950/20' };
-      case 'MYSTERY': return { icon: <HelpCircle className="w-8 h-8 text-purple-400" />, border: 'border-purple-900/40 bg-purple-950/20' };
-      case 'SHORTCUT': return { icon: <Wind className="w-8 h-8 text-cyan-400" />, border: 'border-cyan-900/40 bg-cyan-950/20' };
-      case 'RISK': return { icon: <Flame className="w-8 h-8 text-orange-500" />, border: 'border-orange-900/40 bg-orange-950/20' };
-      default: return { icon: <Sparkles className="w-8 h-8 text-sky-400" />, border: 'border-slate-800 bg-slate-900/40' };
+      case 'TRAP':      return { icon: <AlertOctagon className="w-8 h-8 text-rose-500 animate-bounce" />,  border: 'border-rose-900/40 bg-rose-950/20' };
+      case 'TREASURE':  return { icon: <Trophy className="w-8 h-8 text-amber-400" />,                    border: 'border-amber-900/40 bg-amber-950/20' };
+      case 'MYSTERY':   return { icon: <HelpCircle className="w-8 h-8 text-purple-400" />,               border: 'border-purple-900/40 bg-purple-950/20' };
+      case 'SHORTCUT':  return { icon: <Wind className="w-8 h-8 text-cyan-400" />,                       border: 'border-cyan-900/40 bg-cyan-950/20' };
+      case 'RISK':      return { icon: <Flame className="w-8 h-8 text-orange-500" />,                    border: 'border-orange-900/40 bg-orange-950/20' };
+      case 'CHALLENGE': return { icon: <Trophy className="w-8 h-8 text-blue-400 animate-pulse" />,       border: 'border-blue-900/40 bg-blue-950/20' };
+      case 'WILD':      return { icon: <Sparkles className="w-8 h-8 text-teal-400" />,                   border: 'border-teal-900/40 bg-teal-950/20' };
+      case 'EVENT':     return { icon: <Sparkles className="w-8 h-8 text-pink-400 animate-spin" />,      border: 'border-pink-900/40 bg-pink-950/20' };
+      default:          return { icon: <Sparkles className="w-8 h-8 text-sky-400" />,                    border: 'border-slate-800 bg-slate-900/40' };
     }
   };
 
@@ -159,8 +162,56 @@ export default function TileInteractPanel({
         </div>
       )}
 
-      {/* Normal / Wild / event / finish tiles default continuation */}
-      {['START', 'NORMAL', 'WILD', 'EVENT', 'BONUS'].includes(tileType) && (
+      {/* Challenge tile */}
+      {tileType === 'CHALLENGE' && (
+        <div className="space-y-3 pt-2">
+          <p className="text-[11px] text-blue-300 font-bold">
+            ⚡ Hard Bonus Question! Answer correctly for double coin rewards.
+          </p>
+          <button
+            disabled={disabled}
+            onClick={() => handleAction('CONTINUE')}
+            className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-black uppercase text-xs"
+          >
+            Accept the Challenge!
+          </button>
+        </div>
+      )}
+
+      {/* Wild tile */}
+      {tileType === 'WILD' && (
+        <div className="pt-2">
+          <p className="text-[11px] text-teal-300 font-bold mb-3">
+            🌟 Wild tile! A random positive bonus will be applied.
+          </p>
+          <button
+            disabled={disabled}
+            onClick={() => handleAction('CONTINUE')}
+            className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-black uppercase text-xs"
+          >
+            Claim Wild Bonus
+          </button>
+        </div>
+      )}
+
+      {/* Event tile */}
+      {tileType === 'EVENT' && (
+        <div className="pt-2">
+          <p className="text-[11px] text-pink-300 font-bold mb-3">
+            🎉 Event tile triggered! A new global event will affect all players.
+          </p>
+          <button
+            disabled={disabled}
+            onClick={() => handleAction('CONTINUE')}
+            className="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-black uppercase text-xs"
+          >
+            Trigger Event
+          </button>
+        </div>
+      )}
+
+      {/* Normal / Start / Bonus / Finish default continuation */}
+      {['START', 'NORMAL', 'BONUS', 'FINISH'].includes(tileType) && (
         <div className="pt-2">
           <button
             disabled={disabled}
