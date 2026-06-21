@@ -345,24 +345,7 @@ Object.entries(rawQuestions).forEach(([category, difficulties]) => {
   });
 });
 
-// To reach 200+, let's duplicate with slight variations or add simple ones:
-const extraCategories = [...categories];
-let index = 1;
-while (expandedQuestions.length < 500) {
-  const cat = extraCategories[expandedQuestions.length % extraCategories.length];
-  const diffs = ["EASY", "MEDIUM", "HARD"];
-  const diff = diffs[expandedQuestions.length % 3];
-  expandedQuestions.push({
-    category: cat,
-    difficulty: diff,
-    question: `Trivia Practice Question #${index} for category ${cat}: What is the correct answer?`,
-    options: JSON.stringify(["Option A", "Option B", "Option C (Correct)", "Option D"]),
-    correctAnswer: "Option C (Correct)",
-    funFact: "This is a placeholder practice question. Keep practicing to become a trivia master!"
-  });
-  index++;
-}
-
+// Removed auto-generation of practice questions per user request.
 async function main() {
   console.log("Seeding database...");
 

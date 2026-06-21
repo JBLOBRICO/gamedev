@@ -284,7 +284,7 @@ export default function LobbyScreen({
           {chatMessages.length === 0 ? (
             <p className="text-xs text-slate-600 italic text-center pt-8">No messages yet. Say hello!</p>
           ) : (
-            chatMessages.map((msg, index) => {
+            [...chatMessages].reverse().map((msg: any, index: number) => {
               const detailsObj = JSON.parse(msg.details || '{}');
               const isSystem = msg.playerUsername === 'System';
               return (

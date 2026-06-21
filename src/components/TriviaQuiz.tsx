@@ -48,11 +48,7 @@ export default function TriviaQuiz({
     } else {
       sounds.playIncorrect();
     }
-
-    setTimeout(() => {
-      onSubmitAnswer(answer);
-    }, 2000);
-  }, [submitted, correctAnswer, onSubmitAnswer]);
+  }, [submitted, correctAnswer]);
 
   // Countdown timer
   useEffect(() => {
@@ -160,18 +156,32 @@ export default function TriviaQuiz({
         </div>
       )}
 
+      {/* Manual Continue Button */}
+      {submitted && (
+        <div className="pt-4 animate-in fade-in zoom-in duration-500">
+          <button
+            onClick={() => onSubmitAnswer(selected || "")}
+            className="w-full py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-black uppercase tracking-widest text-sm transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
+          >
+            Continue
+          </button>
+        </div>
+      )}
+
       {/* Quiz footer rewards preview */}
-      <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-500 pt-2 border-t border-slate-800/60">
-        <span className="flex items-center gap-1">
-          <Star className="w-3.5 h-3.5 text-amber-500" />
-          +{difficulty === 'EASY' ? '5' : difficulty === 'MEDIUM' ? '10' : '20'} Coins
-        </span>
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-        <span className="flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          +{difficulty === 'EASY' ? '20' : difficulty === 'MEDIUM' ? '40' : '80'} XP
-        </span>
-      </div>
+      {!submitted && (
+        <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-500 pt-2 border-t border-slate-800/60">
+          <span className="flex items-center gap-1">
+            <Star className="w-3.5 h-3.5 text-amber-500" />
+            +{difficulty === 'EASY' ? '5' : difficulty === 'MEDIUM' ? '10' : '20'} Coins
+          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+          <span className="flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            +{difficulty === 'EASY' ? '20' : difficulty === 'MEDIUM' ? '40' : '80'} XP
+          </span>
+        </div>
+      )}
 
     </div>
   );

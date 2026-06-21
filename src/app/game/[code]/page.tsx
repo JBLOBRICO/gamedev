@@ -460,7 +460,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
             </h3>
 
             <div className="flex-1 overflow-y-auto py-2 space-y-1.5 text-left">
-              {room.actions.map((act: any, idx: number) => {
+              {[...room.actions].reverse().map((act: any, idx: number) => {
                 const det = JSON.parse(act.details || '{}');
                 return (
                   <div key={idx} className="text-[10px] leading-tight">
