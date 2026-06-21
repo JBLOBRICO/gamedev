@@ -536,24 +536,48 @@ export async function POST(
         return NextResponse.json({ error: 'Difficulty must be EASY, MEDIUM, or HARD' }, { status: 400 });
       }
 
-      const questionCount = await prisma.triviaQuestion.count({ where: { category, difficulty } });
+      let askedQ: string[] = [];
+      try { askedQ = JSON.parse(room.askedQuestions || '[]'); } catch (e) {}
+
+      let questionCount = await prisma.triviaQuestion.count({
+        where: { category, difficulty, id: { notIn: askedQ } }
+      });
+
+      // If all questions in this category/difficulty have been asked, clear the asked list for this match
+      if (questionCount === 0) {
+        askedQ = [];
+        questionCount = await prisma.triviaQuestion.count({ where: { category, difficulty } });
+      }
 
       let question = null;
       if (questionCount > 0) {
         const randIndex = Math.floor(Math.random() * questionCount);
-        question = await prisma.triviaQuestion.findFirst({ where: { category, difficulty }, skip: randIndex });
+        question = await prisma.triviaQuestion.findFirst({
+          where: { category, difficulty, id: { notIn: askedQ } },
+          skip: randIndex
+        });
       }
 
       // Fallback to any question if none in that category/difficulty
       if (!question) {
-        question = await prisma.triviaQuestion.findFirst({ where: { difficulty } });
+        question = await prisma.triviaQuestion.findFirst({ where: { difficulty, id: { notIn: askedQ } } });
       }
       if (!question) {
+        question = await prisma.triviaQuestion.findFirst({ where: { id: { notIn: askedQ } } });
+      }
+      if (!question) {
+        // Absolute fallback if everything is asked
         question = await prisma.triviaQuestion.findFirst();
       }
       if (!question) {
         return NextResponse.json({ error: 'No trivia questions available. Please seed the database.' }, { status: 500 });
       }
+
+      askedQ.push(question.id);
+      await prisma.room.update({
+        where: { id: room.id },
+        data: { askedQuestions: JSON.stringify(askedQ) }
+      });
 
       await prisma.turn.update({
         where: { id: currentTurnRecord.id },
