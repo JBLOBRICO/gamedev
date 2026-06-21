@@ -106,6 +106,7 @@ model Turn {
   questionText          String?
   questionOptions       String?  // JSON string
   questionCorrectAnswer String?
+  questionFunFact       String?
   timeRemaining         Int?
   selectedAnswer        String?
   isAnswerCorrect       Boolean?
@@ -121,6 +122,7 @@ model TriviaQuestion {
   question      String
   options       String   // JSON string array
   correctAnswer String
+  funFact       String?
   createdAt     DateTime @default(now())
 }
 

@@ -11,6 +11,7 @@ interface TriviaQuizProps {
   difficulty: string;
   options: string[]; // parsed array
   correctAnswer: string;
+  funFact?: string | null;
   timeLimit: number;
   rollValue: number;
   onSubmitAnswer: (answer: string) => void;
@@ -22,6 +23,7 @@ export default function TriviaQuiz({
   difficulty,
   options,
   correctAnswer,
+  funFact,
   timeLimit,
   rollValue,
   onSubmitAnswer,
@@ -150,6 +152,13 @@ export default function TriviaQuiz({
           );
         })}
       </div>
+
+      {/* Fun Fact Display */}
+      {submitted && funFact && (
+        <div className="mt-4 p-4 rounded-xl border border-sky-900/50 bg-sky-950/20 text-sky-200 text-sm italic shadow-inner animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <span className="font-bold mr-1">💡 Did you know?</span> {funFact}
+        </div>
+      )}
 
       {/* Quiz footer rewards preview */}
       <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-500 pt-2 border-t border-slate-800/60">

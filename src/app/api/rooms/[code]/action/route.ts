@@ -566,6 +566,7 @@ export async function POST(
           questionText: question.question,
           questionOptions: question.options,
           questionCorrectAnswer: question.correctAnswer,
+          questionFunFact: question.funFact,
           timeRemaining: player.extraTimeActive ? 30 : 15,
         }
       });

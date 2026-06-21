@@ -403,6 +403,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                     difficulty={currentTurnRecord.questionDifficulty || 'MEDIUM'}
                     options={JSON.parse(currentTurnRecord.questionOptions || '[]')}
                     correctAnswer={currentTurnRecord.questionCorrectAnswer || ''}
+                    funFact={currentTurnRecord.questionFunFact}
                     timeLimit={currentTurnRecord.timeRemaining || 15}
                     rollValue={currentTurnRecord.rollValue || 1}
                     onSubmitAnswer={submitAnswer}
@@ -449,7 +450,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           <ItemShop
             playerCoins={localPlayer?.coins || 0}
             onBuyItem={buyItem}
-            disabled={!isMyTurn || currentTurnRecord?.status !== 'ROLLING' || actionPending}
+            disabled={!isMyTurn || actionPending}
           />
 
           {/* Action Log / Chat */}

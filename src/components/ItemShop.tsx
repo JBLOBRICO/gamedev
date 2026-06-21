@@ -17,9 +17,7 @@ const SHOP_ITEMS: ShopItem[] = [
   { id: 'extra_time', name: 'Extra Time', description: 'Adds +15 seconds to answer your next trivia question.', cost: 10, icon: <Hourglass className="w-5 h-5 text-cyan-400" /> },
   { id: 'lucky_dice', name: 'Lucky Dice', description: 'Guarantees your next dice roll is a 5 or 6.', cost: 20, icon: <Dices className="w-5 h-5 text-amber-400" /> },
   { id: 'trap_immunity', name: 'Trap Immunity', description: 'Passively blocks next trap tile you land on.', cost: 18, icon: <Shield className="w-5 h-5 text-indigo-400" /> },
-  { id: 'multiplier', name: 'Coin Multiplier', description: 'Doubles all coins rewarded on your next correct answer.', cost: 15, icon: <Coins className="w-5 h-5 text-yellow-400" /> },
-  { id: '50_50', name: '50/50 Hint', description: 'Removes two incorrect answers from the next question.', cost: 15, icon: <Scissors className="w-5 h-5 text-rose-400" /> },
-  { id: 'teleport', name: 'Warp Scroll', description: 'Warp ahead by 4 tiles instantly.', cost: 25, icon: <Zap className="w-5 h-5 text-emerald-400" /> }
+  { id: 'multiplier', name: 'Coin Multiplier', description: 'Doubles all coins rewarded on your next correct answer.', cost: 15, icon: <Coins className="w-5 h-5 text-yellow-400" /> }
 ];
 
 interface ItemShopProps {
