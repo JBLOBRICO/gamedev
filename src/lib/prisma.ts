@@ -1,10 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+}
 
+// Prevent multiple Prisma instances in development (hot reloads)
+// In production (Vercel), each serverless invocation gets a fresh instance
 export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient();
+  globalThis.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prisma = prisma;
+}
+
 export default prisma;
