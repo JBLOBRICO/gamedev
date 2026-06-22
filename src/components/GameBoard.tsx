@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Gift, Sparkles, Zap, Flame, Compass, HelpCircle } from 'lucide-react';
+import {
+  AlertTriangle, Gift, Sparkles, Zap, Flame, Compass, HelpCircle,
+  RotateCw, Shuffle, ArrowUp, ArrowDown, Clock, Package, Coins
+} from 'lucide-react';
 import { BOARD_TILES } from '@/lib/boardConfig';
 import { getAvatarById } from '@/lib/avatars';
 
@@ -32,16 +35,13 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
   const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
 
   useEffect(() => {
-    // Initialize or update positions tile-by-tile
     players.forEach((player) => {
       const currentPos = player.position;
       const animPos = animatedPositions[player.id];
 
       if (animPos === undefined) {
-        // Init directly
         setAnimatedPositions(prev => ({ ...prev, [player.id]: currentPos }));
       } else if (animPos !== currentPos) {
-        // Step towards currentPos
         const diff = currentPos - animPos;
         const direction = diff > 0 ? 1 : -1;
         const timer = setTimeout(() => {
@@ -49,7 +49,7 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
             ...prev,
             [player.id]: animPos + direction
           }));
-        }, 350); // Speed of tile-by-tile walk animation
+        }, 320);
         return () => clearTimeout(timer);
       }
     });
@@ -57,29 +57,47 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
 
   const getTileIcon = (type: string) => {
     switch (type) {
-      case 'START': return <Compass className="w-5 h-5" />;
-      case 'FINISH': return <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />;
-      case 'BONUS': return <Gift className="w-5 h-5 text-yellow-300" />;
-      case 'TRAP': return <AlertTriangle className="w-5 h-5 text-rose-400" />;
-      case 'MYSTERY': return <HelpCircle className="w-5 h-5 text-purple-400" />;
-      case 'SHORTCUT': return <Zap className="w-5 h-5 text-cyan-300" />;
-      case 'CHALLENGE': return <Flame className="w-5 h-5 text-blue-400" />;
-      case 'RISK': return <AlertTriangle className="w-5 h-5 text-orange-400" />;
-      case 'EVENT': return <Sparkles className="w-5 h-5 text-pink-400" />;
-      case 'WILD': return <Sparkles className="w-5 h-5 text-teal-400" />;
-      case 'TREASURE': return <Gift className="w-5 h-5 text-amber-300" fill="currentColor" />;
-      default: return null;
+      case 'START':        return <Compass className="w-4 h-4" />;
+      case 'FINISH':       return <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />;
+      case 'BONUS':
+      case 'COIN_BONUS':   return <Gift className="w-4 h-4 text-yellow-300" />;
+      case 'TRAP':         return <AlertTriangle className="w-4 h-4 text-rose-400" />;
+      case 'MYSTERY':      return <HelpCircle className="w-4 h-4 text-purple-400" />;
+      case 'SHORTCUT':
+      case 'MOVE_FORWARD': return <Zap className="w-4 h-4 text-cyan-300" />;
+      case 'MOVE_BACK':    return <ArrowDown className="w-4 h-4 text-stone-400" />;
+      case 'CHALLENGE':    return <Flame className="w-4 h-4 text-blue-400" />;
+      case 'RISK':         return <AlertTriangle className="w-4 h-4 text-orange-400" />;
+      case 'EVENT':        return <Sparkles className="w-4 h-4 text-pink-400" />;
+      case 'WILD':         return <Sparkles className="w-4 h-4 text-teal-400" />;
+      case 'TREASURE':     return <Gift className="w-4 h-4 text-amber-300" fill="currentColor" />;
+      case 'TELEPORT':     return <ArrowUp className="w-4 h-4 text-violet-400" />;
+      case 'ITEM_REWARD':  return <Package className="w-4 h-4 text-lime-400" />;
+      case 'SKIP_TURN':    return <Clock className="w-4 h-4 text-sky-300" />;
+      case 'DICE_AGAIN':   return <RotateCw className="w-4 h-4 text-amber-300" />;
+      case 'SWAP':         return <Shuffle className="w-4 h-4 text-rose-400" />;
+      case 'COIN_DRAIN':   return <Coins className="w-4 h-4 text-orange-400" />;
+      default:             return null;
     }
   };
 
   return (
-    <div className="w-full p-4 sm:p-6 rounded-3xl border border-slate-800 glass-panel relative overflow-hidden bg-grid-pattern">
+    <div className="w-full p-3 sm:p-5 rounded-3xl border border-slate-800 glass-panel relative overflow-hidden bg-grid-pattern">
       <div className="absolute inset-0 bg-gradient-to-tr from-indigo-950/10 via-transparent to-purple-950/10 pointer-events-none" />
 
-      {/* 2D Board Serpentine Grid (8 Columns x 4 Rows) */}
-      <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 sm:gap-4 select-none relative z-10">
+      {/*
+        Board: 10 columns × 5 rows serpentine layout
+        Mobile: 5 columns (tiles wrap naturally, grid auto-places via gridRowStart/gridColumnStart)
+        Desktop: 10 columns
+      */}
+      <div
+        className="grid gap-1.5 sm:gap-2 select-none relative z-10"
+        style={{
+          gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
+          gridTemplateRows: 'repeat(5, auto)',
+        }}
+      >
         {BOARD_TILES.map((tile) => {
-          // Find if any animated player is on this tile
           const playersOnTile = players.filter(
             (p) => (animatedPositions[p.id] ?? p.position) === tile.index
           );
@@ -87,26 +105,26 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
           return (
             <div
               key={tile.index}
-              className={`relative aspect-square sm:h-24 rounded-2xl border-2 flex flex-col items-center justify-between p-2 transition-all duration-300 ${tile.bgClass} shadow-md`}
+              className={`relative aspect-square rounded-xl border-2 flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} shadow-sm`}
               style={{
-                // Serpentine layout order coordinates
                 gridRowStart: tile.gridY + 1,
                 gridColumnStart: tile.gridX + 1,
+                minWidth: 0,
               }}
             >
-              {/* Tile label / index */}
-              <div className="w-full flex justify-between items-center text-[10px] opacity-60 font-black">
-                <span>{tile.index === 0 ? 'START' : tile.index === 31 ? 'END' : tile.index}</span>
-                <span>{getTileIcon(tile.type)}</span>
+              {/* Tile index + icon */}
+              <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-60 font-black leading-none">
+                <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
+                <span className="shrink-0">{getTileIcon(tile.type)}</span>
               </div>
 
               {/* Tile Name */}
-              <span className="text-[9px] sm:text-[10px] font-black uppercase text-center tracking-tight leading-none mt-1 select-none">
+              <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2">
                 {tile.name}
               </span>
 
               {/* Pawns slot */}
-              <div className="h-6 sm:h-8 flex flex-wrap items-center justify-center gap-1 mt-1">
+              <div className="h-5 sm:h-7 flex flex-wrap items-center justify-center gap-0.5 mt-0.5">
                 <AnimatePresence>
                   {playersOnTile.map((p) => {
                     const avatar = getAvatarById(p.user.avatarId);
@@ -115,31 +133,29 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
                       <motion.div
                         key={p.id}
                         layoutId={`pawn_${p.id}`}
-                        initial={{ scale: 0.6, y: -10 }}
+                        initial={{ scale: 0.6, y: -8 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.6 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-950 p-0.5 border-2 shadow-lg shadow-black/80 flex items-center justify-center relative cursor-help ${
-                          isActive 
-                            ? 'border-yellow-400 ring-2 ring-yellow-400/50 scale-110 z-20' 
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className={`w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-slate-950 p-0.5 border-2 shadow-lg shadow-black/80 flex items-center justify-center relative cursor-help ${
+                          isActive
+                            ? 'border-yellow-400 ring-1 ring-yellow-400/50 scale-110 z-20'
                             : 'border-slate-300'
                         }`}
                         title={p.user.username}
                       >
-                        {/* If team mode, color indicator border */}
                         {p.team && (
-                          <span 
-                            className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border border-slate-950" 
+                          <span
+                            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-slate-950"
                             style={{ backgroundColor: p.team.color }}
                           />
                         )}
-                        {avatar.render("w-full h-full")}
+                        {avatar.render('w-full h-full')}
                       </motion.div>
                     );
                   })}
                 </AnimatePresence>
               </div>
-
             </div>
           );
         })}

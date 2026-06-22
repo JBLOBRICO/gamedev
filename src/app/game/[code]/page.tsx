@@ -446,11 +446,18 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
         {/* ── Right sidebar ─────────────────────────────────────────────────── */}
         <div className="lg:col-span-1 space-y-6">
 
-          {/* Item Shop */}
+          {/* Item Shop — open anytime, no turn restriction */}
           <ItemShop
             playerCoins={localPlayer?.coins || 0}
             onBuyItem={buyItem}
-            disabled={!isMyTurn || actionPending}
+            disabled={actionPending}
+            activeItems={{
+              shieldActive: localPlayer?.shieldActive,
+              extraTimeActive: localPlayer?.extraTimeActive,
+              luckyDiceActive: localPlayer?.luckyDiceActive,
+              trapImmunity: localPlayer?.trapImmunity,
+              doubleCoinsActive: localPlayer?.doubleCoinsActive,
+            }}
           />
 
           {/* Action Log / Chat */}
