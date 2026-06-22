@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface UserProfile {
   id: string;
@@ -26,40 +26,101 @@ export interface UserProfile {
   unlockedBadges: string;
 }
 
+/** POST to /api/profile — creates or updates a profile. Does NOT touch loading state. */
+async function apiCreateProfile(
+  userId: string | null,
+  username: string,
+  avatarId = 'avatar_1',
+  nameColor = '#38bdf8',
+  title = 'Novice'
+): Promise<UserProfile> {
+  const res = await fetch('/api/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: userId ?? undefined,
+      username,
+      avatarId,
+      nameColor,
+      title,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to create profile');
+  }
+  return res.json();
+}
+
 export function useProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const bootstrapped = useRef(false);
 
-  // ── Create or update profile (POST) ────────────────────────────────────────
-  // Defined first so fetchProfile can reference it in its dependency array.
-  const createOrUpdateProfile = useCallback(async (
+  // ── Bootstrap: runs once on mount ───────────────────────────────────────────
+  useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+
+    async function bootstrap() {
+      setLoading(true);
+      try {
+        const storedId = localStorage.getItem('quizrealm_userId');
+
+        if (storedId) {
+          // Try to fetch existing profile
+          const res = await fetch(`/api/profile?userId=${encodeURIComponent(storedId)}`);
+
+          if (res.ok) {
+            const data: UserProfile = await res.json();
+            setProfile(data);
+            return;
+          }
+
+          // Profile not found in this DB (stale localStorage) — clear and recreate
+          if (res.status === 404) {
+            localStorage.removeItem('quizrealm_userId');
+            localStorage.removeItem('quizrealm_username');
+          }
+          // For other errors (5xx network issues), also fall through to create
+        }
+
+        // No stored ID, or ID was stale — create a fresh profile
+        const randNum = Math.floor(1000 + Math.random() * 9000);
+        const data = await apiCreateProfile(
+          null,
+          `Player#${randNum}`,
+          'avatar_1',
+          '#38bdf8',
+          'Novice'
+        );
+        localStorage.setItem('quizrealm_userId', data.id);
+        localStorage.setItem('quizrealm_username', data.username);
+        setProfile(data);
+        setError(null);
+      } catch (err: any) {
+        console.error('Profile bootstrap error:', err);
+        setError(err.message ?? 'Could not load profile');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    bootstrap();
+  }, []);
+
+  // ── Update profile (called from settings/edit modal) ────────────────────────
+  const updateProfile = useCallback(async (
     username: string,
     avatarId: string,
     nameColor: string,
     title: string
   ) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const storedId = localStorage.getItem('quizrealm_userId');
-      const res = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: storedId || undefined,
-          username,
-          avatarId,
-          nameColor,
-          title,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to update profile');
-      }
-
-      const data = await res.json();
+      const data = await apiCreateProfile(storedId, username, avatarId, nameColor, title);
       setProfile(data);
       localStorage.setItem('quizrealm_userId', data.id);
       localStorage.setItem('quizrealm_username', data.username);
@@ -74,54 +135,20 @@ export function useProfile() {
     }
   }, []);
 
-  // ── Fetch profile (GET) ─────────────────────────────────────────────────────
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const res = await fetch(`/api/profile?userId=${encodeURIComponent(userId)}`);
-
-      if (res.status === 404) {
-        // The userId in localStorage doesn't exist in this database
-        // (e.g. user was on local dev, now on production). Clear stale data
-        // and auto-create a fresh profile so the app keeps working.
-        localStorage.removeItem('quizrealm_userId');
-        localStorage.removeItem('quizrealm_username');
-        const randNum = Math.floor(1000 + Math.random() * 9000);
-        await createOrUpdateProfile(`Player#${randNum}`, 'avatar_1', '#38bdf8', 'Novice');
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch profile');
-      }
-
-      const data = await res.json();
-      setProfile(data);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [createOrUpdateProfile]);
-
-  // ── Bootstrap on mount ──────────────────────────────────────────────────────
-  useEffect(() => {
+  // ── Manual refresh ───────────────────────────────────────────────────────────
+  const refresh = useCallback(async () => {
     const storedId = localStorage.getItem('quizrealm_userId');
-    if (!storedId) {
-      // No ID at all — auto-register a new profile
-      const randNum = Math.floor(1000 + Math.random() * 9000);
-      createOrUpdateProfile(`Player#${randNum}`, 'avatar_1', '#38bdf8', 'Novice')
-        .catch(() => setLoading(false));
-    } else {
-      fetchProfile(storedId);
+    if (!storedId) return;
+    try {
+      const res = await fetch(`/api/profile?userId=${encodeURIComponent(storedId)}`);
+      if (res.ok) {
+        const data: UserProfile = await res.json();
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Profile refresh error:', err);
     }
-  }, [fetchProfile, createOrUpdateProfile]);
+  }, []);
 
-  return {
-    profile,
-    loading,
-    error,
-    refresh: () => profile && fetchProfile(profile.id),
-    updateProfile: createOrUpdateProfile,
-  };
+  return { profile, loading, error, refresh, updateProfile };
 }
