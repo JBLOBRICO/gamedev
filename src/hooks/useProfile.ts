@@ -31,22 +31,8 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const res = await fetch(`/api/profile?userId=${userId}`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch profile');
-      }
-      const data = await res.json();
-      setProfile(data);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // ── Create or update profile (POST) ────────────────────────────────────────
+  // Defined first so fetchProfile can reference it in its dependency array.
   const createOrUpdateProfile = useCallback(async (
     username: string,
     avatarId: string,
@@ -88,13 +74,42 @@ export function useProfile() {
     }
   }, []);
 
+  // ── Fetch profile (GET) ─────────────────────────────────────────────────────
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const res = await fetch(`/api/profile?userId=${encodeURIComponent(userId)}`);
+
+      if (res.status === 404) {
+        // The userId in localStorage doesn't exist in this database
+        // (e.g. user was on local dev, now on production). Clear stale data
+        // and auto-create a fresh profile so the app keeps working.
+        localStorage.removeItem('quizrealm_userId');
+        localStorage.removeItem('quizrealm_username');
+        const randNum = Math.floor(1000 + Math.random() * 9000);
+        await createOrUpdateProfile(`Player#${randNum}`, 'avatar_1', '#38bdf8', 'Novice');
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await res.json();
+      setProfile(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [createOrUpdateProfile]);
+
+  // ── Bootstrap on mount ──────────────────────────────────────────────────────
   useEffect(() => {
     const storedId = localStorage.getItem('quizrealm_userId');
     if (!storedId) {
-      // Auto-register initial random profile
-      const newId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      // No ID at all — auto-register a new profile
       const randNum = Math.floor(1000 + Math.random() * 9000);
-      localStorage.setItem('quizrealm_userId', newId);
       createOrUpdateProfile(`Player#${randNum}`, 'avatar_1', '#38bdf8', 'Novice')
         .catch(() => setLoading(false));
     } else {
