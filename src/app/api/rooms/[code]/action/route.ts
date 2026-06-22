@@ -131,20 +131,24 @@ async function handleVictory(room: any, winner: any, currentTurnId: string) {
 
 /** Give a random free item to a player */
 async function grantFreeItem(playerId: string, username: string, roomId: string) {
-  const items = ['shield', 'extra_time', 'lucky_dice', 'trap_immunity', 'multiplier'];
+  const items = ['shield', 'extra_time', 'lucky_dice', 'trap_immunity', 'multiplier'] as const;
   const chosen = items[Math.floor(Math.random() * items.length)];
-  const updateData: Record<string, boolean> = {};
-  if (chosen === 'shield')       updateData.shieldActive = true;
-  if (chosen === 'extra_time')   updateData.extraTimeActive = true;
-  if (chosen === 'lucky_dice')   updateData.luckyDiceActive = true;
-  if (chosen === 'trap_immunity') updateData.trapImmunity = true;
-  if (chosen === 'multiplier')   updateData.doubleCoinsActive = true;
-  await prisma.player.update({ where: { id: playerId }, data: updateData });
+
+  const itemFieldMap = {
+    shield:        { shieldActive: true },
+    extra_time:    { extraTimeActive: true },
+    lucky_dice:    { luckyDiceActive: true },
+    trap_immunity: { trapImmunity: true },
+    multiplier:    { doubleCoinsActive: true },
+  } as const;
+
+  await prisma.player.update({ where: { id: playerId }, data: itemFieldMap[chosen] });
+
   const label = chosen.replace('_', ' ').toUpperCase();
   await prisma.roomAction.create({
     data: {
       roomId, playerUsername: 'System', actionType: 'TILE',
-      details: JSON.stringify({ message: `🎁 ${username} received a free ${label} from an item tile!` })
+      details: JSON.stringify({ message: `🎁 ${username} received a free ${label}!` })
     }
   });
   return label;
@@ -287,23 +291,28 @@ export async function POST(
     if (action === 'BUY_ITEM') {
       const { itemId, cost } = details || {};
       if (!itemId || typeof itemId !== 'string') return NextResponse.json({ error: 'Item ID required' }, { status: 400 });
-      const validItems = ['shield', 'extra_time', 'lucky_dice', 'trap_immunity', 'multiplier'];
-      if (!validItems.includes(itemId)) return NextResponse.json({ error: 'Invalid item' }, { status: 400 });
+      const validItems = ['shield', 'extra_time', 'lucky_dice', 'trap_immunity', 'multiplier'] as const;
+      type ValidItem = typeof validItems[number];
+      if (!validItems.includes(itemId as ValidItem)) return NextResponse.json({ error: 'Invalid item' }, { status: 400 });
       const itemCost = typeof cost === 'number' ? cost : 0;
       if (itemCost <= 0) return NextResponse.json({ error: 'Invalid cost' }, { status: 400 });
       if (player.coins < itemCost) {
         return NextResponse.json({ error: `Not enough coins. Need ${itemCost}, have ${player.coins}.` }, { status: 400 });
       }
-      const upd: Record<string, unknown> = { coins: { decrement: itemCost } };
-      if (itemId === 'shield')       upd.shieldActive = true;
-      if (itemId === 'extra_time')   upd.extraTimeActive = true;
-      if (itemId === 'lucky_dice')   upd.luckyDiceActive = true;
-      if (itemId === 'trap_immunity') upd.trapImmunity = true;
-      if (itemId === 'multiplier')   upd.doubleCoinsActive = true;
-      await prisma.player.update({ where: { id: player.id }, data: upd });
+
+      // Build a strictly-typed Prisma update using a discriminated approach
+      const itemDataMap: Record<ValidItem, Parameters<typeof prisma.player.update>[0]['data']> = {
+        shield:        { coins: { decrement: itemCost }, shieldActive: true },
+        extra_time:    { coins: { decrement: itemCost }, extraTimeActive: true },
+        lucky_dice:    { coins: { decrement: itemCost }, luckyDiceActive: true },
+        trap_immunity: { coins: { decrement: itemCost }, trapImmunity: true },
+        multiplier:    { coins: { decrement: itemCost }, doubleCoinsActive: true },
+      };
+
+      await prisma.player.update({ where: { id: player.id }, data: itemDataMap[itemId as ValidItem] });
       await prisma.roomAction.create({
         data: { roomId: room.id, playerUsername: player.user.username, actionType: 'SHOP',
-          details: JSON.stringify({ message: `${player.user.username} purchased ${itemId.replace('_',' ').toUpperCase()} for ${itemCost}g.` }) }
+          details: JSON.stringify({ message: `${player.user.username} purchased ${itemId.replace('_', ' ').toUpperCase()} for ${itemCost}g.` }) }
       });
       return NextResponse.json({ success: true });
     }
@@ -487,6 +496,7 @@ export async function POST(
       let logMessage = '';
       let bonusRoll = false; // for DICE_AGAIN tile
       let skipTurns = 0;    // for SKIP_TURN tile
+      let skipGenericUpdate = false; // for tiles that handle their own DB writes (SWAP, MYSTERY swap)
 
       switch (tile.type) {
 
@@ -577,6 +587,7 @@ export async function POST(
             await prisma.player.update({ where: { id: player.id }, data: { position: target.position } });
             await prisma.player.update({ where: { id: target.id }, data: { position: tempPos } });
             logMessage = `Mystery! ${player.user.username} swapped with ${target.user.username}! 🔄`;
+            skipGenericUpdate = true; // positions already updated above
           } else if (r < 0.4) {
             posChange = 5;
             logMessage = `Mystery warp! ${player.user.username} teleported +5 tiles ahead! ⚡`;
@@ -646,7 +657,6 @@ export async function POST(
         case 'SWAP':
           if (room.players.length > 1) {
             const others = room.players.filter(p => p.id !== player.id);
-            // Swap with closest opponent (by position difference)
             const target = others.reduce((closest, p) =>
               Math.abs(p.position - player.position) < Math.abs(closest.position - player.position) ? p : closest
             );
@@ -654,7 +664,7 @@ export async function POST(
             await prisma.player.update({ where: { id: player.id }, data: { position: target.position } });
             await prisma.player.update({ where: { id: target.id }, data: { position: tempPos } });
             logMessage = `${player.user.username} swapped positions with ${target.user.username}! 🔄`;
-            // Position change already applied directly, no posChange needed
+            skipGenericUpdate = true; // positions already updated above
           } else {
             logMessage = `${player.user.username} tried to swap but there's no one else!`;
           }
@@ -676,16 +686,25 @@ export async function POST(
           break;
       }
 
-      // Apply position change
+      // Apply position + coin changes (skip for tiles that already wrote to DB directly)
       let finalPos = player.position + posChange;
       if (finalPos < 0) finalPos = 0;
       if (finalPos > FINISH) finalPos = FINISH;
 
-      if (room.mode === 'TEAM' && player.teamId) {
-        await prisma.team.update({ where: { id: player.teamId }, data: { position: finalPos, coins: { increment: coinsChange } } });
-        await prisma.player.updateMany({ where: { teamId: player.teamId }, data: { position: finalPos, coins: { increment: coinsChange } } });
+      if (!skipGenericUpdate) {
+        if (room.mode === 'TEAM' && player.teamId) {
+          await prisma.team.update({ where: { id: player.teamId }, data: { position: finalPos, coins: { increment: coinsChange } } });
+          await prisma.player.updateMany({ where: { teamId: player.teamId }, data: { position: finalPos, coins: { increment: coinsChange } } });
+        } else {
+          await prisma.player.update({ where: { id: player.id }, data: { position: finalPos, coins: { increment: coinsChange } } });
+        }
       } else {
-        await prisma.player.update({ where: { id: player.id }, data: { position: finalPos, coins: { increment: coinsChange } } });
+        // For swap tiles we still need to apply any coin change (usually 0) if needed
+        if (coinsChange !== 0) {
+          await prisma.player.update({ where: { id: player.id }, data: { coins: { increment: coinsChange } } });
+        }
+        // finalPos stays as player.position since swap already happened
+        finalPos = player.position;
       }
 
       if (logMessage) {
