@@ -339,7 +339,12 @@ export async function POST(
 
       let category = details?.category;
       if (!category || category === 'Random') {
-        const cats = ['General Knowledge', 'Science', 'History', 'Movies', 'Music', 'Sports', 'Geography'];
+        const cats = [
+          'General Knowledge', 'Science', 'History', 'Movies', 'Music',
+          'Sports', 'Geography', 'Technology', 'Gaming', 'Pop Culture',
+          'Philippines', 'Food & Drinks', 'TV Shows & Anime', 'Animals',
+          'Logic', 'World Wonders'
+        ];
         category = cats[Math.floor(Math.random() * cats.length)];
       }
       const difficulty = details?.difficulty || 'MEDIUM';
