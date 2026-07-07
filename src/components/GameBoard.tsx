@@ -30,9 +30,10 @@ interface GameBoardProps {
   players: BoardPlayer[];
   activePlayerId: string;
   round: number;
+  actions?: any[];
 }
 
-export default function GameBoard({ players, activePlayerId, round }: GameBoardProps) {
+export default function GameBoard({ players, activePlayerId, round, actions = [] }: GameBoardProps) {
   // Animate pawns tile by tile
   const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
   const [cameraShake, setCameraShake] = useState(false);
@@ -40,6 +41,7 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
   const [dustRings, setDustRings] = useState<{ id: string; tileIndex: number }[]>([]);
   
   const prevCoinsRef = useRef<Record<string, number>>({});
+  const lastActionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     players.forEach((player) => {
@@ -93,6 +95,37 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
     });
   }, [players]);
 
+  // Monitor chat actions for emotes
+  useEffect(() => {
+    if (actions.length === 0) return;
+    
+    // Process new actions
+    const newActions = lastActionIdRef.current 
+      ? actions.filter(a => a.id > lastActionIdRef.current) 
+      : actions.slice(-1); // Only process the very latest if first load
+      
+    if (newActions.length > 0) {
+      newActions.forEach(act => {
+        if (act.type === 'CHAT' && act.playerUsername !== 'System') {
+          const det = JSON.parse(act.details || '{}');
+          const msg = (det.message || '').trim();
+          
+          // If message is short (like an emoji or "gg")
+          if (msg.length > 0 && msg.length <= 4) {
+            // Find player ID by username
+            const player = players.find(p => p.user.username === act.playerUsername);
+            if (player) {
+              const floaterId = Math.random().toString(36).substring(2, 9);
+              setFloaters(f => [...f, { id: floaterId, playerId: player.id, text: msg, color: 'text-white text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' }]);
+              setTimeout(() => setFloaters(f => f.filter(x => x.id !== floaterId)), 2500);
+            }
+          }
+        }
+      });
+      lastActionIdRef.current = actions[actions.length - 1].id;
+    }
+  }, [actions, players]);
+
   const getTileIcon = (type: string) => {
     switch (type) {
       case 'START':        return <Compass className="w-4 h-4 text-emerald-400" />;
@@ -137,9 +170,18 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
       {/* Castle wall atmospheric overlay */}
       <div className={`absolute inset-0 pointer-events-none transition-colors duration-1000 ${ambientClass}`} />
       
+      {/* Drifting Clouds Shadows */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40 mix-blend-overlay">
+         <motion.div
+           animate={{ x: ['-50%', '150%'] }}
+           transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
+           className="w-[150%] h-[150%] rounded-[100%] bg-stone-950/80 blur-3xl -translate-y-1/4"
+         />
+      </div>
+
       {/* Night fireflies */}
       {isNight && (
-        <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none opacity-30" />
+        <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none opacity-30 z-10" />
       )}
       
       {/* Top decorative banner line */}
@@ -237,31 +279,38 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center relative z-20"
+                              className="w-7 h-9 sm:w-9 sm:h-12 flex items-end justify-center relative z-20 cursor-help"
                               title={heroData?.fullName || p.user.username}
                             >
-                              {/* Hopping Inner Body */}
+                              {/* Hopping Chess Piece Body */}
                               <motion.div 
-                                className={`w-full h-full rounded-full bg-slate-950 p-0.5 shadow-2xl flex items-center justify-center relative cursor-help ${animClass} ${
-                                  isActive
-                                    ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
-                                    : 'border-2 border-slate-400/60 z-20'
-                                }`}
-                                animate={{ y: [0, -10, 0] }}
-                                transition={{ duration: 0.3, ease: 'easeOut', repeat: 0 }}
+                                className="relative flex flex-col items-center justify-end w-full h-full pb-1"
+                                animate={{ y: [0, -15, 0], rotate: [0, -10, 10, 0] }}
+                                transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
                                 key={animatedPositions[p.id]} // Force hop animation on position change
                               >
-                                {p.team && (
-                                  <span
-                                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
-                                    style={{ backgroundColor: p.team.color }}
-                                  />
-                                )}
-                                {avatar.render('w-full h-full')}
+                                {/* 3D Pedestal Base */}
+                                <div className="absolute bottom-0 w-[85%] h-[35%] bg-stone-700 rounded-[50%] border-b-4 border-stone-900 shadow-[0_5px_8px_rgba(0,0,0,0.8)] z-0 group-hover:border-amber-700 transition-colors" />
+                                <div className="absolute bottom-[10%] w-[75%] h-[25%] bg-stone-600 rounded-[50%] z-0" />
+                                
+                                {/* Avatar Portrait */}
+                                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-950 p-[1px] relative z-10 shadow-[0_-2px_6px_rgba(0,0,0,0.5)] ${animClass} ${
+                                  isActive
+                                    ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
+                                    : 'border-2 border-stone-400/80'
+                                }`}>
+                                  {p.team && (
+                                    <span
+                                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
+                                      style={{ backgroundColor: p.team.color }}
+                                    />
+                                  )}
+                                  {avatar.render('w-full h-full')}
+                                </div>
                               </motion.div>
                               
-                              {/* Hero Shadow */}
-                              <div className="absolute -bottom-2 w-4 h-1 bg-black/40 rounded-full blur-[2px] -z-10" />
+                              {/* Chess Piece Floor Shadow */}
+                              <div className="absolute -bottom-1 w-[80%] h-[20%] bg-black/60 rounded-full blur-[2px] -z-10" />
                               
                               {/* Floating Combat Text */}
                               <AnimatePresence>

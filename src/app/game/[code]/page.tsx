@@ -14,7 +14,8 @@ import DynamicEventPanel from '@/components/DynamicEventPanel';
 import MatchSummary from '@/components/MatchSummary';
 import LobbyScreen from '@/components/LobbyScreen';
 import SoundSettings from '@/components/SoundSettings';
-import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll } from 'lucide-react';
+import HeroJournal from '@/components/HeroJournal';
+import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { getTileByIndex } from '@/lib/boardConfig';
 import { sounds } from '@/lib/sounds';
@@ -47,6 +48,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
   const [actionError, setActionError] = useState<ActionError | null>(null);
   const [actionPending, setActionPending] = useState(false);
   const [flavorMsg, setFlavorMsg] = useState('');
+  const [journalOpen, setJournalOpen] = useState(false);
   const [loadingLore] = useState(() => LOADING_LORE[Math.floor(Math.random() * LOADING_LORE.length)]);
 
   const lastTurnIdRef = useRef<string | null>(null);
@@ -287,6 +289,13 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           >
             <Home className="w-4 h-4" />
           </Link>
+          <button
+            onClick={() => { sounds.playClick(); setJournalOpen(true); }}
+            className="p-2 bg-amber-900/40 border border-amber-800/50 rounded-xl text-amber-500 hover:text-amber-300 hover:bg-amber-800/50 transition-colors"
+            title="Chronicles of Historia"
+          >
+            <BookOpen className="w-4 h-4" />
+          </button>
           <div className="text-left">
             <span className="block text-[9px] text-stone-500 font-black uppercase tracking-[0.2em]">
               -- Round {room.round} - Hall {room.code}
@@ -385,7 +394,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
 
       {/* -- Sacred Board of Historia ------------------------------------------- */}
       <div className="max-w-6xl mx-auto">
-        <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} />
+        <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} />
       </div>
 
       {/* -- Controls Grid ------------------------------------------------------ */}
@@ -576,6 +585,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
 
       </div>
 
+      <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
       <SoundSettings />
     </main>
   );

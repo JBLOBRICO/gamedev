@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Copy, Share2, Play, CheckCircle, Clock, ArrowLeftRight, MessageSquare, Send, Users, Crown, Sword, Shield } from 'lucide-react';
+import { Copy, Share2, Play, CheckCircle, Clock, ArrowLeftRight, MessageSquare, Send, Users, Crown, BookOpen } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { sounds } from '@/lib/sounds';
+import HeroJournal from '@/components/HeroJournal';
 
 interface LobbyPlayer {
   id: string;
@@ -52,6 +53,7 @@ export default function LobbyScreen({
 }: LobbyScreenProps) {
   const [chatInput, setChatInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [journalOpen, setJournalOpen] = useState(false);
 
   const localPlayer = players.find(p => p.userId === currentUserId);
   const isHost = localPlayer?.isHost || false;
@@ -144,10 +146,10 @@ export default function LobbyScreen({
                 </button>
               </div>
               <button
-                onClick={copyCode}
-                className="p-2.5 bg-stone-950 border border-stone-800/60 text-stone-400 hover:text-amber-300 rounded-xl transition-all active:scale-95 btn-press"
+                onClick={() => { sounds.playClick(); setJournalOpen(true); }}
+                className="p-2.5 bg-amber-900/20 border border-amber-800/50 text-amber-500 hover:text-amber-300 rounded-xl transition-all active:scale-95 btn-press"
               >
-                <Share2 className="w-4 h-4" />
+                <BookOpen className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -351,6 +353,8 @@ export default function LobbyScreen({
           </button>
         </form>
       </div>
+
+      <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
     </div>
   );
 }
