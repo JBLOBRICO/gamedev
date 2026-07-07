@@ -231,23 +231,26 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                   }`}></div>
                   
-                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner overflow-hidden group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${isNight ? 'filter brightness-75' : ''}`}>
+                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${isNight ? 'filter brightness-75' : ''}`}>
                     
-                    {/* Environmental Textures */}
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay pointer-events-none" />
-                    
-                    {/* Moss/Grass overlay on certain tiles */}
-                    {(tile.index % 3 === 0 && tile.type !== 'TRAP' && tile.type !== 'TELEPORT') && (
-                       <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-emerald-900/40 to-transparent pointer-events-none mix-blend-multiply rounded-br-lg" />
-                    )}
+                    {/* Environmental Textures Container (replaces overflow-hidden on parent) */}
+                    <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
+                      {/* Environmental Textures */}
+                      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay" />
+                      
+                      {/* Moss/Grass overlay on certain tiles */}
+                      {(tile.index % 3 === 0 && tile.type !== 'TRAP' && tile.type !== 'TELEPORT') && (
+                         <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-emerald-900/40 to-transparent mix-blend-multiply" />
+                      )}
 
-                    {/* Glowing effect on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent via-amber-500/10 to-amber-500/30 pointer-events-none transition-opacity duration-300" />
-                    
-                    {/* Magical Ambient Particles on special tiles */}
-                    {(tile.type === 'TELEPORT' || tile.type === 'MYSTERY' || tile.type === 'START') && (
-                       <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none" />
-                    )}
+                      {/* Glowing effect on hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent via-amber-500/10 to-amber-500/30 transition-opacity duration-300" />
+                      
+                      {/* Magical Ambient Particles on special tiles */}
+                      {(tile.type === 'TELEPORT' || tile.type === 'MYSTERY' || tile.type === 'START') && (
+                         <div className="absolute inset-0 bg-transparent sparkle-float" />
+                      )}
+                    </div>
 
                     {/* Tile index + icon */}
                     <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-70 font-black leading-none z-10 drop-shadow-md text-stone-300">
