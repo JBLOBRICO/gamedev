@@ -279,38 +279,49 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                              className="w-7 h-9 sm:w-9 sm:h-12 flex items-end justify-center relative z-20 cursor-help"
+                              className="w-8 h-12 sm:w-10 sm:h-16 flex flex-col items-center justify-end relative z-20 cursor-help group"
                               title={heroData?.fullName || p.user.username}
                             >
                               {/* Hopping Chess Piece Body */}
                               <motion.div 
                                 className="relative flex flex-col items-center justify-end w-full h-full pb-1"
-                                animate={{ y: [0, -15, 0], rotate: [0, -10, 10, 0] }}
+                                animate={{ y: [0, -15, 0], rotate: [0, -8, 8, 0] }}
                                 transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
                                 key={animatedPositions[p.id]} // Force hop animation on position change
                               >
-                                {/* 3D Pedestal Base */}
-                                <div className="absolute bottom-0 w-[85%] h-[35%] bg-stone-700 rounded-[50%] border-b-4 border-stone-900 shadow-[0_5px_8px_rgba(0,0,0,0.8)] z-0 group-hover:border-amber-700 transition-colors" />
-                                <div className="absolute bottom-[10%] w-[75%] h-[25%] bg-stone-600 rounded-[50%] z-0" />
-                                
-                                {/* Avatar Portrait */}
-                                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-950 p-[1px] relative z-10 shadow-[0_-2px_6px_rgba(0,0,0,0.5)] ${animClass} ${
+                                {/* Standee Portrait (Arched top) */}
+                                <div className={`w-[85%] h-[75%] absolute bottom-[18%] rounded-t-full rounded-b-md bg-stone-900 shadow-xl overflow-hidden z-10 flex flex-col items-center justify-start p-[2px] transition-all ${
                                   isActive
-                                    ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
-                                    : 'border-2 border-stone-400/80'
+                                    ? 'border-2 border-yellow-400 ring-4 ring-yellow-400/30 shadow-[0_0_15px_rgba(250,204,21,0.6)] z-30'
+                                    : 'border-2 border-stone-700 shadow-[0_5px_10px_rgba(0,0,0,0.8)]'
                                 }`}>
-                                  {p.team && (
-                                    <span
-                                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
-                                      style={{ backgroundColor: p.team.color }}
-                                    />
-                                  )}
-                                  {avatar.render('w-full h-full')}
+                                   <div className={`w-full h-full rounded-t-full rounded-b-sm overflow-hidden bg-slate-900 relative ${animClass}`}>
+                                      {/* Scale up the SVG so it acts like a portrait inside the tall arch */}
+                                      <div className="absolute top-[-10%] left-[-15%] w-[130%] h-[130%] pointer-events-none">
+                                         {avatar.render('w-full h-full object-cover object-top')}
+                                      </div>
+                                      {/* Glass shine effect */}
+                                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none mix-blend-overlay" />
+                                   </div>
+                                </div>
+
+                                {/* 3D Pedestal Base */}
+                                <div className="absolute bottom-0 w-[100%] h-[28%] z-0">
+                                   {/* Bottom thickness */}
+                                   <div className="absolute bottom-0 w-full h-[80%] bg-stone-950 rounded-[50%] shadow-[0_6px_10px_rgba(0,0,0,0.9)]" />
+                                   {/* Top face */}
+                                   <div className="absolute top-0 w-full h-[80%] bg-stone-700 rounded-[50%] border-2 border-stone-800 flex items-center justify-center overflow-hidden">
+                                      {/* Team Color indicator on base */}
+                                      {p.team && (
+                                         <div className="w-full h-full absolute inset-0 opacity-40 mix-blend-color" style={{ backgroundColor: p.team.color }} />
+                                      )}
+                                      <div className="w-[70%] h-[70%] rounded-[50%] border border-stone-800/40" />
+                                   </div>
                                 </div>
                               </motion.div>
                               
                               {/* Chess Piece Floor Shadow */}
-                              <div className="absolute -bottom-1 w-[80%] h-[20%] bg-black/60 rounded-full blur-[2px] -z-10" />
+                              <div className="absolute -bottom-1 w-[90%] h-[15%] bg-black/80 rounded-full blur-[3px] -z-10" />
                               
                               {/* Floating Combat Text */}
                               <AnimatePresence>
