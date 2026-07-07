@@ -152,7 +152,7 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
           {/* Avatar chooser */}
           <div>
             <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
-              Choose Hero Avatar ({AVATARS.length} Heroes Available)
+              Choose Hero Avatar (4 Heroes Available)
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-72 overflow-y-auto p-3 border border-amber-900/40 rounded-xl stone-panel scroll-texture">
               {AVATARS.map((av) => {
