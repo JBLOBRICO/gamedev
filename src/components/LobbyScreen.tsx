@@ -96,7 +96,14 @@ export default function LobbyScreen({
   const modeIcon = mode === 'DUEL' ? '⚔️' : mode === 'TEAM' ? '🛡️' : '👑';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-6 duration-300">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-6 duration-300 relative">
+
+      {/* Ambient Fireplace Effect */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden rounded-3xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-orange-900/10 via-rose-900/5 to-transparent animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '3s' }} />
+        <div className="absolute -bottom-20 right-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '5s' }} />
+      </div>
 
       {/* ── Left: Great Hall & Heroes ─────────────────────────────────────── */}
       <div className="lg:col-span-2 space-y-5">

@@ -81,11 +81,12 @@ export default function DiceRoller({ onRoll, disabled, luckyDiceActive = false }
       {/* Dice face */}
       <motion.div
         animate={rolling ? {
+          y: [0, -40, 0, -20, 0, -10, 0],
           rotateX: [0, 360, 720, 1080],
           rotateY: [0, 180, 360, 540],
-          scale: [1, 1.15, 1],
+          scale: [1, 1.2, 1],
         } : {}}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="cursor-pointer"
         onClick={handleRoll}
       >

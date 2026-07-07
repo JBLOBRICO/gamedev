@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Brain, Hourglass, CheckCircle2, XCircle, Star, Sparkles } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, Star, Sparkles, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { sounds } from '@/lib/sounds';
 
@@ -31,6 +32,7 @@ export default function TriviaQuiz({
   const [selected, setSelected] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(timeLimit);
   const [submitted, setSubmitted] = useState(false);
+  const [isShake, setIsShake] = useState(false);
 
   const handleSubmit = useCallback((answer: string) => {
     if (submitted) return;
@@ -43,12 +45,29 @@ export default function TriviaQuiz({
       confetti({
         particleCount: 80,
         spread: 60,
-        origin: { y: 0.7 }
+        origin: { y: 0.7 },
+        colors: ['#FBBF24', '#F59E0B', '#D97706'] // Golden confetti
       });
     } else {
       sounds.playIncorrect();
+      setIsShake(true);
+      setTimeout(() => setIsShake(false), 500);
     }
   }, [submitted, correctAnswer]);
+
+  // Trigger confetti if the player rolled a perfect 6
+  useEffect(() => {
+    if (rollValue === 6 && !submitted) {
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.5 },
+          colors: ['#FBBF24', '#F59E0B', '#D97706'] // Golden confetti
+        });
+      }, 500); // Small delay to let the modal slide in first
+    }
+  }, [rollValue, submitted]);
 
   // Countdown timer
   useEffect(() => {
@@ -78,8 +97,16 @@ export default function TriviaQuiz({
     }
   };
 
+  const timePercentage = (secondsLeft / timeLimit) * 100;
+  const barColor = timePercentage > 50 ? 'bg-amber-400' : timePercentage > 25 ? 'bg-orange-500' : 'bg-rose-500';
+
   return (
-    <div className="w-full max-w-xl mx-auto p-6 border border-amber-900/30 glass-panel rounded-3xl space-y-5 relative overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      animate={isShake ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: isShake ? 0.4 : 0.5, type: 'spring' }}
+      className={`w-full max-w-xl mx-auto p-6 border ${isShake ? 'border-rose-600 shadow-[0_0_30px_rgba(225,29,72,0.4)]' : 'border-amber-900/30'} glass-panel rounded-3xl space-y-5 relative overflow-hidden transition-colors duration-300`}
+    >
 
       {/* Atmospheric top line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-600/50 to-transparent" />
@@ -98,16 +125,20 @@ export default function TriviaQuiz({
           </span>
         </div>
 
-        {/* Countdown */}
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl border ${
-          secondsLeft <= 5
-            ? 'bg-red-950/30 border-red-800/40 text-red-400'
-            : 'bg-stone-950 border-stone-800/50 text-stone-200'
-        }`}>
-          <Hourglass className={`w-4 h-4 ${secondsLeft <= 5 ? 'text-rose-500 animate-spin' : 'text-stone-400'}`} />
-          <span className={`text-xs font-black tracking-wider ${secondsLeft <= 5 ? 'text-rose-400' : ''}`}>
-            {secondsLeft}s
-          </span>
+        {/* Burning Timer */}
+        <div className="flex-1 max-w-[120px] sm:max-w-[180px] ml-4 flex flex-col items-end gap-1">
+          <div className="flex items-center justify-between w-full text-[10px] font-black uppercase tracking-widest text-stone-400 mb-0.5">
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Time</span>
+            <span className={secondsLeft <= 5 ? 'text-rose-400 animate-pulse' : ''}>{secondsLeft}s</span>
+          </div>
+          <div className="w-full h-2 bg-stone-900 rounded-full overflow-hidden border border-stone-800">
+            <motion.div 
+              className={`h-full ${barColor} shadow-[0_0_10px_currentColor]`}
+              initial={{ width: '100%' }}
+              animate={{ width: `${timePercentage}%` }}
+              transition={{ ease: "linear", duration: 1 }}
+            />
+          </div>
         </div>
       </div>
 
@@ -194,6 +225,6 @@ export default function TriviaQuiz({
           </span>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
