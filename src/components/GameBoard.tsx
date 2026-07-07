@@ -297,34 +297,22 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                                 transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
                                 key={animatedPositions[p.id]} // Force hop animation on position change
                               >
-                                {/* Cardboard Cutout Portrait */}
+                                {/* Cardboard Cutout Portrait (Billboard) */}
                                 <div className={`relative z-20 pb-1.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-2' : 'group-hover:-translate-y-1 group-hover:scale-105'}`}>
                                   {/* The actual Avatar Image enclosed in a cardboard border */}
-                                  <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg overflow-hidden border-[3px] bg-slate-900 relative ${
+                                  <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-[3px] bg-slate-900 relative ${
                                     isActive
                                       ? 'border-yellow-400 shadow-[0_0_0_2px_rgba(250,204,21,0.5),_0_8px_15px_rgba(250,204,21,0.6)]'
                                       : 'border-white shadow-[0_0_0_2px_rgba(255,255,255,0.8),_0_4px_10px_rgba(0,0,0,0.7)]'
                                   }`}>
+                                     {p.team && (
+                                       <span
+                                         className="absolute top-0 right-0 w-3 h-3 rounded-bl-lg border-b border-l border-white/50 z-40"
+                                         style={{ backgroundColor: p.team.color }}
+                                       />
+                                     )}
                                      {avatar.render('w-full h-full object-cover object-top')}
                                   </div>
-                                  {/* Plastic clip connecting cardboard to base */}
-                                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-3 bg-zinc-300 border-x border-t border-zinc-400 rounded-t-sm z-30 shadow-inner" />
-                                </div>
-                                
-                                {/* 3D Pedestal Base */}
-                                <div className="absolute bottom-0 w-[90%] h-[25%] z-0">
-                                   {/* Bottom thickness */}
-                                   <div className="absolute bottom-0 w-full h-[80%] bg-stone-950 rounded-[50%] shadow-[0_6px_10px_rgba(0,0,0,0.9)]" />
-                                   {/* Top face */}
-                                   <div className={`absolute top-0 w-full h-[80%] rounded-[50%] flex items-center justify-center overflow-hidden transition-colors ${
-                                     isActive ? 'bg-stone-600 border border-yellow-400' : 'bg-stone-800 border-t border-stone-700'
-                                   }`}>
-                                      {/* Team Color indicator on base */}
-                                      {p.team && (
-                                         <div className="w-full h-full absolute inset-0 opacity-40 mix-blend-color" style={{ backgroundColor: p.team.color }} />
-                                      )}
-                                      <div className="w-[70%] h-[70%] rounded-[50%] border border-stone-950/50" />
-                                   </div>
                                 </div>
                               </motion.div>
                               
