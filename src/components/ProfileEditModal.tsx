@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Check, Save } from 'lucide-react';
 import { AVATARS } from '@/lib/avatars';
+import { getHeroByAvatarId } from '@/lib/heroes';
 import { UserProfile } from '@/hooks/useProfile';
 import { sounds } from '@/lib/sounds';
 
@@ -153,23 +154,40 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
             <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
               Choose Hero Avatar ({AVATARS.length} Heroes Available)
             </label>
-            <div className="grid grid-cols-5 sm:grid-cols-8 gap-3 max-h-56 overflow-y-auto p-2 border border-slate-800/80 rounded-xl bg-slate-950/40">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-72 overflow-y-auto p-3 border border-amber-900/40 rounded-xl stone-panel scroll-texture">
               {AVATARS.map((av) => {
                 const isSelected = selectedAvatar === av.id;
+                const hero = getHeroByAvatarId(av.id);
                 return (
                   <button
                     key={av.id}
                     type="button"
                     onClick={() => { sounds.playClick(); setSelectedAvatar(av.id); }}
-                    className={`relative p-1.5 rounded-xl border-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
+                    className={`relative p-2 rounded-xl border-2 transition-all duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden flex flex-col items-center gap-2 group ${
                       isSelected 
-                        ? 'border-sky-400 bg-sky-500/10 shadow-lg shadow-sky-500/20' 
-                        : 'border-slate-800 bg-slate-900/40 hover:border-slate-700'
+                        ? `border-amber-400 bg-amber-500/10 shadow-[0_0_15px_rgba(251,191,36,0.3)] ${hero?.borderClass || ''}` 
+                        : 'border-stone-800 bg-stone-900/60 hover:border-amber-700/50 hover:shadow-lg'
                     }`}
                   >
-                    {av.render("w-full h-full")}
+                    {/* Magical glow behind avatar */}
+                    {isSelected && <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent pointer-events-none" />}
+                    
+                    <div className="w-full aspect-square rounded-lg overflow-hidden border border-stone-800 relative shadow-inner shadow-stone-950/80">
+                      {av.render("w-full h-full object-cover transition-transform duration-500 group-hover:scale-110")}
+                      {hero && (
+                        <div className="absolute top-1 left-1 w-5 h-5 rounded-full bg-stone-950/80 border border-stone-700 flex items-center justify-center text-[10px] shadow-sm">
+                          {hero.crest}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="w-full text-center relative z-10">
+                      <span className="block text-[10px] font-black text-stone-300 truncate group-hover:text-amber-400 transition-colors">{av.name}</span>
+                      {hero && <span className={`block text-[8px] uppercase tracking-wider font-bold ${hero.colorAccent} truncate`}>{hero.class}</span>}
+                    </div>
+
                     {isSelected && (
-                      <span className="absolute bottom-0 right-0 p-0.5 bg-sky-500 rounded-tl-lg rounded-br-md text-white">
+                      <span className="absolute top-1 right-1 p-0.5 bg-amber-500 rounded text-stone-950 shadow-md">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </span>
                     )}

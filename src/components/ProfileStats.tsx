@@ -52,10 +52,10 @@ export default function ProfileStats({ profile }: ProfileStatsProps) {
         <div className="relative z-10">
           {/* Avatar + level */}
           <div className="relative">
-            <div className={`w-24 h-24 rounded-2xl overflow-hidden bg-stone-950/60 p-2 shadow-xl border-2 ${
+            <div className={`w-24 h-24 rounded-2xl overflow-hidden bg-stone-950 p-0 shadow-[0_0_25px_rgba(0,0,0,0.5)] border-2 ${
               hero ? hero.borderClass : 'border-amber-700/40'
-            }`}>
-              {getAvatarById(profile.avatarId).render('w-full h-full')}
+            } group`}>
+              {getAvatarById(profile.avatarId).render('w-full h-full object-cover transition-transform duration-700 group-hover:scale-110')}
             </div>
             <span className="absolute -bottom-2 -right-2 bg-amber-600 text-stone-950 font-black text-[10px] px-2.5 py-1 rounded-full border-2 border-stone-950">
               LVL {profile.level}
