@@ -58,10 +58,8 @@ export default function TileInteractPanel({
       default:             return { icon: <Sparkles className="w-8 h-8 text-amber-400" />,                        border: 'border-stone-800/50 bg-stone-900/30' };
     }
   };
-
   const theme = getTileTheme();
-
-  let animProps = {
+  let animProps: any = {
     initial: { opacity: 0, scale: 0.9, y: 20 },
     animate: { opacity: 1, scale: 1, y: 0 },
     transition: { type: 'spring', damping: 20, stiffness: 300 }
