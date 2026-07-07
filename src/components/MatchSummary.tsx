@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { Crown, RefreshCw, LogOut, Star, Scroll, Shield } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 import { sounds } from '@/lib/sounds';
 
 interface MatchSummaryPlayer {
@@ -79,25 +80,35 @@ export default function MatchSummary({
         {/* Victory Announcement */}
         <div className="relative space-y-4 z-10">
           {/* Crown animation */}
-          <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
+          <motion.div 
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 15, delay: 0.2 }}
+            className="relative mx-auto w-24 h-24 flex items-center justify-center"
+          >
             <div className="absolute inset-0 rounded-full bg-amber-500/10 animate-ping" style={{ animationDuration: '2s' }} />
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-900/40 to-stone-950/60 border-2 border-amber-600/50 flex items-center justify-center shadow-2xl shadow-amber-900/30">
               <Crown className="w-12 h-12 text-amber-400 crown-float" />
             </div>
-          </div>
+          </motion.div>
 
           {/* Title */}
-          <div className="space-y-2">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+            className="space-y-2"
+          >
             <p className="text-[10px] font-black uppercase tracking-[0.35em] text-amber-600/70">
               ⚜ The Quest is Complete ⚜
             </p>
-            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300">
-              CROWNED CHAMPION!
+            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">
+              VICTORY!
             </h1>
             <div className="flex items-center justify-center gap-3 mt-2">
               <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-700/50" />
               <p className="text-sm text-stone-300">
-                <span className="font-black text-amber-300 text-base">{winnerUsername}</span>
+                <span className="font-black text-amber-300 text-lg uppercase tracking-wider">{winnerUsername}</span>
                 <span className="text-stone-400"> has claimed the Crown of Wisdom</span>
               </p>
               <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-700/50" />
@@ -105,30 +116,35 @@ export default function MatchSummary({
             <p className="text-[10px] text-stone-500 italic mt-1">
               "{roundCount} ancient trials faced — the realm shall remember this day."
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* MVP / Most Valuable Hero */}
         {mvp && (
-          <div className="relative z-10 max-w-md mx-auto p-4 rounded-2xl border border-amber-800/40 bg-amber-950/20 flex items-center gap-4 text-left">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', delay: 1 }}
+            className="relative z-10 max-w-md mx-auto p-4 rounded-2xl border border-amber-800/40 bg-amber-950/20 flex items-center gap-4 text-left shadow-[0_0_40px_rgba(217,119,6,0.15)]"
+          >
             <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-xl bg-stone-950 border border-amber-700/40 p-1">
+              <div className="w-20 h-20 rounded-2xl bg-stone-950 border-2 border-amber-500/60 p-1 shadow-lg shadow-amber-900/40">
                 {getAvatarById(mvp.avatarId).render('w-full h-full')}
               </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center border border-stone-950 text-xs">
+              <div className="absolute -top-3 -right-3 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-stone-950 text-sm shadow-md animate-bounce">
                 ⭐
               </div>
             </div>
-            <div>
-              <span className="block text-[8px] font-black text-amber-400 uppercase tracking-[0.2em] bg-amber-950/50 border border-amber-800/40 px-2 py-0.5 rounded-full mb-1">
-                🏅 Match MVP · Most Honoured Hero
-              </span>
-              <h3 className="text-base font-black text-[#f5f0e8] leading-tight">{mvp.username}</h3>
-              <p className="text-[10px] text-stone-400 mt-0.5">
-                Accumulated {mvp.coinsEarned} Royal Gold & answered {mvp.correctAnswers} trials correctly
-              </p>
-            </div>
-          </div>
+              <div>
+                <span className="block text-[8px] font-black text-amber-400 uppercase tracking-[0.2em] bg-amber-950/50 border border-amber-800/40 px-2 py-0.5 rounded-full mb-1 inline-block">
+                  🏅 Match MVP · Most Honoured Hero
+                </span>
+                <h3 className="text-xl font-black text-[#f5f0e8] leading-tight drop-shadow-md">{mvp.username}</h3>
+                <p className="text-xs text-stone-400 mt-1">
+                  Accumulated {mvp.coinsEarned} Royal Gold & answered {mvp.correctAnswers} trials correctly
+                </p>
+              </div>
+          </motion.div>
         )}
 
         {/* Ornamental divider */}

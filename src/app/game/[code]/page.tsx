@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useProfile } from '@/hooks/useProfile';
 import GameBoard from '@/components/GameBoard';
@@ -518,21 +519,39 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
               </h3>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-1 space-y-1.5 text-left">
-              {[...room.actions].reverse().map((act: any, idx: number) => {
-                const det = JSON.parse(act.details || '{}');
-                const isSystem = act.playerUsername === 'System';
-                return (
-                  <div key={idx} className="text-[9px] leading-snug">
-                    {!isSystem && (
-                      <span className="font-black text-amber-500/70 mr-1">{act.playerUsername}:</span>
-                    )}
-                    <span className={isSystem ? 'text-stone-600 italic' : 'text-stone-300'}>
-                      {det.message}
-                    </span>
-                  </div>
-                );
-              })}
+            <div className="flex-1 overflow-y-auto py-1 space-y-1.5 text-left flex flex-col-reverse">
+              <AnimatePresence initial={false}>
+                {[...room.actions].reverse().map((act: any, idx: number) => {
+                  const det = JSON.parse(act.details || '{}');
+                  const isSystem = act.playerUsername === 'System';
+                  
+                  let emoji = '💬';
+                  if (isSystem) {
+                    emoji = '📜';
+                    if (det.message?.toLowerCase().includes('gold')) emoji = '🪙';
+                    if (det.message?.toLowerCase().includes('trap')) emoji = '💀';
+                    if (det.message?.toLowerCase().includes('shield')) emoji = '🛡️';
+                    if (det.message?.toLowerCase().includes('roll')) emoji = '🎲';
+                  }
+
+                  return (
+                    <motion.div 
+                      key={act.id || idx} 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className={`text-[9px] leading-snug p-1.5 rounded-lg border ${isSystem ? 'bg-stone-900/40 border-stone-800/50' : 'bg-amber-950/20 border-amber-900/30'}`}
+                    >
+                      <span className="mr-1.5">{emoji}</span>
+                      {!isSystem && (
+                        <span className="font-black text-amber-500/80 mr-1">{act.playerUsername}:</span>
+                      )}
+                      <span className={isSystem ? 'text-stone-400 italic' : 'text-[#f5f0e8]'}>
+                        {det.message}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
 
             <form onSubmit={handleSendChat} className="flex gap-2 pt-2 border-t border-stone-800/40">

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import {
   Shield, Sparkles, Flame, AlertOctagon, HelpCircle, Wind, Trophy,
   RotateCw, Shuffle, ArrowDown, ArrowUp, Clock, Package, Coins, Zap
@@ -60,8 +61,27 @@ export default function TileInteractPanel({
 
   const theme = getTileTheme();
 
+  let animProps = {
+    initial: { opacity: 0, scale: 0.9, y: 20 },
+    animate: { opacity: 1, scale: 1, y: 0 },
+    transition: { type: 'spring', damping: 20, stiffness: 300 }
+  };
+
+  let extraClasses = '';
+  
+  if (tileType === 'TRAP') {
+    animProps.animate = { opacity: 1, scale: 1, y: 0, ...({ x: [-10, 10, -10, 10, 0] } as any) };
+    animProps.transition = { duration: 0.4 };
+    extraClasses = 'shadow-[0_0_30px_rgba(225,29,72,0.3)] border-rose-900/50';
+  } else if (tileType === 'TREASURE') {
+    extraClasses = 'shadow-[0_0_40px_rgba(251,191,36,0.25)] border-amber-500/40';
+  }
+
   return (
-    <div className={`w-full p-6 rounded-3xl space-y-4 max-w-md mx-auto text-center stone-panel golden-border scroll-texture`}>
+    <motion.div 
+      {...animProps}
+      className={`w-full p-6 rounded-3xl space-y-4 max-w-md mx-auto text-center stone-panel golden-border scroll-texture ${extraClasses}`}
+    >
       {/* Ornament */}
       <div className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.25em]">⚜ Tile Encountered ⚜</div>
 
@@ -371,7 +391,7 @@ export default function TileInteractPanel({
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

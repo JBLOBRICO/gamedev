@@ -37,6 +37,7 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
   const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
   const [cameraShake, setCameraShake] = useState(false);
   const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
+  const [dustRings, setDustRings] = useState<{ id: string; tileIndex: number }[]>([]);
   
   const prevCoinsRef = useRef<Record<string, number>>({});
 
@@ -51,13 +52,19 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
         const diff = currentPos - animPos;
         const direction = diff > 0 ? 1 : -1;
         const timer = setTimeout(() => {
+          const nextPos = animPos + direction;
           setAnimatedPositions(prev => ({
             ...prev,
-            [player.id]: animPos + direction
+            [player.id]: nextPos
           }));
           
+          // Spawn dust ring at the new tile
+          const dustId = Math.random().toString(36).substring(2, 9);
+          setDustRings(prev => [...prev, { id: dustId, tileIndex: nextPos }]);
+          setTimeout(() => setDustRings(prev => prev.filter(d => d.id !== dustId)), 600);
+
           // Trigger shake if they hit a trap
-          if (animPos + direction === currentPos) {
+          if (nextPos === currentPos) {
              const finalTile = BOARD_TILES[currentPos];
              if (finalTile?.type === 'TRAP') {
                 setCameraShake(true);
@@ -229,21 +236,29 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
                               initial={{ scale: 0.6, y: -20, opacity: 0 }}
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
-                              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-950 p-0.5 shadow-2xl flex items-center justify-center relative cursor-help ${animClass} ${
-                                isActive
-                                  ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
-                                  : 'border-2 border-slate-400/60 z-20'
-                              }`}
+                              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center relative z-20"
                               title={heroData?.fullName || p.user.username}
                             >
-                              {p.team && (
-                                <span
-                                  className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
-                                  style={{ backgroundColor: p.team.color }}
-                                />
-                              )}
-                              {avatar.render('w-full h-full')}
+                              {/* Hopping Inner Body */}
+                              <motion.div 
+                                className={`w-full h-full rounded-full bg-slate-950 p-0.5 shadow-2xl flex items-center justify-center relative cursor-help ${animClass} ${
+                                  isActive
+                                    ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
+                                    : 'border-2 border-slate-400/60 z-20'
+                                }`}
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{ duration: 0.3, ease: 'easeOut', repeat: 0 }}
+                                key={animatedPositions[p.id]} // Force hop animation on position change
+                              >
+                                {p.team && (
+                                  <span
+                                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
+                                    style={{ backgroundColor: p.team.color }}
+                                  />
+                                )}
+                                {avatar.render('w-full h-full')}
+                              </motion.div>
                               
                               {/* Hero Shadow */}
                               <div className="absolute -bottom-2 w-4 h-1 bg-black/40 rounded-full blur-[2px] -z-10" />
@@ -268,6 +283,20 @@ export default function GameBoard({ players, activePlayerId, round }: GameBoardP
                         })}
                       </AnimatePresence>
                     </div>
+
+                    {/* Dust rings when pawns land */}
+                    <AnimatePresence>
+                      {dustRings.filter(d => d.tileIndex === tile.index).map(d => (
+                        <motion.div
+                          key={d.id}
+                          initial={{ scale: 0.2, opacity: 0.8, borderWidth: 4 }}
+                          animate={{ scale: 2.5, opacity: 0, borderWidth: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-amber-200 pointer-events-none z-10"
+                        />
+                      ))}
+                    </AnimatePresence>
                   </div>
                 </div>
               );
