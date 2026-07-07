@@ -211,10 +211,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
 
       {/* ── 3D Board (tiles only, no pawns inside) ── */}
       <div className={`board-viewport ${cameraShake ? 'camera-shake' : ''}`}>
-        <motion.div
+        <div
           className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
-          layout
-          onLayoutAnimationComplete={measureTiles}
+          style={{ transform: 'rotateX(60deg) rotateZ(-45deg)' }}
         >
           <div
             className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
@@ -278,7 +277,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ── Pawn Overlay — completely outside the 3D transform, rendered in screen space ── */}

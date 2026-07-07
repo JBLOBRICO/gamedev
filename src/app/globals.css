@@ -351,8 +351,7 @@ body::before {
 
 .iso-board-container {
   transform-style: preserve-3d;
-  /* Rotate to isometric angle */
-  transform: rotateX(60deg) rotateZ(-45deg);
+  /* Transform applied via inline style in JSX to prevent Framer Motion from overriding it */
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
