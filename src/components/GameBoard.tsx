@@ -29,12 +29,16 @@ interface BoardPlayer {
 interface GameBoardProps {
   players: BoardPlayer[];
   activePlayerId: string;
+  round: number;
 }
 
-export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
+export default function GameBoard({ players, activePlayerId, round }: GameBoardProps) {
   // Animate pawns tile by tile
   const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
   const [cameraShake, setCameraShake] = useState(false);
+  const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
+  
+  const prevCoinsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     players.forEach((player) => {
@@ -66,6 +70,22 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
     });
   }, [players, animatedPositions]);
 
+  // Watch for coin changes to spawn floating text
+  useEffect(() => {
+    players.forEach(p => {
+      const prevCoins = prevCoinsRef.current[p.id];
+      if (prevCoins !== undefined && prevCoins !== p.coins) {
+        const diff = p.coins - prevCoins;
+        const text = diff > 0 ? `+${diff} Gold` : `${diff} Gold`;
+        const color = diff > 0 ? 'text-amber-300 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]' : 'text-rose-400 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]';
+        const id = Math.random().toString(36).substring(2, 9);
+        setFloaters(f => [...f, { id, playerId: p.id, text, color }]);
+        setTimeout(() => setFloaters(f => f.filter(x => x.id !== id)), 2000);
+      }
+      prevCoinsRef.current[p.id] = p.coins;
+    });
+  }, [players]);
+
   const getTileIcon = (type: string) => {
     switch (type) {
       case 'START':        return <Compass className="w-4 h-4 text-emerald-400" />;
@@ -92,10 +112,29 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
     }
   };
 
+  // Day/Night Cycle logic based on round
+  let ambientClass = 'bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20';
+  let isNight = false;
+  const cycle = round % 9;
+  if (cycle >= 1 && cycle <= 3) {
+    ambientClass = 'bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/10'; // Morning
+  } else if (cycle >= 4 && cycle <= 6) {
+    ambientClass = 'bg-gradient-to-br from-orange-950/20 via-rose-950/10 to-stone-950/20'; // Sunset
+  } else {
+    ambientClass = 'bg-gradient-to-br from-indigo-950/30 via-slate-900/20 to-black/40'; // Night
+    isNight = true;
+  }
+
   return (
-    <div className="w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[600px] flex items-center justify-center">
+    <div className={`w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[600px] flex items-center justify-center transition-colors duration-1000`}>
       {/* Castle wall atmospheric overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20 pointer-events-none" />
+      <div className={`absolute inset-0 pointer-events-none transition-colors duration-1000 ${ambientClass}`} />
+      
+      {/* Night fireflies */}
+      {isNight && (
+        <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none opacity-30" />
+      )}
+      
       {/* Top decorative banner line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
@@ -143,7 +182,7 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
                     'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                   }`}></div>
                   
-                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner overflow-hidden group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)]`}>
+                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner overflow-hidden group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${isNight ? 'filter brightness-75' : ''}`}>
                     
                     {/* Environmental Textures */}
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay pointer-events-none" />
@@ -208,6 +247,22 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
                               
                               {/* Hero Shadow */}
                               <div className="absolute -bottom-2 w-4 h-1 bg-black/40 rounded-full blur-[2px] -z-10" />
+                              
+                              {/* Floating Combat Text */}
+                              <AnimatePresence>
+                                {floaters.filter(f => f.playerId === p.id).map(f => (
+                                  <motion.div
+                                    key={f.id}
+                                    initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, y: -30, scale: 1.2 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 1.5, ease: 'easeOut' }}
+                                    className={`absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-black z-50 pointer-events-none ${f.color}`}
+                                  >
+                                    {f.text}
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
                             </motion.div>
                           );
                         })}

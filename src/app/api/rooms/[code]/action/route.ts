@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getTileByIndex, BOARD_SIZE } from '@/lib/boardConfig';
+import { getHeroByAvatarId } from '@/lib/heroes';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -105,7 +106,8 @@ async function handleVictory(room: any, winner: any, currentTurnId: string) {
     await prisma.matchHistoryPlayer.create({
       data: {
         matchId: history.id, userId: p.userId, username: p.user.username,
-        avatarId: p.user.avatarId, coinsEarned: p.coins, xpEarned: p.coins * 5 + 50,
+        avatarId: p.user.avatarId, coinsEarned: p.coins, 
+        xpEarned: p.coins * 5 + 50 + (p.user.avatarId === 'avatar_8' ? 5 : 0),
         correctAnswers: p.user.correctAnswers, incorrectAnswers: p.user.incorrectAnswers,
         longestStreak: p.user.longestStreak,
         rank: p.userId === winner.userId ? 1 : 2,
@@ -226,7 +228,18 @@ export async function POST(
       }
       const shuffled = [...room.players].sort(() => Math.random() - 0.5);
       for (let i = 0; i < shuffled.length; i++) {
-        await prisma.player.update({ where: { id: shuffled[i].id }, data: { order: i, position: 0, coins: 15 } });
+        const hData = getHeroByAvatarId(shuffled[i].user.avatarId);
+        await prisma.player.update({ 
+          where: { id: shuffled[i].id }, 
+          data: { 
+            order: i, 
+            position: 0, 
+            coins: 15,
+            trapImmunity: hData?.avatarId === 'avatar_3', // Thorn's passive
+            shieldActive: hData?.avatarId === 'avatar_5', // Caldwyn's passive
+            luckyDiceActive: hData?.avatarId === 'avatar_7', // Gareth's passive
+          } 
+        });
       }
       await prisma.room.update({
         where: { id: room.id },
@@ -380,6 +393,7 @@ export async function POST(
       askedQ.push(question.id);
       await prisma.room.update({ where: { id: room.id }, data: { askedQuestions: JSON.stringify(askedQ) } });
 
+      const hData = getHeroByAvatarId(player.user.avatarId);
       await prisma.turn.update({
         where: { id: currentTurnRecord.id },
         data: {
@@ -388,7 +402,7 @@ export async function POST(
           questionDifficulty: question.difficulty, questionText: question.question,
           questionOptions: question.options, questionCorrectAnswer: question.correctAnswer,
           questionFunFact: question.funFact || null,
-          timeRemaining: player.extraTimeActive ? 30 : 15,
+          timeRemaining: player.extraTimeActive ? 30 : (hData?.avatarId === 'avatar_2' && difficulty === 'HARD' ? 18 : 15),
         }
       });
 
@@ -420,13 +434,27 @@ export async function POST(
       let coinsReward = 0;
       let xpReward = 0;
 
+      const hData = getHeroByAvatarId(player.user.avatarId);
+
       if (isCorrect) {
         if (difficulty === 'EASY')   { moveDistance = roll;     coinsReward = 5;  xpReward = 20; }
         if (difficulty === 'MEDIUM') { moveDistance = roll + 1; coinsReward = 10; xpReward = 40; }
         if (difficulty === 'HARD')   { moveDistance = roll + 2; coinsReward = 20; xpReward = 80; }
+        
+        if (hData?.avatarId === 'avatar_10' && player.doubleCoinsActive) {
+          coinsReward += 2; // Countess Elara's passive
+        }
+        
         if (player.doubleCoinsActive) {
           coinsReward *= 2;
           await prisma.player.update({ where: { id: player.id }, data: { doubleCoinsActive: false } });
+        }
+        
+        if (hData?.avatarId === 'avatar_1' && (player.user.streak + 1) % 3 === 0) {
+          coinsReward += 2; // Sir Aldric's passive
+        }
+        if (hData?.avatarId === 'avatar_4' && Math.random() < 0.15) {
+          moveDistance += 1; // Mira's passive
         }
       }
 
@@ -551,9 +579,10 @@ export async function POST(
             logMessage = `${player.user.username} blocked the trap with their protection! 🛡️`;
             await prisma.player.update({ where: { id: player.id }, data: { shieldActive: false, trapImmunity: false } });
           } else {
-            coinsChange = -10;
+            const hData = getHeroByAvatarId(player.user.avatarId);
+            coinsChange = hData?.avatarId === 'avatar_9' ? -7 : -10; // Ragnar's passive
             posChange = -2;
-            logMessage = `${player.user.username} hit a trap! −10 coins, −2 tiles 💥`;
+            logMessage = `${player.user.username} hit a trap! ${coinsChange} coins, −2 tiles 💥`;
           }
           break;
 

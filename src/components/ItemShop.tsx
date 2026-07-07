@@ -58,6 +58,7 @@ const SHOP_ITEMS: ShopItem[] = [
 
 interface ItemShopProps {
   playerCoins: number;
+  playerAvatarId?: string;
   onBuyItem: (itemId: string, cost: number) => void;
   /** disabled is used only to show a loading state; shop is open anytime */
   disabled?: boolean;
@@ -73,15 +74,16 @@ interface ItemShopProps {
 
 export default function ItemShop({
   playerCoins,
+  playerAvatarId,
   onBuyItem,
   disabled = false,
   activeItems = {},
 }: ItemShopProps) {
 
-  const handleBuy = (item: ShopItem) => {
-    if (disabled || playerCoins < item.cost) return;
+  const handleBuy = (item: ShopItem, finalCost: number) => {
+    if (disabled || playerCoins < finalCost) return;
     sounds.playCoin();
-    onBuyItem(item.id, item.cost);
+    onBuyItem(item.id, finalCost);
   };
 
   return (
@@ -102,7 +104,13 @@ export default function ItemShop({
 
       <div className="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-1">
         {SHOP_ITEMS.map((item) => {
-          const canAfford = playerCoins >= item.cost;
+          let finalCost = item.cost;
+          // Vesper's 10% discount
+          if (playerAvatarId === 'avatar_6') {
+            finalCost = Math.ceil(item.cost * 0.9);
+          }
+          
+          const canAfford = playerCoins >= finalCost;
           const isActive = item.activeKey
             ? !!(activeItems as Record<string, boolean>)[item.activeKey]
             : false;
@@ -139,14 +147,14 @@ export default function ItemShop({
 
               <button
                 disabled={disabled || !canAfford}
-                onClick={() => handleBuy(item)}
+                onClick={() => handleBuy(item, finalCost)}
                 className={`shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 ${
                   canAfford && !disabled
                     ? 'bg-amber-600 hover:bg-amber-500 text-stone-950'
                     : 'bg-stone-800 text-stone-500 border border-stone-800/30 cursor-not-allowed'
                 }`}
               >
-                {item.cost}g
+                {finalCost}g
               </button>
             </div>
           );

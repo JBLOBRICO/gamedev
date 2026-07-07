@@ -497,6 +497,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           {/* Merchant's Caravan (Item Shop) */}
           <ItemShop
             playerCoins={localPlayer?.coins || 0}
+            playerAvatarId={localPlayer?.user.avatarId}
             onBuyItem={buyItem}
             disabled={actionPending}
             activeItems={{
