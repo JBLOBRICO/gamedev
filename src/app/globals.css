@@ -380,6 +380,7 @@ body::before {
   height: 100%;
   transform: translateZ(8px); /* Height of the tile */
   border-radius: 8px;
+  transform-style: preserve-3d;
 }
 
 /* Side walls of the tile to give it depth */
