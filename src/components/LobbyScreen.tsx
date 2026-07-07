@@ -270,12 +270,20 @@ export default function LobbyScreen({
 
           {/* Lobby Actions */}
           <div className="flex items-center justify-between pt-5 mt-2 border-t border-stone-800/40">
-            <button
-              onClick={() => { sounds.playClick(); onLeaveRoom(); }}
-              className="px-5 py-2.5 rounded-xl border border-stone-700/50 text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-900 transition-all font-semibold active:scale-95 text-xs btn-press"
-            >
-              Abandon Quest
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { sounds.playClick(); onLeaveRoom(); }}
+                className="px-5 py-2.5 rounded-xl border border-stone-700/50 text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-900 transition-all font-semibold active:scale-95 text-xs btn-press"
+              >
+                Abandon Quest
+              </button>
+              <button
+                onClick={() => { sounds.playClick(); setJournalOpen(true); }}
+                className="px-5 py-2.5 rounded-xl bg-amber-900/40 border border-amber-800/50 text-amber-500 hover:text-amber-300 hover:bg-amber-800/60 transition-all font-black uppercase tracking-widest active:scale-95 text-xs shadow-lg shadow-black/20 flex items-center gap-2 btn-press"
+              >
+                <BookOpen className="w-4 h-4" /> Chronicles
+              </button>
+            </div>
 
             <div className="flex items-center gap-3">
               <button
