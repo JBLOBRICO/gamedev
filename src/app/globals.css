@@ -395,12 +395,64 @@ body::before {
   box-shadow: 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* ─── Pawn Standing Upright ──────────────────────────────────────────────────── */
+/* ─── Pawn Standing Upright (Chess Piece Billboard) ─────────────────────────── */
+/*
+  The board is tilted with rotateX(60deg) rotateZ(-45deg).
+  To make pawns stand upright like chess pieces (facing the screen),
+  we counter-rotate: rotateZ(45deg) then rotateX(-60deg).
+  We also disable preserve-3d on the wrapper so the avatar image
+  renders as a flat billboard instead of being flattened onto the tile.
+*/
 .pawn-upright {
-  /* Reverse the board rotation so pawn stands straight */
-  transform: rotateZ(45deg) rotateX(-60deg);
+  transform: rotateZ(45deg) rotateX(-60deg) translateZ(12px);
   transform-origin: bottom center;
-  transform-style: preserve-3d;
+  transform-style: flat;        /* flat = billboard; do NOT use preserve-3d here */
+  pointer-events: none;
+}
+
+/* ─── Chess Piece Base ───────────────────────────────────────────────────────── */
+.chess-piece-base {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 8px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Active player base glow ring */
+.chess-piece-base-active {
+  background: radial-gradient(ellipse at center, rgba(250,204,21,0.85) 0%, rgba(250,204,21,0.3) 50%, transparent 70%);
+  animation: baseGlow 1.2s infinite ease-in-out;
+}
+
+@keyframes baseGlow {
+  0%, 100% { transform: translateX(-50%) scaleX(1);   opacity: 0.8; }
+  50%       { transform: translateX(-50%) scaleX(1.2); opacity: 1;   }
+}
+
+/* ─── Chess Piece Pedestal (cylindrical base illusion) ───────────────────────── */
+.chess-piece-pedestal {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.chess-piece-pedestal::after {
+  content: '';
+  display: block;
+  width: 70%;
+  height: 5px;
+  background: linear-gradient(to bottom, rgba(80,60,20,0.9), rgba(20,15,5,0.95));
+  border-radius: 0 0 40% 40%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+  margin-top: 2px;
 }
 
 /* ─── Cinematic Camera Effects ───────────────────────────────────────────────── */

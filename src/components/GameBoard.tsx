@@ -267,9 +267,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     </span>
                   </div>
 
-                  {/* Pawns slot (Moved OUTSIDE iso-face-top to prevent flattening) */}
-                  <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none pawn-upright">
-                    <div className="flex flex-wrap items-center justify-center gap-1 pointer-events-auto mt-2">
+                  {/* Pawns slot — outside iso-face-top, counter-rotated to stand upright like chess pieces */}
+                  <div className="absolute inset-0 z-50 flex items-end justify-center pointer-events-none pawn-upright pb-1">
+                    <div className="flex flex-wrap items-end justify-center gap-1 pointer-events-auto">
                       <AnimatePresence>
                         {playersOnTile.map((p) => {
                           const avatar = getAvatarById(p.user.avatarId);
@@ -287,38 +287,50 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                              className="w-10 h-16 sm:w-14 sm:h-20 flex flex-col items-center justify-end relative z-20 cursor-help group"
+                              className="relative z-20 cursor-help group flex flex-col items-center"
+                              style={{ width: '44px' }}
                               title={heroData?.fullName || p.user.username}
                             >
-                              {/* Hopping Standee Body */}
-                              <motion.div 
-                                className="relative flex flex-col items-center justify-end w-full h-full pb-2"
-                                animate={{ y: [0, -15, 0], rotate: [0, -5, 5, 0] }}
+                              {/* ── Chess Piece Body (hops on move) ── */}
+                              <motion.div
+                                className="chess-piece-pedestal"
+                                animate={{ y: [0, -14, 0] }}
                                 transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
-                                key={animatedPositions[p.id]} // Force hop animation on position change
+                                key={animatedPositions[p.id]}
                               >
-                                {/* Cardboard Cutout Portrait (Billboard) */}
-                                <div className={`relative z-20 pb-1.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-2' : 'group-hover:-translate-y-1 group-hover:scale-105'}`}>
-                                  {/* The actual Avatar Image enclosed in a cardboard border */}
-                                  <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-[3px] bg-slate-900 relative ${
+                                {/* Avatar Portrait — rounded top, like a chess piece head */}
+                                <div className={`relative transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-1' : 'group-hover:scale-105 group-hover:-translate-y-0.5'}`}>
+                                  {/* Glowing halo ring for active player */}
+                                  {isActive && (
+                                    <div className="absolute -inset-1 rounded-full bg-yellow-400/30 blur-sm animate-pulse z-0" />
+                                  )}
+                                  {/* Portrait frame */}
+                                  <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-[3px] bg-slate-900 z-10 ${
                                     isActive
-                                      ? 'border-yellow-400 shadow-[0_0_0_2px_rgba(250,204,21,0.5),_0_8px_15px_rgba(250,204,21,0.6)]'
-                                      : 'border-white shadow-[0_0_0_2px_rgba(255,255,255,0.8),_0_4px_10px_rgba(0,0,0,0.7)]'
+                                      ? 'border-yellow-400 shadow-[0_0_0_2px_rgba(250,204,21,0.6),0_6px_18px_rgba(250,204,21,0.5)]'
+                                      : 'border-stone-300 shadow-[0_0_0_2px_rgba(255,255,255,0.5),0_4px_12px_rgba(0,0,0,0.8)]'
                                   }`}>
-                                     {p.team && (
-                                       <span
-                                         className="absolute top-0 right-0 w-3 h-3 rounded-bl-lg border-b border-l border-white/50 z-40"
-                                         style={{ backgroundColor: p.team.color }}
-                                       />
-                                     )}
-                                     {avatar.render('w-full h-full object-cover object-top')}
+                                    {p.team && (
+                                      <span
+                                        className="absolute top-0 right-0 w-2.5 h-2.5 rounded-bl border-b border-l border-white/40 z-40"
+                                        style={{ backgroundColor: p.team.color }}
+                                      />
+                                    )}
+                                    {avatar.render('w-full h-full object-cover object-top')}
+                                  </div>
+                                  {/* Small name tag below portrait */}
+                                  <div
+                                    className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[7px] font-black px-1 py-0.5 rounded bg-black/80 z-20 leading-none"
+                                    style={{ color: p.user.nameColor || '#f5f0e8' }}
+                                  >
+                                    {p.user.username}
                                   </div>
                                 </div>
                               </motion.div>
-                              
-                              {/* Chess Piece Floor Shadow */}
-                              <div className="absolute -bottom-1 w-[90%] h-[15%] bg-black/80 rounded-full blur-[3px] -z-10" />
-                              
+
+                              {/* ── Pedestal base shadow / glow ── */}
+                              <div className={`chess-piece-base ${isActive ? 'chess-piece-base-active' : ''}`} />
+
                               {/* Floating Combat Text */}
                               <AnimatePresence>
                                 {floaters.filter(f => f.playerId === p.id).map(f => (
