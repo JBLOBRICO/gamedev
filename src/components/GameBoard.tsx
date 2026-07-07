@@ -101,7 +101,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     
     // Process new actions
     const newActions = lastActionIdRef.current 
-      ? actions.filter(a => a.id > lastActionIdRef.current) 
+      ? actions.filter(a => a.id > lastActionIdRef.current!) 
       : actions.slice(-1); // Only process the very latest if first load
       
     if (newActions.length > 0) {
