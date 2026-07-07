@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, use, useCallback, useRef } from 'react';
+import React, { useEffect, useState, use, useCallback, useRef, Component, ErrorInfo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -15,18 +15,49 @@ import MatchSummary from '@/components/MatchSummary';
 import LobbyScreen from '@/components/LobbyScreen';
 import SoundSettings from '@/components/SoundSettings';
 import HeroJournal from '@/components/HeroJournal';
-import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, Trophy } from 'lucide-react';
+import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, WifiOff, Flag } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { getTileByIndex } from '@/lib/boardConfig';
 import { sounds } from '@/lib/sounds';
-import { getRandomFlavorMessage } from '@/lib/heroes';
+import { getRandomFlavorMessage, getHeroByAvatarId } from '@/lib/heroes';
 
 interface ActionError {
   message: string;
   retryable: boolean;
 }
 
-// Loading lore tips shown while connecting
+// ── Error Boundary ────────────────────────────────────────────────────────────
+class GameErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; errorMsg: string }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, errorMsg: '' };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, errorMsg: error.message };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('GameErrorBoundary caught:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-[#0a0a0f]">
+          <div className="w-full max-w-md p-8 rounded-2xl border border-rose-900/40 glass-panel space-y-4 text-center">
+            <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto" />
+            <p className="text-rose-400 font-black text-base">A Dark Spell Has Disrupted the Board</p>
+            <p className="text-stone-500 text-xs">{this.state.errorMsg}</p>
+            <button onClick={() => window.location.reload()} className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-black text-xs uppercase">
+              Reload the Realm
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Loading lore tips
 const LOADING_LORE = [
   'The ancient gates of Historia creak open-',
   'The Royal Librarians prepare the trials-',
@@ -36,7 +67,17 @@ const LOADING_LORE = [
   'Scrolls of forgotten knowledge are unsealed-',
 ];
 
+const BOARD_SIZE = 46; // tiles 0–45
+
 export default function GameRoom({ params }: { params: Promise<{ code: string }> }) {
+  return (
+    <GameErrorBoundary>
+      <GameRoomInner params={params} />
+    </GameErrorBoundary>
+  );
+}
+
+function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
   const router = useRouter();
   const { profile } = useProfile();
@@ -52,6 +93,8 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
   const [loadingLore] = useState(() => LOADING_LORE[Math.floor(Math.random() * LOADING_LORE.length)]);
   const [turnTransition, setTurnTransition] = useState<string | null>(null);
   const prevActivePlayerRef = useRef<string | null>(null);
+  const [lastRollValue, setLastRollValue] = useState<number | null>(null);
+  const prevTileRef = useRef<Record<string, number>>({});
 
   const lastTurnIdRef = useRef<string | null>(null);
 
@@ -79,6 +122,9 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           if (data.status === 'ACTIVE' && prev?.status === 'ACTIVE') {
             sounds.playClick();
           }
+          // Capture roll value for dice reveal
+          const rv = data.turns?.[0]?.rollValue;
+          if (rv) setLastRollValue(rv);
         }
         // Detect turn change for transition overlay
         const newActiveId = data.turns?.[0]?.activePlayerId;
@@ -89,6 +135,25 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
             setTimeout(() => setTurnTransition(null), 2500);
           }
           prevActivePlayerRef.current = newActiveId;
+        }
+        // Tile landing sounds — fire when a player's position changes
+        if (data.status === 'ACTIVE') {
+          data.players?.forEach((p: any) => {
+            const prevPos = prevTileRef.current[p.userId];
+            if (prevPos !== undefined && prevPos !== p.position) {
+              const tile = getTileByIndex(p.position);
+              switch (tile.type) {
+                case 'TRAP':       sounds.playTrap();     break;
+                case 'TREASURE':   sounds.playTreasure(); break;
+                case 'TELEPORT':   sounds.playTeleport(); break;
+                case 'COIN_BONUS':
+                case 'BONUS':      sounds.playBonus();    break;
+                case 'SKIP_TURN':  sounds.playSkip();     break;
+                default:           sounds.playDiceLand(); break;
+              }
+            }
+            prevTileRef.current[p.userId] = p.position;
+          });
         }
         return data;
       });
@@ -367,6 +432,14 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                       </span>
                     )}
                   </span>
+                  {(() => {
+                    const hero = getHeroByAvatarId(p.user.avatarId);
+                    return hero ? (
+                      <span className="block text-[7px] text-amber-700/60 leading-none mt-0.5 font-bold truncate max-w-[80px]" title={hero.passive.description}>
+                        {hero.passive.icon} {hero.passive.name}
+                      </span>
+                    ) : null;
+                  })()}
                 </div>
               </div>
             );
@@ -401,6 +474,34 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
               Dismiss
             </button>
           )}
+        </div>
+      )}
+
+      {/* -- Disconnect warning banner ----------------------------------------- */}
+      {room.players.some((p: any) => !p.isConnected) && (
+        <div className="max-w-6xl mx-auto px-4 py-2.5 rounded-2xl border border-orange-800/40 bg-orange-950/15 flex items-center gap-2 text-xs text-orange-400 font-bold">
+          <WifiOff className="w-4 h-4 shrink-0" />
+          {room.players.filter((p: any) => !p.isConnected).map((p: any) => p.user.username).join(', ')}
+          {' '}{room.players.filter((p: any) => !p.isConnected).length === 1 ? 'has' : 'have'} disconnected. Waiting for reconnect…
+        </div>
+      )}
+
+      {/* -- Tiles to finish indicator ----------------------------------------- */}
+      {localPlayer && (
+        <div className="max-w-6xl mx-auto flex items-center gap-3 px-1">
+          <div className="flex-1 h-2 bg-stone-900 rounded-full overflow-hidden border border-stone-800/50">
+            <motion.div
+              className="h-full bg-gradient-to-r from-amber-600 to-yellow-400 rounded-full"
+              animate={{ width: `${Math.min((localPlayer.position / (BOARD_SIZE - 1)) * 100, 100)}%` }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-400 shrink-0">
+            <Flag className="w-3 h-3 text-amber-500" />
+            <span className={localPlayer.position >= BOARD_SIZE - 6 ? 'text-amber-400 animate-pulse' : ''}>
+              {Math.max(0, BOARD_SIZE - 1 - localPlayer.position)} tiles to finish
+            </span>
+          </div>
         </div>
       )}
 
@@ -460,6 +561,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                     onRoll={rollDice}
                     disabled={!isMyTurn || actionPending}
                     luckyDiceActive={localPlayer?.luckyDiceActive}
+                    lastRollValue={lastRollValue}
                   />
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-stone-800/40 glass-panel">

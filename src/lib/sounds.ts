@@ -115,6 +115,55 @@ class SoundSystem {
     }, 250);
   }
 
+  // Tile-specific sound effects
+  public playTrap() {
+    // Scary sting — descending minor
+    const notes = [440, 370, 311, 261];
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playTone(freq, 'sawtooth', 0.3, [0.18, 0.02, 0], [0.04, 0.2, 0.06]);
+      }, i * 90);
+    });
+  }
+
+  public playTreasure() {
+    // Coin jingle — ascending sparkle
+    const notes = [783.99, 987.77, 1174.66, 1567.98];
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playTone(freq, 'sine', 0.25, [0.14, 0], [0.04, 0.21]);
+      }, i * 70);
+    });
+  }
+
+  public playTeleport() {
+    // Sci-fi whoosh
+    this.playTone(200, 'sine', 0.5, [0.0, 0.2, 0.15, 0], [0.05, 0.1, 0.2, 0.15]);
+    setTimeout(() => {
+      this.playTone(800, 'sine', 0.4, [0.15, 0], [0.1, 0.3]);
+    }, 150);
+  }
+
+  public playBonus() {
+    // Short cheerful ding
+    this.playTone(659.25, 'sine', 0.2, [0.15, 0], [0.03, 0.17]);
+    setTimeout(() => this.playTone(783.99, 'sine', 0.2, [0.15, 0], [0.03, 0.17]), 100);
+  }
+
+  public playSkip() {
+    // Frozen/clock stop feel
+    this.playTone(300, 'triangle', 0.4, [0.1, 0.1, 0], [0.05, 0.25, 0.1]);
+  }
+
+  public playDiceReveal(value: number) {
+    // Ascending notes based on dice value — higher roll = higher pitch
+    const baseFreq = 300 + value * 60;
+    this.playTone(baseFreq, 'sine', 0.4, [0.0, 0.2, 0.15, 0], [0.02, 0.1, 0.2, 0.08]);
+    setTimeout(() => {
+      this.playTone(baseFreq * 1.5, 'sine', 0.3, [0.15, 0], [0.05, 0.25]);
+    }, 180);
+  }
+
   public playVictory() {
     const notes = [523.25, 523.25, 523.25, 523.25, 659.25, 587.33, 659.25, 783.99, 1046.50];
     const delays = [0, 150, 300, 450, 600, 750, 900, 1050, 1200];
