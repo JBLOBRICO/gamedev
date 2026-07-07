@@ -1,13 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Sparkles, Flame, AlertOctagon, HelpCircle, Wind, Trophy,
-  RotateCw, Shuffle, ArrowDown, ArrowUp, Clock, Package, Coins, Zap
+  RotateCw, Shuffle, ArrowDown, ArrowUp, Clock, Package, Coins
 } from 'lucide-react';
 import { TileType } from '@/lib/boardConfig';
+import { getAvatarById } from '@/lib/avatars';
 import { sounds } from '@/lib/sounds';
+
+interface OtherPlayer { id: string; userId: string; username: string; avatarId: string; position: number; }
 
 interface TileInteractPanelProps {
   tileType: TileType;
@@ -17,16 +20,59 @@ interface TileInteractPanelProps {
   hasShield: boolean;
   onChoice: (choice: string) => void;
   disabled: boolean;
+  otherPlayers?: OtherPlayer[]; // E: for SWAP target selection
+}
+
+// ── E: Swap Target Picker ─────────────────────────────────────────────────────
+function SwapTargetPicker({ disabled, onChoice, otherPlayers = [] }: {
+  disabled: boolean; onChoice: (c: string) => void; otherPlayers: OtherPlayer[];
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  if (otherPlayers.length === 0) {
+    return (
+      <div className="pt-2">
+        <p className="text-[11px] text-rose-300 font-bold mb-3">🔄 No other players to swap with!</p>
+        <button disabled={disabled} onClick={() => onChoice('SKIP')}
+          className="w-full py-2.5 rounded-xl bg-stone-800 text-stone-300 font-bold uppercase text-xs btn-press">
+          Skip
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="pt-2 space-y-3">
+      <p className="text-[11px] text-rose-300 font-bold">🔄 Choose who to swap positions with:</p>
+      <div className="grid grid-cols-2 gap-2">
+        {otherPlayers.map(p => (
+          <button key={p.userId} disabled={disabled}
+            onClick={() => setSelected(p.userId)}
+            className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all ${
+              selected === p.userId
+                ? 'border-rose-500/60 bg-rose-950/30 shadow-md'
+                : 'border-stone-700/50 bg-stone-900/20 hover:border-rose-500/40'
+            }`}
+          >
+            <div className="w-8 h-8 rounded-lg overflow-hidden border border-stone-700 shrink-0">
+              {getAvatarById(p.avatarId).render('w-full h-full')}
+            </div>
+            <div className="text-left min-w-0">
+              <span className="block text-[10px] font-black text-stone-200 truncate">{p.username}</span>
+              <span className="block text-[8px] text-stone-500">Tile {p.position}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+      <button disabled={disabled || !selected}
+        onClick={() => selected && onChoice(`SWAP_TARGET:${selected}`)}
+        className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase text-xs disabled:opacity-40 btn-press">
+        Invoke the Mirror!
+      </button>
+    </div>
+  );
 }
 
 export default function TileInteractPanel({
-  tileType,
-  tileName,
-  tileDescription,
-  playerCoins,
-  hasShield,
-  onChoice,
-  disabled,
+  tileType, tileName, tileDescription, playerCoins, hasShield, onChoice, disabled, otherPlayers = [],
 }: TileInteractPanelProps) {
 
   const handleAction = (choice: string) => {
@@ -329,20 +375,9 @@ export default function TileInteractPanel({
         </div>
       )}
 
-      {/* ── SWAP ─────────────────────────────────────────────────────────────── */}
+      {/* ── SWAP — E: Target Selection ───────────────────────────────────── */}
       {tileType === 'SWAP' && (
-        <div className="pt-2">
-          <p className="text-[11px] text-rose-300 font-bold mb-3">
-            🔄 You will swap positions with another player on the board!
-          </p>
-          <button
-            disabled={disabled}
-            onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase text-xs btn-press"
-          >
-            Invoke the Mirror!
-          </button>
-        </div>
+        <SwapTargetPicker disabled={disabled} onChoice={onChoice} otherPlayers={otherPlayers} />
       )}
 
       {/* ── COIN_BONUS ───────────────────────────────────────────────────────── */}

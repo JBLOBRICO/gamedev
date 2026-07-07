@@ -94,7 +94,15 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const [turnTransition, setTurnTransition] = useState<string | null>(null);
   const prevActivePlayerRef = useRef<string | null>(null);
   const [lastRollValue, setLastRollValue] = useState<number | null>(null);
+  const [lastLandedTileType, setLastLandedTileType] = useState<string | null>(null);
   const prevTileRef = useRef<Record<string, number>>({});
+  // G: XP — fetched from profile, already available via useProfile
+  // H: Achievement popups
+  const [achievements, setAchievements] = useState<{ id: string; title: string; icon: string; desc: string }[]>([]);
+  // J: Mobile tab
+  const [mobileTab, setMobileTab] = useState<'board' | 'controls'>('board');
+  // K: Floating chat
+  const [chatOpen, setChatOpen] = useState(false);
 
   const lastTurnIdRef = useRef<string | null>(null);
 
@@ -135,6 +143,17 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             setTimeout(() => setTurnTransition(null), 2500);
           }
           prevActivePlayerRef.current = newActiveId;
+          // H: streak achievements
+          const me = data.players?.find((p: any) => p.userId === profile?.id);
+          if (me?.currentStreak >= 3) {
+            setAchievements(prev => {
+              const id = 'streak_3';
+              if (prev.find(a => a.id === id)) return prev;
+              const a = { id, title: 'On Fire!', icon: '🔥', desc: '3 correct answers in a row' };
+              setTimeout(() => setAchievements(p => p.filter(x => x.id !== id)), 4000);
+              return [...prev, a];
+            });
+          }
         }
         // Tile landing sounds — fire when a player's position changes
         if (data.status === 'ACTIVE') {
@@ -151,6 +170,19 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                 case 'SKIP_TURN':  sounds.playSkip();     break;
                 default:           sounds.playDiceLand(); break;
               }
+              setLastLandedTileType(tile.type);
+              // H: Achievement triggers
+              const triggerAchievement = (id: string, title: string, icon: string, desc: string) => {
+                setAchievements(prev => {
+                  if (prev.find(a => a.id === id)) return prev;
+                  const a = { id, title, icon, desc };
+                  setTimeout(() => setAchievements(p => p.filter(x => x.id !== id)), 4000);
+                  return [...prev, a];
+                });
+              };
+              if (tile.type === 'TRAP') triggerAchievement('first_trap', 'Cursed!', '💀', 'Landed on your first trap');
+              if (tile.type === 'TREASURE') triggerAchievement('treasure_hunter', 'Treasure Hunter', '💰', 'Found a hidden treasury');
+              if (tile.type === 'TELEPORT') triggerAchievement('teleporter', 'Through the Void', '⚡', 'Used a teleport tile');
             }
             prevTileRef.current[p.userId] = p.position;
           });
@@ -217,7 +249,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
 
   // -- Game actions -------------------------------------------------------------
   const toggleReady = () => executeAction('LOBBY_READY');
-  const startGame = () => executeAction('START_GAME');
+  const startGame = (categories?: string[]) => executeAction('START_GAME', categories ? { categories } : undefined);
   const sendChat = (msg: string) => { if (msg.trim()) executeAction('CHAT', { message: msg }); };
   const handleSendChat = (e: React.FormEvent) => {
     e.preventDefault();
@@ -415,8 +447,14 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                 }`}
               >
                 <span className="text-sm leading-none">{rankEmojis[rankIdx] ?? `#${rankIdx+1}`}</span>
-                <div className="w-6 h-6 rounded-full bg-stone-950 p-0.5 overflow-hidden border border-stone-800/40">
+                <div className="relative w-6 h-6 rounded-full bg-stone-950 p-0.5 overflow-hidden border border-stone-800/40">
                   {getAvatarById(p.user.avatarId).render('w-full h-full')}
+                  {/* G: Level badge */}
+                  {p.user.level && (
+                    <span className="absolute -bottom-1 -right-1 bg-amber-600 text-stone-950 font-black text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center border border-stone-950 leading-none">
+                      {p.user.level}
+                    </span>
+                  )}
                 </div>
                 <div className="text-left">
                   <span className="block text-[10px] leading-tight font-black" style={{ color: p.user.nameColor }}>
@@ -512,13 +550,40 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
         </div>
       )}
 
+      {/* -- J: Mobile Tab Switcher -------------------------------------------- */}
+      <div className="max-w-6xl mx-auto flex lg:hidden gap-2 px-1">
+        <button
+          onClick={() => setMobileTab('board')}
+          className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+            mobileTab === 'board'
+              ? 'bg-amber-600 text-stone-950 border-amber-500'
+              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+          }`}
+        >
+          🗺️ Board
+        </button>
+        <button
+          onClick={() => setMobileTab('controls')}
+          className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+            mobileTab === 'controls'
+              ? 'bg-amber-600 text-stone-950 border-amber-500'
+              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+          }`}
+        >
+          ⚔️ Controls
+        </button>
+      </div>
+
       {/* -- Sacred Board of Historia ------------------------------------------- */}
-      <div className="max-w-6xl mx-auto">
-        <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} />
+      <div className={`max-w-6xl mx-auto ${mobileTab === 'controls' ? 'hidden lg:block' : ''}`}>
+        {/* L: Pinch-to-zoom wrapper */}
+        <div className="touch-manipulation" style={{ touchAction: 'pinch-zoom' }}>
+          <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} />
+        </div>
       </div>
 
       {/* -- Controls Grid ------------------------------------------------------ */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+      <div className={`max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 items-start ${mobileTab === 'board' ? 'hidden lg:grid' : ''}`}>
 
         {/* -- Turn phase window ----------------------------------------------- */}
         <div className="lg:col-span-2 space-y-4">
@@ -608,6 +673,9 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                     hasShield={activePlayer?.shieldActive || activePlayer?.trapImmunity || false}
                     onChoice={interactTile}
                     disabled={!isMyTurn || actionPending}
+                    otherPlayers={room.players
+                      .filter((p: any) => p.userId !== activePlayer?.userId)
+                      .map((p: any) => ({ id: p.id, userId: p.userId, username: p.user.username, avatarId: p.user.avatarId, position: p.position }))}
                   />
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-amber-900/25 bg-amber-950/10">
@@ -640,8 +708,8 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             }}
           />
 
-          {/* Chronicles (Action Log + Chat) */}
-          <div className="p-4 border border-stone-800/40 glass-panel rounded-2xl flex flex-col h-64">
+          {/* Chronicles (Action Log + Chat) — hidden on mobile, use floating button instead */}
+          <div className="hidden sm:flex p-4 border border-stone-800/40 glass-panel rounded-2xl flex-col h-64">
             <div className="flex items-center gap-1.5 pb-2 border-b border-stone-800/40 mb-1">
               <Scroll className="w-3.5 h-3.5 text-amber-700/50" />
               <h3 className="text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">
@@ -708,6 +776,86 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
 
       <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
       <SoundSettings />
+
+      {/* ── H: Achievement Popups ── */}
+      <div className="fixed bottom-24 right-4 z-[120] flex flex-col gap-2 pointer-events-none">
+        <AnimatePresence>
+          {achievements.map(ach => (
+            <motion.div
+              key={ach.id}
+              initial={{ opacity: 0, x: 80, scale: 0.8 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 80 }}
+              transition={{ type: 'spring', damping: 18 }}
+              className="flex items-center gap-3 bg-stone-950/95 border border-amber-700/50 rounded-2xl px-4 py-3 shadow-2xl shadow-amber-900/30 backdrop-blur-md min-w-[220px]"
+            >
+              <span className="text-2xl">{ach.icon}</span>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-amber-500">Achievement Unlocked!</p>
+                <p className="text-sm font-black text-[#f5f0e8]">{ach.title}</p>
+                <p className="text-[9px] text-stone-400">{ach.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* ── K: Floating Chat Bubble ── */}
+      <div className="fixed bottom-6 right-4 z-[110] flex flex-col items-end gap-2">
+        <AnimatePresence>
+          {chatOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 20 }}
+              className="w-72 bg-stone-950/95 border border-amber-800/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden"
+            >
+              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-stone-800/50">
+                <Scroll className="w-3.5 h-3.5 text-amber-700/50" />
+                <span className="text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Chronicles · Quest Log</span>
+                <button onClick={() => setChatOpen(false)} className="ml-auto text-stone-600 hover:text-stone-300 text-xs">✕</button>
+              </div>
+              <div className="h-44 overflow-y-auto p-3 space-y-1.5 flex flex-col-reverse">
+                <AnimatePresence initial={false}>
+                  {[...room.actions].reverse().map((act: any, idx: number) => {
+                    const det = JSON.parse(act.details || '{}');
+                    const isSystem = act.playerUsername === 'System';
+                    return (
+                      <motion.div key={act.id || idx} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                        className={`text-[9px] leading-snug p-1.5 rounded-lg border ${isSystem ? 'bg-stone-900/40 border-stone-800/50' : 'bg-amber-950/20 border-amber-900/30'}`}>
+                        {!isSystem && <span className="font-black text-amber-500/80 mr-1">{act.playerUsername}:</span>}
+                        <span className={isSystem ? 'text-stone-400 italic' : 'text-[#f5f0e8]'}>{det.message}</span>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); if (!chatInput.trim()) return; sendChat(chatInput.trim()); setChatInput(''); }}
+                className="flex gap-2 p-3 border-t border-stone-800/40">
+                <input type="text" maxLength={200} value={chatInput} onChange={e => setChatInput(e.target.value)}
+                  className="flex-1 px-3 py-1.5 rounded-xl glass-input text-[10px]" placeholder="Speak to allies…" />
+                <button type="submit" disabled={!chatInput.trim()}
+                  className="p-1.5 bg-amber-700 hover:bg-amber-600 text-stone-950 rounded-xl transition-all disabled:opacity-40">
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setChatOpen(o => !o)}
+          className="relative w-12 h-12 bg-amber-700 hover:bg-amber-600 text-stone-950 rounded-full shadow-lg shadow-amber-900/40 flex items-center justify-center transition-colors"
+        >
+          <Scroll className="w-5 h-5" />
+          {room.actions?.length > 0 && !chatOpen && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-white text-[8px] font-black flex items-center justify-center border border-stone-950">
+              !
+            </span>
+          )}
+        </motion.button>
+      </div>
 
       {/* ── Turn Transition Overlay ── */}
       <AnimatePresence>

@@ -34,10 +34,21 @@ interface LobbyScreenProps {
   currentUserId: string;
   chatMessages: Array<{ playerUsername: string | null; details: string; createdAt: string }>;
   onToggleReady: () => void;
-  onStartGame: () => void;
+  onStartGame: (categories?: string[]) => void;
   onSendChat: (msg: string) => void;
   onLeaveRoom: () => void;
 }
+
+const ALL_CATEGORIES = [
+  { id: 'History',        icon: '🏛️' },
+  { id: 'Science',        icon: '🔬' },
+  { id: 'Geography',      icon: '🌍' },
+  { id: 'Pop Culture',    icon: '🎬' },
+  { id: 'Sports',         icon: '⚽' },
+  { id: 'Technology',     icon: '💻' },
+  { id: 'Arts',           icon: '🎨' },
+  { id: 'General Knowledge', icon: '📚' },
+];
 
 export default function LobbyScreen({
   roomCode,
@@ -54,6 +65,7 @@ export default function LobbyScreen({
   const [chatInput, setChatInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [journalOpen, setJournalOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(ALL_CATEGORIES.map(c => c.id)); // F: all selected by default
 
   const localPlayer = players.find(p => p.userId === currentUserId);
   const isHost = localPlayer?.isHost || false;
@@ -268,6 +280,38 @@ export default function LobbyScreen({
             )}
           </div>
 
+          {/* F: Category Picker — host only */}
+          {isHost && (
+            <div className="pt-4 border-t border-stone-800/40 space-y-2">
+              <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">⚜ Trivia Categories</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ALL_CATEGORIES.map(cat => {
+                  const active = selectedCategories.includes(cat.id);
+                  return (
+                    <button key={cat.id} type="button"
+                      onClick={() => {
+                        sounds.playClick();
+                        setSelectedCategories(prev =>
+                          prev.includes(cat.id)
+                            ? prev.length > 1 ? prev.filter(c => c !== cat.id) : prev
+                            : [...prev, cat.id]
+                        );
+                      }}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all ${
+                        active
+                          ? 'border-amber-500/60 bg-amber-950/30 text-amber-300'
+                          : 'border-stone-700/40 bg-stone-900/20 text-stone-500 opacity-50'
+                      }`}
+                    >
+                      {cat.icon} {cat.id}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[8px] text-stone-600 italic">{selectedCategories.length} of {ALL_CATEGORIES.length} categories active</p>
+            </div>
+          )}
+
           {/* Lobby Actions */}
           <div className="flex items-center justify-between pt-5 mt-2 border-t border-stone-800/40">
             <div className="flex gap-2">
@@ -298,7 +342,7 @@ export default function LobbyScreen({
               </button>
               {isHost && (
                 <button
-                  onClick={onStartGame}
+                  onClick={() => onStartGame(selectedCategories)}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-wider transition-all active:scale-95 text-xs shadow-lg shadow-amber-900/30 btn-press"
                 >
                   The Quest Begins <Play className="w-4 h-4 fill-current" />

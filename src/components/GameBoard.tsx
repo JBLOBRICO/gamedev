@@ -24,15 +24,32 @@ interface GameBoardProps {
   activePlayerId: string;
   round: number;
   actions?: any[];
+  lastLandedTileType?: string | null; // for vignette (C)
 }
 
-export default function GameBoard({ players, activePlayerId, round, actions = [] }: GameBoardProps) {
+// ── Weather config (A) ───────────────────────────────────────────────────────
+type Weather = 'clear' | 'rain' | 'snow' | 'fog';
+function getWeather(cycle: number): Weather {
+  if (cycle >= 1 && cycle <= 3) return 'clear';
+  if (cycle >= 4 && cycle <= 6) return 'fog';
+  if (cycle === 7) return 'rain';
+  return 'snow';
+}
+
+// ── Emote config (D) ─────────────────────────────────────────────────────────
+const EMOTES = ['👍','😂','😤','🔥','💀','👑','🎲','😱'];
+
+export default function GameBoard({ players, activePlayerId, round, actions = [], lastLandedTileType }: GameBoardProps) {
   const [animatedPositions, setAnimatedPositions] = useState<Record<string, number>>({});
   const [cameraShake, setCameraShake] = useState(false);
   const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
   const [dustRings, setDustRings] = useState<{ id: string; tileIndex: number }[]>([]);
   const [hoveredTile, setHoveredTile] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [visitedTiles, setVisitedTiles] = useState<Set<number>>(new Set()); // B
+  const [vignette, setVignette] = useState<'trap' | 'treasure' | null>(null); // C
+  const [emoteOpen, setEmoteOpen] = useState(false); // D
+  const [emotePlayerId, setEmotePlayerId] = useState<string | null>(null); // D
 
   const tileRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const boardWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -104,7 +121,27 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     });
   }, [players]);
 
-  // Emote floaters from chat
+  // Track visited tiles (B)
+  useEffect(() => {
+    players.forEach(p => {
+      const pos = animatedPositions[p.id] ?? p.position;
+      setVisitedTiles(prev => { const n = new Set(prev); n.add(pos); return n; });
+    });
+  }, [animatedPositions, players]);
+
+  // Vignette effect (C)
+  useEffect(() => {
+    if (!lastLandedTileType) return;
+    if (lastLandedTileType === 'TRAP') {
+      setVignette('trap');
+      setTimeout(() => setVignette(null), 1800);
+    } else if (lastLandedTileType === 'TREASURE' || lastLandedTileType === 'COIN_BONUS') {
+      setVignette('treasure');
+      setTimeout(() => setVignette(null), 1600);
+    }
+  }, [lastLandedTileType]);
+
+  // Emote from chat (D) — already handled by floaters above
   useEffect(() => {
     if (actions.length === 0) return;
     const newActions = lastActionIdRef.current
@@ -155,13 +192,14 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     }
   };
 
-  // Day/Night cycle
+  // Day/Night cycle + weather
   let ambientClass = 'bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20';
   let isNight = false;
   const cycle = round % 9;
   if (cycle >= 1 && cycle <= 3) ambientClass = 'bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/10';
   else if (cycle >= 4 && cycle <= 6) ambientClass = 'bg-gradient-to-br from-orange-950/20 via-rose-950/10 to-stone-950/20';
   else { ambientClass = 'bg-gradient-to-br from-indigo-950/30 via-slate-900/20 to-black/40'; isNight = true; }
+  const weather = getWeather(cycle);
 
   // Group players by tile
   const playersByTile: Record<number, BoardPlayer[]> = {};
@@ -197,6 +235,56 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         />
       </div>
       {isNight && <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none opacity-30 z-10" />}
+
+      {/* ── A: Weather Effects ── */}
+      {weather === 'rain' && (
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div key={i} className="rain-drop absolute w-px bg-sky-300/30"
+              style={{ left: `${Math.random() * 100}%`, height: `${8 + Math.random() * 12}px`,
+                animationDuration: `${0.4 + Math.random() * 0.4}s`,
+                animationDelay: `${Math.random() * 1}s`,
+                top: '-20px', animation: `rainFall ${0.4 + Math.random() * 0.5}s ${Math.random()}s linear infinite` }} />
+          ))}
+          <div className="absolute inset-0 bg-sky-950/10" />
+        </div>
+      )}
+      {weather === 'snow' && (
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          {Array.from({ length: 25 }).map((_, i) => (
+            <div key={i} className="absolute rounded-full bg-white/50 blur-[1px]"
+              style={{ width: `${2 + Math.random() * 3}px`, height: `${2 + Math.random() * 3}px`,
+                left: `${Math.random() * 100}%`, top: '-10px',
+                animation: `snowFall ${3 + Math.random() * 4}s ${Math.random() * 3}s linear infinite` }} />
+          ))}
+          <div className="absolute inset-0 bg-indigo-950/10" />
+        </div>
+      )}
+      {weather === 'fog' && (
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <div className="absolute inset-0 bg-stone-950/20 fog-drift" />
+          <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-stone-900/30 to-transparent fog-drift" style={{ animationDirection: 'reverse' }} />
+        </div>
+      )}
+
+      {/* ── C: Screen Vignette ── */}
+      <AnimatePresence>
+        {vignette && (
+          <motion.div
+            key="vignette"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 pointer-events-none z-40 rounded-3xl"
+            style={{
+              boxShadow: vignette === 'trap'
+                ? 'inset 0 0 80px 40px rgba(220,38,38,0.55)'
+                : 'inset 0 0 80px 40px rgba(251,191,36,0.45)',
+            }}
+          />
+        )}
+      </AnimatePresence>
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
       <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20 pointer-events-none">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
@@ -243,7 +331,10 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
                   'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                 }`} />
-                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)]`}>
+                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${
+                  visitedTiles.has(tile.index) && tile.type !== 'START' && tile.type !== 'FINISH'
+                    ? 'opacity-60' : 'opacity-100'
+                }`}>
                   {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
                   <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay" />
@@ -379,11 +470,45 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
 
                 {/* Name tag */}
                 <div
-                  className="mt-0.5 whitespace-nowrap text-[7px] font-black px-1 py-0.5 rounded bg-black/80 leading-none z-20"
+                  className="mt-0.5 whitespace-nowrap text-[7px] font-black px-1 py-0.5 rounded bg-black/80 leading-none z-20 cursor-pointer select-none"
                   style={{ color: p.user.nameColor || '#f5f0e8' }}
+                  onClick={() => {
+                    if (p.userId === activePlayerId) {
+                      setEmoteOpen(o => !o);
+                      setEmotePlayerId(p.id);
+                    }
+                  }}
                 >
-                  {p.user.username}
+                  {p.user.username}{p.userId === activePlayerId ? ' 😊' : ''}
                 </div>
+
+                {/* D: Emote Wheel */}
+                <AnimatePresence>
+                  {emoteOpen && emotePlayerId === p.id && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', damping: 15 }}
+                      className="absolute -top-16 left-1/2 -translate-x-1/2 flex gap-1 bg-stone-950/95 border border-amber-800/50 rounded-2xl px-2 py-1.5 z-50 shadow-xl"
+                    >
+                      {EMOTES.map(e => (
+                        <button
+                          key={e}
+                          className="text-lg hover:scale-125 transition-transform active:scale-95"
+                          onClick={() => {
+                            const id = Math.random().toString(36).substring(2, 9);
+                            setFloaters(f => [...f, { id, playerId: p.id, text: e, color: 'text-white text-xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]' }]);
+                            setTimeout(() => setFloaters(f => f.filter(x => x.id !== id)), 2500);
+                            setEmoteOpen(false);
+                          }}
+                        >
+                          {e}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Floating text */}
                 <AnimatePresence>
