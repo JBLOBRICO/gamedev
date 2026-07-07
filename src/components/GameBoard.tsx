@@ -279,50 +279,44 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                              className="w-10 h-14 flex flex-col items-center justify-end relative z-20 cursor-help group"
+                              className="w-10 h-16 sm:w-14 sm:h-20 flex flex-col items-center justify-end relative z-20 cursor-help group"
                               title={heroData?.fullName || p.user.username}
                             >
-                              {/* Hopping Chess Piece Body */}
+                              {/* Hopping Standee Body */}
                               <motion.div 
-                                className="relative flex flex-col items-center justify-end w-full h-full pb-1"
-                                animate={{ y: [0, -15, 0], rotate: [0, -8, 8, 0] }}
+                                className="relative flex flex-col items-center justify-end w-full h-full pb-2"
+                                animate={{ y: [0, -15, 0], rotate: [0, -5, 5, 0] }}
                                 transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
                                 key={animatedPositions[p.id]} // Force hop animation on position change
                               >
-                                {/* Avatar Head (Bulb of the pawn) */}
-                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-900 overflow-hidden relative z-30 transition-all ${
-                                  isActive
-                                    ? 'border-4 border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_15px_rgba(250,204,21,0.6)]'
-                                    : 'border-4 border-stone-700 shadow-lg'
-                                }`}>
-                                  {p.team && (
-                                    <span
-                                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
-                                      style={{ backgroundColor: p.team.color }}
-                                    />
-                                  )}
-                                  <div className="absolute top-[-10%] left-[-15%] w-[130%] h-[130%] pointer-events-none">
+                                {/* Cardboard Cutout Portrait */}
+                                <div className={`relative z-20 pb-1.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-2' : 'group-hover:-translate-y-1 group-hover:scale-105'}`}>
+                                  {/* The actual Avatar Image enclosed in a cardboard border */}
+                                  <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg overflow-hidden border-[3px] bg-slate-900 relative ${
+                                    isActive
+                                      ? 'border-yellow-400 shadow-[0_0_0_2px_rgba(250,204,21,0.5),_0_8px_15px_rgba(250,204,21,0.6)]'
+                                      : 'border-white shadow-[0_0_0_2px_rgba(255,255,255,0.8),_0_4px_10px_rgba(0,0,0,0.7)]'
+                                  }`}>
                                      {avatar.render('w-full h-full object-cover object-top')}
                                   </div>
+                                  {/* Plastic clip connecting cardboard to base */}
+                                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-3 bg-zinc-300 border-x border-t border-zinc-400 rounded-t-sm z-30 shadow-inner" />
                                 </div>
                                 
-                                {/* Pawn Neck */}
-                                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-b from-stone-800 to-stone-700 -mt-1 sm:-mt-2 z-20 border-l border-r border-stone-900 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] relative">
-                                  {/* Gloss shine */}
-                                  <div className="absolute left-0 w-[30%] h-full bg-white/5" />
-                                </div>
-
-                                {/* Pawn Base Top Ring */}
-                                <div className="w-7 h-2 sm:w-8 sm:h-2.5 bg-stone-600 rounded-[50%] -mt-1 sm:-mt-1.5 z-20 border border-stone-800 shadow-inner relative">
-                                  {/* Team Color indicator on ring */}
-                                  {p.team && (
-                                      <div className="w-full h-full absolute inset-0 opacity-50 mix-blend-color rounded-[50%]" style={{ backgroundColor: p.team.color }} />
-                                  )}
-                                </div>
-
-                                {/* Pawn Base Stand */}
-                                <div className="w-8 h-3 sm:w-10 sm:h-3.5 bg-stone-800 rounded-[50%] -mt-1 sm:-mt-1.5 z-10 border-b-2 border-stone-950 shadow-[0_4px_8px_rgba(0,0,0,0.8)] relative">
-                                  <div className="absolute top-0 w-full h-[30%] bg-stone-700 rounded-[50%]" />
+                                {/* 3D Pedestal Base */}
+                                <div className="absolute bottom-0 w-[90%] h-[25%] z-0">
+                                   {/* Bottom thickness */}
+                                   <div className="absolute bottom-0 w-full h-[80%] bg-stone-950 rounded-[50%] shadow-[0_6px_10px_rgba(0,0,0,0.9)]" />
+                                   {/* Top face */}
+                                   <div className={`absolute top-0 w-full h-[80%] rounded-[50%] flex items-center justify-center overflow-hidden transition-colors ${
+                                     isActive ? 'bg-stone-600 border border-yellow-400' : 'bg-stone-800 border-t border-stone-700'
+                                   }`}>
+                                      {/* Team Color indicator on base */}
+                                      {p.team && (
+                                         <div className="w-full h-full absolute inset-0 opacity-40 mix-blend-color" style={{ backgroundColor: p.team.color }} />
+                                      )}
+                                      <div className="w-[70%] h-[70%] rounded-[50%] border border-stone-950/50" />
+                                   </div>
                                 </div>
                               </motion.div>
                               
