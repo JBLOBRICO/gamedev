@@ -183,7 +183,7 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
                     
                     <div className="w-full text-center relative z-10">
                       <span className="block text-[10px] font-black text-stone-300 truncate group-hover:text-amber-400 transition-colors">{av.name}</span>
-                      {hero && <span className={`block text-[8px] uppercase tracking-wider font-bold ${hero.colorAccent} truncate`}>{hero.class}</span>}
+                      {hero && <span className={`block text-[8px] uppercase tracking-wider font-bold ${hero.colorAccent} truncate`}>{hero.heroClass}</span>}
                     </div>
 
                     {isSelected && (
