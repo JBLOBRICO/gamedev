@@ -15,15 +15,8 @@ interface BoardPlayer {
   userId: string;
   position: number;
   coins: number;
-  user: {
-    username: string;
-    avatarId: string;
-    nameColor: string;
-  };
-  team?: {
-    name: string;
-    color: string;
-  } | null;
+  user: { username: string; avatarId: string; nameColor: string; };
+  team?: { name: string; color: string; } | null;
 }
 
 interface GameBoardProps {
@@ -34,19 +27,19 @@ interface GameBoardProps {
 }
 
 export default function GameBoard({ players, activePlayerId, round, actions = [] }: GameBoardProps) {
-  const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
+  const [animatedPositions, setAnimatedPositions] = useState<Record<string, number>>({});
   const [cameraShake, setCameraShake] = useState(false);
   const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
   const [dustRings, setDustRings] = useState<{ id: string; tileIndex: number }[]>([]);
-  // Tile DOM refs for pawn overlay positioning
+  const [hoveredTile, setHoveredTile] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
   const tileRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const boardWrapperRef = useRef<HTMLDivElement | null>(null);
   const [tilePositions, setTilePositions] = useState<Record<number, { x: number; y: number; w: number; h: number }>>({});
-
   const prevCoinsRef = useRef<Record<string, number>>({});
   const lastActionIdRef = useRef<string | null>(null);
 
-  // Measure tile positions in screen space for the pawn overlay
   const measureTiles = useCallback(() => {
     const wrapper = boardWrapperRef.current;
     if (!wrapper) return;
@@ -58,8 +51,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
       positions[Number(idx)] = {
         x: r.left - wRect.left + r.width / 2,
         y: r.top - wRect.top + r.height / 2,
-        w: r.width,
-        h: r.height,
+        w: r.width, h: r.height,
       };
     });
     setTilePositions(positions);
@@ -71,30 +63,24 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     return () => window.removeEventListener('resize', measureTiles);
   }, [measureTiles]);
 
+  // Animate pawns tile-by-tile
   useEffect(() => {
     players.forEach((player) => {
       const currentPos = player.position;
       const animPos = animatedPositions[player.id];
-
       if (animPos === undefined) {
         setAnimatedPositions(prev => ({ ...prev, [player.id]: currentPos }));
       } else if (animPos !== currentPos) {
-        const diff = currentPos - animPos;
-        const direction = diff > 0 ? 1 : -1;
+        const direction = currentPos > animPos ? 1 : -1;
         const timer = setTimeout(() => {
           const nextPos = animPos + direction;
           setAnimatedPositions(prev => ({ ...prev, [player.id]: nextPos }));
-
           const dustId = Math.random().toString(36).substring(2, 9);
           setDustRings(prev => [...prev, { id: dustId, tileIndex: nextPos }]);
           setTimeout(() => setDustRings(prev => prev.filter(d => d.id !== dustId)), 600);
-
-          if (nextPos === currentPos) {
-            const finalTile = BOARD_TILES[currentPos];
-            if (finalTile?.type === 'TRAP') {
-              setCameraShake(true);
-              setTimeout(() => setCameraShake(false), 500);
-            }
+          if (nextPos === currentPos && BOARD_TILES[currentPos]?.type === 'TRAP') {
+            setCameraShake(true);
+            setTimeout(() => setCameraShake(false), 500);
           }
         }, 320);
         return () => clearTimeout(timer);
@@ -102,11 +88,12 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     });
   }, [players, animatedPositions]);
 
+  // Floating coin text
   useEffect(() => {
     players.forEach(p => {
-      const prevCoins = prevCoinsRef.current[p.id];
-      if (prevCoins !== undefined && prevCoins !== p.coins) {
-        const diff = p.coins - prevCoins;
+      const prev = prevCoinsRef.current[p.id];
+      if (prev !== undefined && prev !== p.coins) {
+        const diff = p.coins - prev;
         const text = diff > 0 ? `+${diff} Gold` : `${diff} Gold`;
         const color = diff > 0 ? 'text-amber-300 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]' : 'text-rose-400 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]';
         const id = Math.random().toString(36).substring(2, 9);
@@ -117,6 +104,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     });
   }, [players]);
 
+  // Emote floaters from chat
   useEffect(() => {
     if (actions.length === 0) return;
     const newActions = lastActionIdRef.current
@@ -167,19 +155,15 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     }
   };
 
+  // Day/Night cycle
   let ambientClass = 'bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20';
   let isNight = false;
   const cycle = round % 9;
-  if (cycle >= 1 && cycle <= 3) {
-    ambientClass = 'bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/10';
-  } else if (cycle >= 4 && cycle <= 6) {
-    ambientClass = 'bg-gradient-to-br from-orange-950/20 via-rose-950/10 to-stone-950/20';
-  } else {
-    ambientClass = 'bg-gradient-to-br from-indigo-950/30 via-slate-900/20 to-black/40';
-    isNight = true;
-  }
+  if (cycle >= 1 && cycle <= 3) ambientClass = 'bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/10';
+  else if (cycle >= 4 && cycle <= 6) ambientClass = 'bg-gradient-to-br from-orange-950/20 via-rose-950/10 to-stone-950/20';
+  else { ambientClass = 'bg-gradient-to-br from-indigo-950/30 via-slate-900/20 to-black/40'; isNight = true; }
 
-  // Group players by their animated tile for rendering in overlay
+  // Group players by tile
   const playersByTile: Record<number, BoardPlayer[]> = {};
   players.forEach(p => {
     const pos = animatedPositions[p.id] ?? p.position;
@@ -187,10 +171,21 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     playersByTile[pos].push(p);
   });
 
+  // Rank players by position (for rank badge on pawn)
+  const rankedPlayers = [...players].sort((a, b) =>
+    (animatedPositions[b.id] ?? b.position) - (animatedPositions[a.id] ?? a.position)
+  );
+  const rankMap: Record<string, number> = {};
+  rankedPlayers.forEach((p, i) => { rankMap[p.id] = i + 1; });
+  const rankEmoji = ['🥇','🥈','🥉','4️⃣'];
+
+  // Tile tooltip data
+  const hoveredTileData = hoveredTile !== null ? BOARD_TILES[hoveredTile] : null;
+
   return (
     <div
       ref={boardWrapperRef}
-      className={`w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[600px] flex items-center justify-center transition-colors duration-1000`}
+      className={`w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[520px] sm:h-[600px] flex items-center justify-center transition-colors duration-1000`}
     >
       {/* Atmospheric overlays */}
       <div className={`absolute inset-0 pointer-events-none transition-colors duration-1000 ${ambientClass}`} />
@@ -203,13 +198,13 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
       </div>
       {isNight && <div className="absolute inset-0 bg-transparent sparkle-float pointer-events-none opacity-30 z-10" />}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
-      <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20">
+      <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20 pointer-events-none">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
         <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-700">⚜ Kingdom of Historia · Sacred Board ⚜</span>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      {/* ── 3D Board (tiles only, no pawns inside) ── */}
+      {/* ── 3D Board ── */}
       <div className={`board-viewport ${cameraShake ? 'camera-shake' : ''}`}>
         <div
           className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
@@ -217,70 +212,103 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         >
           <div
             className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
-            style={{
-              gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-              gridTemplateRows: 'repeat(5, auto)',
-            }}
+            style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
           >
-            {BOARD_TILES.map((tile) => {
-              return (
-                <div
-                  key={tile.index}
-                  ref={el => { tileRefs.current[tile.index] = el; }}
-                  className={`iso-tile relative aspect-square group`}
-                  style={{
-                    gridRowStart: tile.gridY + 1,
-                    gridColumnStart: tile.gridX + 1,
-                  }}
-                >
-                  <div className={`iso-face iso-face-bottom ${
-                    tile.type === 'TRAP' ? 'bg-rose-950/80 shadow-[0_0_30px_rgba(225,29,72,0.6)]' :
-                    tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
-                    'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
-                  }`}></div>
-
-                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)]`}>
-                    {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
-                    <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
-                      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay" />
-                      {(tile.index % 3 === 0 && tile.type !== 'TRAP' && tile.type !== 'TELEPORT') && (
-                        <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-emerald-900/40 to-transparent mix-blend-multiply" />
-                      )}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent via-amber-500/10 to-amber-500/30 transition-opacity duration-300" />
-                      {(tile.type === 'TELEPORT' || tile.type === 'MYSTERY' || tile.type === 'START') && (
-                        <div className="absolute inset-0 bg-transparent sparkle-float" />
-                      )}
-                    </div>
-                    <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-70 font-black leading-none z-10 drop-shadow-md text-stone-300">
-                      <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
-                      <span className="shrink-0 filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{getTileIcon(tile.type)}</span>
-                    </div>
-                    <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10">
-                      {tile.name}
-                    </span>
+            {BOARD_TILES.map((tile) => (
+              <div
+                key={tile.index}
+                ref={el => { tileRefs.current[tile.index] = el; }}
+                className="iso-tile relative aspect-square group"
+                style={{ gridRowStart: tile.gridY + 1, gridColumnStart: tile.gridX + 1 }}
+                onMouseEnter={(e) => {
+                  setHoveredTile(tile.index);
+                  const wrapper = boardWrapperRef.current;
+                  if (wrapper) {
+                    const wRect = wrapper.getBoundingClientRect();
+                    setTooltipPos({ x: e.clientX - wRect.left, y: e.clientY - wRect.top });
+                  }
+                }}
+                onMouseMove={(e) => {
+                  const wrapper = boardWrapperRef.current;
+                  if (wrapper) {
+                    const wRect = wrapper.getBoundingClientRect();
+                    setTooltipPos({ x: e.clientX - wRect.left, y: e.clientY - wRect.top });
+                  }
+                }}
+                onMouseLeave={() => { setHoveredTile(null); setTooltipPos(null); }}
+              >
+                <div className={`iso-face iso-face-bottom ${
+                  tile.type === 'TRAP' ? 'bg-rose-950/80 shadow-[0_0_30px_rgba(225,29,72,0.6)]' :
+                  tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
+                  'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
+                }`} />
+                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)]`}>
+                  {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
+                  <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay" />
+                    {(tile.index % 3 === 0 && tile.type !== 'TRAP' && tile.type !== 'TELEPORT') && (
+                      <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-emerald-900/40 to-transparent mix-blend-multiply" />
+                    )}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent via-amber-500/10 to-amber-500/30 transition-opacity duration-300" />
+                    {(tile.type === 'TELEPORT' || tile.type === 'MYSTERY' || tile.type === 'START') && (
+                      <div className="absolute inset-0 bg-transparent sparkle-float" />
+                    )}
                   </div>
-
-                  {/* Dust rings stay inside the 3D tile */}
-                  <AnimatePresence>
-                    {dustRings.filter(d => d.tileIndex === tile.index).map(d => (
-                      <motion.div
-                        key={d.id}
-                        initial={{ scale: 0.2, opacity: 0.8, borderWidth: 4 }}
-                        animate={{ scale: 2.5, opacity: 0, borderWidth: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-amber-200 pointer-events-none z-50"
-                      />
-                    ))}
-                  </AnimatePresence>
+                  <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-70 font-black leading-none z-10 drop-shadow-md text-stone-300">
+                    <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
+                    <span className="shrink-0 filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{getTileIcon(tile.type)}</span>
+                  </div>
+                  <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10">
+                    {tile.name}
+                  </span>
                 </div>
-              );
-            })}
+                {/* Dust rings */}
+                <AnimatePresence>
+                  {dustRings.filter(d => d.tileIndex === tile.index).map(d => (
+                    <motion.div
+                      key={d.id}
+                      initial={{ scale: 0.2, opacity: 0.8, borderWidth: 4 }}
+                      animate={{ scale: 2.5, opacity: 0, borderWidth: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-amber-200 pointer-events-none z-50"
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ── Pawn Overlay — completely outside the 3D transform, rendered in screen space ── */}
+      {/* ── Tile Tooltip (screen-space, above 3D board) ── */}
+      <AnimatePresence>
+        {hoveredTileData && tooltipPos && (
+          <motion.div
+            key="tile-tooltip"
+            initial={{ opacity: 0, scale: 0.9, y: 4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-[60] pointer-events-none"
+            style={{
+              left: Math.min(tooltipPos.x + 12, (boardWrapperRef.current?.offsetWidth ?? 600) - 200),
+              top: Math.max(tooltipPos.y - 80, 8),
+            }}
+          >
+            <div className="bg-stone-950/95 border border-amber-800/50 rounded-xl px-3 py-2 shadow-xl max-w-[190px]">
+              <div className="flex items-center gap-1.5 mb-1">
+                {getTileIcon(hoveredTileData.type)}
+                <span className="text-[10px] font-black text-amber-300 uppercase tracking-wide">{hoveredTileData.name}</span>
+              </div>
+              <p className="text-[9px] text-stone-400 leading-snug">{hoveredTileData.description}</p>
+              <div className="mt-1 text-[8px] text-stone-600 font-bold uppercase tracking-widest">Tile #{hoveredTileData.index}</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Pawn Overlay ── */}
       <div className="absolute inset-0 pointer-events-none z-50" aria-hidden="true">
         <AnimatePresence>
           {players.map((p) => {
@@ -291,8 +319,8 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             const avatar = getAvatarById(p.user.avatarId);
             const heroData = getHeroByAvatarId(p.user.avatarId);
             const isActive = p.userId === activePlayerId;
+            const rank = rankMap[p.id] ?? 1;
 
-            // Offset multiple players on the same tile
             const tilemates = playersByTile[tileIndex] || [];
             const myIndex = tilemates.findIndex(tm => tm.id === p.id);
             const total = tilemates.length;
@@ -303,59 +331,49 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 key={p.id}
                 layoutId={`pawn_${p.id}`}
                 initial={{ scale: 0.5, opacity: 0 }}
-                animate={{
-                  x: pos.x - 22 + offsetX,
-                  y: pos.y - 56,
-                  scale: 1,
-                  opacity: 1,
-                }}
+                animate={{ x: pos.x - 22 + offsetX, y: pos.y - 56, scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 26 }}
                 className="absolute top-0 left-0 w-11 flex flex-col items-center pointer-events-auto cursor-help"
                 title={heroData?.fullName || p.user.username}
               >
-                {/* Hop animation on tile change */}
                 <motion.div
                   className="flex flex-col items-center"
                   animate={{ y: [0, -12, 0] }}
                   transition={{ duration: 0.32, ease: 'easeOut' }}
                   key={tileIndex}
                 >
-                  {/* Active glow halo */}
-                  {isActive && (
-                    <div className="absolute -inset-1 rounded-full bg-yellow-400/25 blur-md animate-pulse z-0" />
-                  )}
+                  {/* Active pulse halo */}
+                  {isActive && <div className="absolute -inset-1 rounded-full bg-yellow-400/25 blur-md animate-pulse z-0" />}
 
-                  {/* Portrait — circular, like a chess piece head */}
+                  {/* Rank badge */}
+                  <div className="absolute -top-3 -right-1 text-[10px] z-20 leading-none drop-shadow-md">
+                    {rankEmoji[rank - 1] ?? `#${rank}`}
+                  </div>
+
+                  {/* Portrait */}
                   <div className={`relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border-[3px] bg-slate-900 z-10 ${
                     isActive
                       ? 'border-yellow-400 shadow-[0_0_0_2px_rgba(250,204,21,0.5),0_4px_14px_rgba(250,204,21,0.6)]'
                       : 'border-stone-200 shadow-[0_0_0_2px_rgba(255,255,255,0.4),0_3px_10px_rgba(0,0,0,0.9)]'
                   }`}>
                     {p.team && (
-                      <span
-                        className="absolute top-0 right-0 w-2.5 h-2.5 rounded-bl border-b border-l border-white/40 z-40"
-                        style={{ backgroundColor: p.team.color }}
-                      />
+                      <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-bl border-b border-l border-white/40 z-40"
+                        style={{ backgroundColor: p.team.color }} />
                     )}
                     {avatar.render('w-full h-full object-cover object-top')}
                   </div>
 
-                  {/* Pedestal neck */}
+                  {/* Neck */}
                   <div className="w-2 h-2 bg-gradient-to-b from-stone-600 to-stone-800 rounded-sm shadow-md z-10" />
-
-                  {/* Pedestal base */}
+                  {/* Base */}
                   <div className={`w-7 h-2 rounded-sm z-10 ${
-                    isActive
-                      ? 'bg-yellow-500 shadow-[0_0_8px_rgba(250,204,21,0.8)]'
-                      : 'bg-stone-500 shadow-[0_2px_4px_rgba(0,0,0,0.8)]'
+                    isActive ? 'bg-yellow-500 shadow-[0_0_8px_rgba(250,204,21,0.8)]' : 'bg-stone-500 shadow-[0_2px_4px_rgba(0,0,0,0.8)]'
                   }`} />
                 </motion.div>
 
-                {/* Ground shadow ellipse */}
-                <div className={`w-8 h-2 rounded-full blur-[3px] mt-0.5 ${
-                  isActive ? 'bg-yellow-400/50' : 'bg-black/70'
-                }`} />
+                {/* Shadow ellipse */}
+                <div className={`w-8 h-2 rounded-full blur-[3px] mt-0.5 ${isActive ? 'bg-yellow-400/50' : 'bg-black/70'}`} />
 
                 {/* Name tag */}
                 <div
@@ -365,7 +383,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   {p.user.username}
                 </div>
 
-                {/* Floating coin text */}
+                {/* Floating text */}
                 <AnimatePresence>
                   {floaters.filter(f => f.playerId === p.id).map(f => (
                     <motion.div
@@ -388,4 +406,3 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
     </div>
   );
 }
-

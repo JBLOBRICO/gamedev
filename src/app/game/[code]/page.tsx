@@ -15,7 +15,7 @@ import MatchSummary from '@/components/MatchSummary';
 import LobbyScreen from '@/components/LobbyScreen';
 import SoundSettings from '@/components/SoundSettings';
 import HeroJournal from '@/components/HeroJournal';
-import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen } from 'lucide-react';
+import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, Trophy } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { getTileByIndex } from '@/lib/boardConfig';
 import { sounds } from '@/lib/sounds';
@@ -50,6 +50,8 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
   const [flavorMsg, setFlavorMsg] = useState('');
   const [journalOpen, setJournalOpen] = useState(false);
   const [loadingLore] = useState(() => LOADING_LORE[Math.floor(Math.random() * LOADING_LORE.length)]);
+  const [turnTransition, setTurnTransition] = useState<string | null>(null);
+  const prevActivePlayerRef = useRef<string | null>(null);
 
   const lastTurnIdRef = useRef<string | null>(null);
 
@@ -77,6 +79,16 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           if (data.status === 'ACTIVE' && prev?.status === 'ACTIVE') {
             sounds.playClick();
           }
+        }
+        // Detect turn change for transition overlay
+        const newActiveId = data.turns?.[0]?.activePlayerId;
+        if (newActiveId && newActiveId !== prevActivePlayerRef.current && data.status === 'ACTIVE') {
+          const newActivePlayer = data.players?.find((p: any) => p.userId === newActiveId);
+          if (newActivePlayer && prevActivePlayerRef.current !== null) {
+            setTurnTransition(newActivePlayer.user.username);
+            setTimeout(() => setTurnTransition(null), 2500);
+          }
+          prevActivePlayerRef.current = newActiveId;
         }
         return data;
       });
@@ -320,10 +332,14 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           </div>
         </div>
 
-        {/* Players Quick HUD - "Heroes of the Quest" */}
+        {/* Players Quick HUD - with rank badges */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
-          {room.players.map((p: any) => {
+          {[...room.players]
+            .sort((a: any, b: any) => b.position - a.position)
+            .map((p: any, rankIdx: number) => {
             const isActive = p.userId === activePlayer?.userId;
+            const rankEmojis = ['🥇','🥈','🥉','4️⃣'];
+            const streak = p.currentStreak || 0;
             return (
               <div
                 key={p.id}
@@ -333,20 +349,23 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                     : 'border-stone-800/50 bg-stone-900/30 opacity-65'
                 }`}
               >
+                <span className="text-sm leading-none">{rankEmojis[rankIdx] ?? `#${rankIdx+1}`}</span>
                 <div className="w-6 h-6 rounded-full bg-stone-950 p-0.5 overflow-hidden border border-stone-800/40">
                   {getAvatarById(p.user.avatarId).render('w-full h-full')}
                 </div>
                 <div className="text-left">
-                  <span
-                    className="block text-[10px] leading-tight font-black"
-                    style={{ color: p.user.nameColor }}
-                  >
+                  <span className="block text-[10px] leading-tight font-black" style={{ color: p.user.nameColor }}>
                     {p.user.username}
-                    {p.isHost ? ' --' : ''}
+                    {p.isHost ? ' 👑' : ''}
                     {!p.isConnected ? ' (away)' : ''}
                   </span>
-                  <span className="block text-[8px] text-stone-500 leading-none mt-0.5">
-                    Tile {p.position} - {p.coins}g
+                  <span className="block text-[8px] text-stone-500 leading-none mt-0.5 flex items-center gap-1">
+                    Tile {p.position} · {p.coins}g
+                    {streak >= 3 && (
+                      <span className="text-orange-400 font-black flex items-center gap-0.5">
+                        <Flame className="w-2.5 h-2.5" />{streak}
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
@@ -587,6 +606,32 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
 
       <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
       <SoundSettings />
+
+      {/* ── Turn Transition Overlay ── */}
+      <AnimatePresence>
+        {turnTransition && (
+          <motion.div
+            key="turn-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.7, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.8, y: -20, opacity: 0 }}
+              transition={{ type: 'spring', damping: 18, stiffness: 260 }}
+              className="bg-stone-950/90 border border-amber-700/50 rounded-2xl px-8 py-5 text-center shadow-2xl shadow-amber-900/30 backdrop-blur-md"
+            >
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-600/70 mb-1">⚔️ Next Turn</p>
+              <p className="text-2xl font-black text-amber-300">{turnTransition}</p>
+              <p className="text-[10px] text-stone-500 mt-1 italic">prepares to roll the dice…</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

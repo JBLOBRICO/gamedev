@@ -10,11 +10,12 @@ interface TriviaQuizProps {
   questionText: string;
   category: string;
   difficulty: string;
-  options: string[]; // parsed array
+  options: string[];
   correctAnswer: string;
   funFact?: string | null;
   timeLimit: number;
   rollValue: number;
+  streak?: number;
   onSubmitAnswer: (answer: string) => void;
 }
 
@@ -27,6 +28,7 @@ export default function TriviaQuiz({
   funFact,
   timeLimit,
   rollValue,
+  streak = 0,
   onSubmitAnswer,
 }: TriviaQuizProps) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -123,6 +125,16 @@ export default function TriviaQuiz({
           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/35 border border-emerald-800/40 px-2.5 py-0.5 rounded-full">
             🎲 Rolled: {rollValue}
           </span>
+          {streak >= 2 && (
+            <motion.span
+              initial={{ scale: 0.7 }}
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ repeat: Infinity, duration: 1.2 }}
+              className="text-[9px] font-black uppercase tracking-widest text-orange-400 bg-orange-950/40 border border-orange-800/40 px-2.5 py-0.5 rounded-full flex items-center gap-1"
+            >
+              🔥 {streak} Streak!
+            </motion.span>
+          )}
         </div>
 
         {/* Burning Timer */}
@@ -192,9 +204,39 @@ export default function TriviaQuiz({
         })}
       </div>
 
+      {/* Correct / Wrong result flash */}
+      <AnimatePresence>
+        {submitted && (
+          <motion.div
+            key="result-flash"
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm ${
+              selected === correctAnswer
+                ? 'bg-emerald-950/40 border border-emerald-600/50 text-emerald-300'
+                : 'bg-rose-950/40 border border-rose-600/50 text-rose-300'
+            }`}
+          >
+            {selected === correctAnswer ? (
+              <>
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                <span>Correct! {streak + 1 >= 3 ? `🔥 ${streak + 1} streak!` : 'Well done, Scholar!'}</span>
+              </>
+            ) : (
+              <>
+                <XCircle className="w-5 h-5 shrink-0" />
+                <span>Wrong — the correct answer was: <span className="text-emerald-300">{correctAnswer}</span></span>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Fun Fact */}
       {submitted && funFact && (
-        <div className="mt-3 p-4 rounded-xl border border-amber-900/35 bg-amber-950/15 text-amber-200/80 text-xs italic shadow-inner">
+        <div className="p-4 rounded-xl border border-amber-900/35 bg-amber-950/15 text-amber-200/80 text-xs italic shadow-inner">
           <span className="font-black text-amber-500 mr-1 not-italic">📚 Ancient Lore:</span> {funFact}
         </div>
       )}
