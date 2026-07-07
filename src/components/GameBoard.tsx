@@ -204,12 +204,13 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      {/* ── 3D Board ── */}
-      <div className={`board-viewport ${cameraShake ? 'camera-shake' : ''}`}>
-        <div
-          className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
-          style={{ transform: 'rotateX(60deg) rotateZ(-45deg)' }}
-        >
+      {/* ── 3D Board — shake wrapper is OUTSIDE board-viewport so it never kills the 3D transform ── */}
+      <div className={cameraShake ? 'camera-shake-wrapper' : ''}>
+        <div className="board-viewport">
+          <div
+            className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
+            style={{ transform: 'rotateX(60deg) rotateZ(-45deg)' }}
+          >
           <div
             className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
             style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
@@ -279,6 +280,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             ))}
           </div>
         </div>
+      </div>
       </div>
 
       {/* ── Tile Tooltip (screen-space, above 3D board) ── */}
