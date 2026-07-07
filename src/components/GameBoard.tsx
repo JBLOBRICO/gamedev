@@ -204,17 +204,17 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      {/* ── 3D Board — shake wrapper is OUTSIDE board-viewport so it never kills the 3D transform ── */}
-      <div className={cameraShake ? 'camera-shake-wrapper' : ''}>
+      {/* ── 3D Board ── shake wrapper is a plain sibling div, completely outside the 3D context ── */}
+      <div className={cameraShake ? 'camera-shake-wrapper' : undefined}>
         <div className="board-viewport">
           <div
             className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
             style={{ transform: 'rotateX(60deg) rotateZ(-45deg)' }}
           >
-          <div
-            className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
-            style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
-          >
+            <div
+              className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
+              style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
+            >
             {BOARD_TILES.map((tile) => (
               <div
                 key={tile.index}
@@ -278,9 +278,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 </AnimatePresence>
               </div>
             ))}
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* ── Tile Tooltip (screen-space, above 3D board) ── */}

@@ -340,37 +340,49 @@ body::before {
 }
 
 /* ─── 2.5D Isometric Board ───────────────────────────────────────────────────── */
+
+/*
+  CRITICAL: The 3D chain must be:
+    .board-viewport (perspective)
+      └── .iso-board-container (rotateX + rotateZ, preserve-3d)
+            └── .iso-tile (preserve-3d)
+                  └── .iso-face-top (translateZ)
+
+  ANY animation or transition on .board-viewport or its ancestors that uses
+  "transform" will break preserve-3d in Chrome/Safari. So:
+  - Camera shake lives on a SIBLING wrapper, NOT on .board-viewport.
+  - .board-viewport has NO transform of its own.
+  - .iso-board-container transform is set via inline style only (no CSS transition).
+*/
+
 .board-viewport {
   perspective: 1200px;
-  transform-style: preserve-3d;
   width: 100%;
   height: 100%;
   position: relative;
   overflow: visible;
+  /* NO transform-style here — perspective establishes the 3D context */
 }
 
 .iso-board-container {
   transform-style: preserve-3d;
-  /* Transform applied via inline style in JSX to prevent Framer Motion from overriding it */
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  /* transform set via inline style in JSX so nothing can override it */
   will-change: transform;
 }
 
 .iso-tile {
   transform-style: preserve-3d;
   position: relative;
-  /* Lift up on hover */
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: filter 0.3s ease;
+  /* NO transform transition here — it conflicts with preserve-3d chain */
 }
 
-.iso-tile:hover {
-  transform: translateZ(10px);
-}
 .iso-tile:hover .iso-face-top {
-  filter: brightness(1.2);
+  filter: brightness(1.25);
+  box-shadow: inset 0 0 20px rgba(251,191,36,0.35);
 }
 
-/* The 3D Block Faces for a Tile */
+/* The 3D Block Faces */
 .iso-face {
   position: absolute;
   box-sizing: border-box;
@@ -379,12 +391,11 @@ body::before {
 .iso-face-top {
   width: 100%;
   height: 100%;
-  transform: translateZ(8px); /* Height of the tile */
+  transform: translateZ(8px);
   border-radius: 8px;
   transform-style: preserve-3d;
 }
 
-/* Side walls of the tile to give it depth */
 .iso-face-bottom {
   width: 100%;
   height: 100%;
@@ -394,58 +405,13 @@ body::before {
   box-shadow: 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* ─── Pawn Overlay (screen-space, no 3D transform needed) ───────────────────── */
-/* Pawns are rendered outside the iso-board-container so they always face
-   the screen upright — no counter-rotation tricks required.               */
-.pawn-upright {
-  /* legacy class kept for safety — no longer used for rotation */
-  transform: none;
-}
-
-/* ─── Chess Piece Base ───────────────────────────────────────────────────────── */
-.chess-piece-base {
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 8px;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0.9) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.chess-piece-base-active {
-  background: radial-gradient(ellipse at center, rgba(250,204,21,0.85) 0%, rgba(250,204,21,0.3) 50%, transparent 70%);
-  animation: baseGlow 1.2s infinite ease-in-out;
-}
-
-@keyframes baseGlow {
-  0%, 100% { transform: translateX(-50%) scaleX(1);   opacity: 0.8; }
-  50%       { transform: translateX(-50%) scaleX(1.2); opacity: 1;   }
-}
-
-.chess-piece-pedestal {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-}
-
-.chess-piece-pedestal::after {
-  content: '';
-  display: block;
-  width: 70%;
-  height: 5px;
-  background: linear-gradient(to bottom, rgba(80,60,20,0.9), rgba(20,15,5,0.95));
-  border-radius: 0 0 40% 40%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
-  margin-top: 2px;
-}
-
-/* ─── Cinematic Camera Effects ───────────────────────────────────────────────── */
+/* ─── Camera Shake ───────────────────────────────────────────────────────────── */
+/*
+  Shake lives on a plain div OUTSIDE .board-viewport entirely.
+  It only translates X/Y — never touches rotateX/rotateZ/preserve-3d.
+  Using will-change:transform on this wrapper is safe because it is
+  NOT part of the 3D stacking context.
+*/
 @keyframes cameraShake {
   0%   { transform: translate(0,    0   ); }
   15%  { transform: translate(-3px,  2px); }
@@ -457,9 +423,8 @@ body::before {
   100% { transform: translate(0,    0   ); }
 }
 
-/* Shake wrapper — sits OUTSIDE board-viewport so it never touches the 3D transform */
 .camera-shake-wrapper {
-  animation: cameraShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  animation: cameraShake 0.45s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 /* ─── Hero Personality Animations ────────────────────────────────────────────── */
