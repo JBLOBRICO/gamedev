@@ -279,7 +279,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                               animate={{ scale: 1, y: 0, opacity: 1 }}
                               exit={{ scale: 0.6, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                              className="w-8 h-12 sm:w-10 sm:h-16 flex flex-col items-center justify-end relative z-20 cursor-help group"
+                              className="w-10 h-14 flex flex-col items-center justify-end relative z-20 cursor-help group"
                               title={heroData?.fullName || p.user.username}
                             >
                               {/* Hopping Chess Piece Body */}
@@ -289,34 +289,40 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                                 transition={{ duration: 0.35, ease: 'easeOut', repeat: 0 }}
                                 key={animatedPositions[p.id]} // Force hop animation on position change
                               >
-                                {/* Standee Portrait (Arched top) */}
-                                <div className={`w-[85%] h-[75%] absolute bottom-[18%] rounded-t-full rounded-b-md bg-stone-900 shadow-xl overflow-hidden z-10 flex flex-col items-center justify-start p-[2px] transition-all ${
+                                {/* Avatar Head (Bulb of the pawn) */}
+                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-900 overflow-hidden relative z-30 transition-all ${
                                   isActive
-                                    ? 'border-2 border-yellow-400 ring-4 ring-yellow-400/30 shadow-[0_0_15px_rgba(250,204,21,0.6)] z-30'
-                                    : 'border-2 border-stone-700 shadow-[0_5px_10px_rgba(0,0,0,0.8)]'
+                                    ? 'border-4 border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_15px_rgba(250,204,21,0.6)]'
+                                    : 'border-4 border-stone-700 shadow-lg'
                                 }`}>
-                                   <div className={`w-full h-full rounded-t-full rounded-b-sm overflow-hidden bg-slate-900 relative ${animClass}`}>
-                                      {/* Scale up the SVG so it acts like a portrait inside the tall arch */}
-                                      <div className="absolute top-[-10%] left-[-15%] w-[130%] h-[130%] pointer-events-none">
-                                         {avatar.render('w-full h-full object-cover object-top')}
-                                      </div>
-                                      {/* Glass shine effect */}
-                                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none mix-blend-overlay" />
-                                   </div>
+                                  {p.team && (
+                                    <span
+                                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
+                                      style={{ backgroundColor: p.team.color }}
+                                    />
+                                  )}
+                                  <div className="absolute top-[-10%] left-[-15%] w-[130%] h-[130%] pointer-events-none">
+                                     {avatar.render('w-full h-full object-cover object-top')}
+                                  </div>
+                                </div>
+                                
+                                {/* Pawn Neck */}
+                                <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-b from-stone-800 to-stone-700 -mt-1 sm:-mt-2 z-20 border-l border-r border-stone-900 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] relative">
+                                  {/* Gloss shine */}
+                                  <div className="absolute left-0 w-[30%] h-full bg-white/5" />
                                 </div>
 
-                                {/* 3D Pedestal Base */}
-                                <div className="absolute bottom-0 w-[100%] h-[28%] z-0">
-                                   {/* Bottom thickness */}
-                                   <div className="absolute bottom-0 w-full h-[80%] bg-stone-950 rounded-[50%] shadow-[0_6px_10px_rgba(0,0,0,0.9)]" />
-                                   {/* Top face */}
-                                   <div className="absolute top-0 w-full h-[80%] bg-stone-700 rounded-[50%] border-2 border-stone-800 flex items-center justify-center overflow-hidden">
-                                      {/* Team Color indicator on base */}
-                                      {p.team && (
-                                         <div className="w-full h-full absolute inset-0 opacity-40 mix-blend-color" style={{ backgroundColor: p.team.color }} />
-                                      )}
-                                      <div className="w-[70%] h-[70%] rounded-[50%] border border-stone-800/40" />
-                                   </div>
+                                {/* Pawn Base Top Ring */}
+                                <div className="w-7 h-2 sm:w-8 sm:h-2.5 bg-stone-600 rounded-[50%] -mt-1 sm:-mt-1.5 z-20 border border-stone-800 shadow-inner relative">
+                                  {/* Team Color indicator on ring */}
+                                  {p.team && (
+                                      <div className="w-full h-full absolute inset-0 opacity-50 mix-blend-color rounded-[50%]" style={{ backgroundColor: p.team.color }} />
+                                  )}
+                                </div>
+
+                                {/* Pawn Base Stand */}
+                                <div className="w-8 h-3 sm:w-10 sm:h-3.5 bg-stone-800 rounded-[50%] -mt-1 sm:-mt-1.5 z-10 border-b-2 border-stone-950 shadow-[0_4px_8px_rgba(0,0,0,0.8)] relative">
+                                  <div className="absolute top-0 w-full h-[30%] bg-stone-700 rounded-[50%]" />
                                 </div>
                               </motion.div>
                               
