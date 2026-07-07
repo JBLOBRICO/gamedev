@@ -194,9 +194,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      <div className="board-viewport">
+      <div className={`board-viewport ${cameraShake ? 'camera-shake' : ''}`}>
         <motion.div 
-           className={`iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10 ${cameraShake ? 'camera-shake' : ''}`}
+           className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
            layout
         >
           {/*
