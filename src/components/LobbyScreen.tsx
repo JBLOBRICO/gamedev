@@ -102,7 +102,7 @@ export default function LobbyScreen({
       <div className="lg:col-span-2 space-y-5">
 
         {/* Great Hall Header */}
-        <div className="p-6 rounded-2xl border border-amber-900/35 glass-panel medieval-frame">
+        <div className="p-6 rounded-2xl stone-panel golden-border medieval-frame scroll-texture">
           {/* Torch decorations */}
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3">
@@ -131,14 +131,14 @@ export default function LobbyScreen({
                 </div>
                 <button
                   onClick={copyCode}
-                  className="p-1.5 bg-stone-900 hover:bg-stone-800 rounded-lg text-stone-400 hover:text-amber-300 transition-colors"
+                  className="p-1.5 bg-stone-900 hover:bg-stone-800 rounded-lg text-stone-400 hover:text-amber-300 transition-colors btn-press"
                 >
                   {copied ? <span className="text-[10px] text-emerald-400 font-black">✓</span> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               </div>
               <button
                 onClick={copyCode}
-                className="p-2.5 bg-stone-950 border border-stone-800/60 text-stone-400 hover:text-amber-300 rounded-xl transition-all active:scale-95"
+                className="p-2.5 bg-stone-950 border border-stone-800/60 text-stone-400 hover:text-amber-300 rounded-xl transition-all active:scale-95 btn-press"
               >
                 <Share2 className="w-4 h-4" />
               </button>
@@ -263,7 +263,7 @@ export default function LobbyScreen({
           <div className="flex items-center justify-between pt-5 mt-2 border-t border-stone-800/40">
             <button
               onClick={() => { sounds.playClick(); onLeaveRoom(); }}
-              className="px-5 py-2.5 rounded-xl border border-stone-700/50 text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-900 transition-all font-semibold active:scale-95 text-xs"
+              className="px-5 py-2.5 rounded-xl border border-stone-700/50 text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-900 transition-all font-semibold active:scale-95 text-xs btn-press"
             >
               Abandon Quest
             </button>
@@ -271,7 +271,7 @@ export default function LobbyScreen({
             <div className="flex items-center gap-3">
               <button
                 onClick={onToggleReady}
-                className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider transition-all active:scale-95 text-xs border ${
+                className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider transition-all active:scale-95 text-xs border btn-press ${
                   isReady
                     ? 'bg-stone-800 text-emerald-400 border-emerald-600/30'
                     : 'bg-emerald-700 hover:bg-emerald-600 text-stone-950 border-emerald-500/50'
@@ -282,7 +282,7 @@ export default function LobbyScreen({
               {isHost && (
                 <button
                   onClick={onStartGame}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-wider transition-all active:scale-95 text-xs shadow-lg shadow-amber-900/30"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-wider transition-all active:scale-95 text-xs shadow-lg shadow-amber-900/30 btn-press"
                 >
                   The Quest Begins <Play className="w-4 h-4 fill-current" />
                 </button>
@@ -293,7 +293,7 @@ export default function LobbyScreen({
       </div>
 
       {/* ── Right: Scroll of Whispers (Chat) ──────────────────────────────── */}
-      <div className="lg:col-span-1 p-5 rounded-2xl border border-stone-800/50 glass-panel flex flex-col h-[520px]">
+      <div className="lg:col-span-1 p-5 rounded-2xl stone-panel golden-border scroll-texture flex flex-col h-[520px]">
         <div className="flex items-center gap-2 pb-3 border-b border-stone-800/50">
           <MessageSquare className="w-4 h-4 text-amber-600/60" />
           <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest">

@@ -106,21 +106,30 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5f0e8] relative overflow-hidden bg-grid-pattern">
 
-      {/* ── Ambient particles ──────────────────────────────────────────────── */}
+      {/* ── Ambient particles & World Effects ───────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Fog Layers */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 z-0" />
+        <div className="absolute bottom-0 left-0 w-[200%] h-64 bg-white/5 blur-3xl fog-drift z-0" style={{ animationDuration: '20s' }} />
+        <div className="absolute bottom-10 left-0 w-[200%] h-48 bg-amber-500/5 blur-3xl fog-drift z-0" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
+
+        {/* Ambient Birds (CSS animated small dots/shapes) */}
+        <div className="absolute top-20 left-[-5%] w-2 h-1 bg-black/40 rounded-full blur-[1px] fog-drift" style={{ animationDuration: '25s' }} />
+        <div className="absolute top-24 left-[-10%] w-2 h-1 bg-black/40 rounded-full blur-[1px] fog-drift" style={{ animationDuration: '22s' }} />
+
         {particles.map(p => (
           <div
             key={p.id}
-            className="absolute bottom-0 w-1 h-1 rounded-full bg-amber-400/30"
+            className="absolute bottom-0 w-1 h-1 rounded-full bg-amber-400/50 sparkle-float"
             style={{
               left: `${p.x}%`,
-              animation: `particleRise ${p.dur}s ${p.delay}s infinite ease-in-out`,
+              animation: `particleRise ${p.dur}s ${p.delay}s infinite ease-in-out, sparkleFloat 3s infinite ease-in-out`,
             }}
           />
         ))}
         {/* Torch glows */}
-        <div className="absolute top-0 left-8 w-3 h-6 bg-amber-500/15 rounded-full blur-sm torch-flicker" />
-        <div className="absolute top-0 right-8 w-3 h-6 bg-amber-500/15 rounded-full blur-sm torch-flicker" style={{ animationDelay: '0.7s' }} />
+        <div className="absolute top-0 left-8 w-4 h-8 bg-amber-500/20 rounded-full blur-md torch-flicker" />
+        <div className="absolute top-0 right-8 w-4 h-8 bg-amber-500/20 rounded-full blur-md torch-flicker" style={{ animationDelay: '0.7s' }} />
       </div>
 
       {/* ── Castle Banner Header ───────────────────────────────────────────── */}
@@ -222,7 +231,7 @@ export default function Home() {
           <div className="lg:col-span-1 space-y-5">
 
             {/* Create Room — "Summon the Great Hall" */}
-            <div className="p-6 rounded-2xl border border-amber-900/35 glass-panel space-y-4 medieval-frame">
+            <div className="p-6 rounded-2xl stone-panel golden-border space-y-4 medieval-frame scroll-texture btn-press transition-transform">
               <div className="flex items-center gap-2 pb-2 border-b border-amber-900/25">
                 <Castle className="w-5 h-5 text-amber-500" />
                 <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider">
@@ -280,7 +289,7 @@ export default function Home() {
             </div>
 
             {/* Join Room — "Answer the King's Call" */}
-            <div className="p-6 rounded-2xl border border-stone-800/50 glass-panel space-y-4 medieval-frame">
+            <div className="p-6 rounded-2xl stone-panel golden-border space-y-4 medieval-frame scroll-texture btn-press transition-transform">
               <div className="flex items-center gap-2 pb-2 border-b border-stone-800/40">
                 <Users className="w-5 h-5 text-sky-400" />
                 <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider">
@@ -315,7 +324,7 @@ export default function Home() {
             <Link
               href="/training"
               onClick={() => sounds.playClick()}
-              className="group block p-5 rounded-2xl border border-indigo-900/40 bg-gradient-to-br from-indigo-950/50 to-purple-950/50 hover:border-indigo-700/50 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-950/20"
+              className="group block p-5 rounded-2xl stone-panel golden-border hover:brightness-110 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-950/20 btn-press"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, Gift, Sparkles, Zap, Flame, Compass, HelpCircle,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { BOARD_TILES } from '@/lib/boardConfig';
 import { getAvatarById } from '@/lib/avatars';
+import { getHeroByAvatarId } from '@/lib/heroes';
 
 interface BoardPlayer {
   id: string;
@@ -33,6 +34,7 @@ interface GameBoardProps {
 export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
   // Animate pawns tile by tile
   const [animatedPositions, setAnimatedPositions] = useState<{ [playerId: string]: number }>({});
+  const [cameraShake, setCameraShake] = useState(false);
 
   useEffect(() => {
     players.forEach((player) => {
@@ -49,6 +51,15 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
             ...prev,
             [player.id]: animPos + direction
           }));
+          
+          // Trigger shake if they hit a trap
+          if (animPos + direction === currentPos) {
+             const finalTile = BOARD_TILES[currentPos];
+             if (finalTile?.type === 'TRAP') {
+                setCameraShake(true);
+                setTimeout(() => setCameraShake(false), 500);
+             }
+          }
         }, 320);
         return () => clearTimeout(timer);
       }
@@ -82,93 +93,115 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
   };
 
   return (
-    <div className="w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern">
+    <div className="w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[600px] flex items-center justify-center">
       {/* Castle wall atmospheric overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20 pointer-events-none" />
       {/* Top decorative banner line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
       {/* Board label */}
-      <div className="flex items-center justify-center gap-2 mb-3 opacity-50">
+      <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
         <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-700">⚜ Kingdom of Historia · Sacred Board ⚜</span>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      {/*
-        Board: 10 columns × 5 rows serpentine layout
-        Mobile: 5 columns (tiles wrap naturally, grid auto-places via gridRowStart/gridColumnStart)
-        Desktop: 10 columns
-      */}
-      <div
-        className="grid gap-1.5 sm:gap-2 select-none relative z-10"
-        style={{
-          gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-          gridTemplateRows: 'repeat(5, auto)',
-        }}
-      >
-        {BOARD_TILES.map((tile) => {
-          const playersOnTile = players.filter(
-            (p) => (animatedPositions[p.id] ?? p.position) === tile.index
-          );
+      <div className="board-viewport">
+        <motion.div 
+           className={`iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10 ${cameraShake ? 'camera-shake' : ''}`}
+           layout
+        >
+          {/*
+            Board: 10 columns × 5 rows serpentine layout
+            Mobile: 5 columns (tiles wrap naturally, grid auto-places via gridRowStart/gridColumnStart)
+            Desktop: 10 columns
+          */}
+          <div
+            className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
+            style={{
+              gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
+              gridTemplateRows: 'repeat(5, auto)',
+            }}
+          >
+            {BOARD_TILES.map((tile) => {
+              const playersOnTile = players.filter(
+                (p) => (animatedPositions[p.id] ?? p.position) === tile.index
+              );
 
-          return (
-            <div
-              key={tile.index}
-              className={`relative aspect-square rounded-xl border-2 flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} shadow-sm`}
-              style={{
-                gridRowStart: tile.gridY + 1,
-                gridColumnStart: tile.gridX + 1,
-                minWidth: 0,
-              }}
-            >
-              {/* Tile index + icon */}
-              <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-60 font-black leading-none">
-                <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
-                <span className="shrink-0">{getTileIcon(tile.type)}</span>
-              </div>
+              return (
+                <div
+                  key={tile.index}
+                  className={`iso-tile relative aspect-square group`}
+                  style={{
+                    gridRowStart: tile.gridY + 1,
+                    gridColumnStart: tile.gridX + 1,
+                  }}
+                >
+                  <div className="iso-face iso-face-bottom"></div>
+                  
+                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 border-stone-800/50 shadow-sm overflow-hidden group-hover:border-amber-400/50`}>
+                    
+                    {/* Glowing effect on hover */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent to-white/10 pointer-events-none transition-opacity" />
 
-              {/* Tile Name */}
-              <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2">
-                {tile.name}
-              </span>
+                    {/* Tile index + icon */}
+                    <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-60 font-black leading-none z-10">
+                      <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
+                      <span className="shrink-0">{getTileIcon(tile.type)}</span>
+                    </div>
 
-              {/* Pawns slot */}
-              <div className="h-5 sm:h-7 flex flex-wrap items-center justify-center gap-0.5 mt-0.5">
-                <AnimatePresence>
-                  {playersOnTile.map((p) => {
-                    const avatar = getAvatarById(p.user.avatarId);
-                    const isActive = p.userId === activePlayerId;
-                    return (
-                      <motion.div
-                        key={p.id}
-                        layoutId={`pawn_${p.id}`}
-                        initial={{ scale: 0.6, y: -8 }}
-                        animate={{ scale: 1, y: 0 }}
-                        exit={{ scale: 0.6 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                        className={`w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-slate-950 p-0.5 border-2 shadow-lg shadow-black/80 flex items-center justify-center relative cursor-help ${
-                          isActive
-                            ? 'border-yellow-400 ring-1 ring-yellow-400/50 scale-110 z-20'
-                            : 'border-slate-300'
-                        }`}
-                        title={p.user.username}
-                      >
-                        {p.team && (
-                          <span
-                            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-slate-950"
-                            style={{ backgroundColor: p.team.color }}
-                          />
-                        )}
-                        {avatar.render('w-full h-full')}
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
-            </div>
-          );
-        })}
+                    {/* Tile Name */}
+                    <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10">
+                      {tile.name}
+                    </span>
+
+                    {/* Pawns slot */}
+                    <div className="h-5 sm:h-7 flex flex-wrap items-center justify-center gap-0.5 mt-0.5 z-20 pawn-upright">
+                      <AnimatePresence>
+                        {playersOnTile.map((p) => {
+                          const avatar = getAvatarById(p.user.avatarId);
+                          const heroData = getHeroByAvatarId(p.user.avatarId);
+                          const isActive = p.userId === activePlayerId;
+                          
+                          // Hero Animation
+                          const animClass = isActive ? heroData?.walkingAnim || 'anim-walk-brisk' : heroData?.idleAnim || 'anim-idle-look-around';
+                          
+                          return (
+                            <motion.div
+                              key={p.id}
+                              layoutId={`pawn_${p.id}`}
+                              initial={{ scale: 0.6, y: -20, opacity: 0 }}
+                              animate={{ scale: 1, y: 0, opacity: 1 }}
+                              exit={{ scale: 0.6, opacity: 0 }}
+                              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-950 p-0.5 shadow-2xl flex items-center justify-center relative cursor-help ${animClass} ${
+                                isActive
+                                  ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/50 scale-125 z-30'
+                                  : 'border-2 border-slate-400/60 z-20'
+                              }`}
+                              title={heroData?.fullName || p.user.username}
+                            >
+                              {p.team && (
+                                <span
+                                  className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-slate-950 z-40"
+                                  style={{ backgroundColor: p.team.color }}
+                                />
+                              )}
+                              {avatar.render('w-full h-full')}
+                              
+                              {/* Hero Shadow */}
+                              <div className="absolute -bottom-2 w-4 h-1 bg-black/40 rounded-full blur-[2px] -z-10" />
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

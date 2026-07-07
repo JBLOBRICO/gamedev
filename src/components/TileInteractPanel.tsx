@@ -61,7 +61,7 @@ export default function TileInteractPanel({
   const theme = getTileTheme();
 
   return (
-    <div className={`w-full p-6 border rounded-3xl space-y-4 max-w-md mx-auto text-center ${theme.border}`}>
+    <div className={`w-full p-6 rounded-3xl space-y-4 max-w-md mx-auto text-center stone-panel golden-border scroll-texture`}>
       {/* Ornament */}
       <div className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.25em]">⚜ Tile Encountered ⚜</div>
 
@@ -94,7 +94,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full mt-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 font-bold uppercase text-xs"
+            className="w-full mt-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 font-bold uppercase text-xs btn-press"
           >
             {hasShield ? 'Invoke the Shield' : 'Accept the Curse'}
           </button>
@@ -111,14 +111,14 @@ export default function TileInteractPanel({
             <button
               disabled={disabled || playerCoins < 10}
               onClick={() => handleAction('OPEN')}
-              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs disabled:opacity-40"
+              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs disabled:opacity-40 btn-press"
             >
               Open the Royal Treasury (10g)
             </button>
             <button
               disabled={disabled}
               onClick={() => handleAction('SKIP')}
-              className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs"
+              className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs btn-press"
             >
               Leave the Chest
             </button>
@@ -135,7 +135,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Take the Secret Passage!
           </button>
@@ -151,7 +151,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold uppercase text-xs btn-press"
           >
             Press Forward
           </button>
@@ -167,7 +167,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-black uppercase text-xs btn-press"
           >
             Invoke the Ancient Relic
           </button>
@@ -184,14 +184,14 @@ export default function TileInteractPanel({
             <button
               disabled={disabled}
               onClick={() => handleAction('GAMBLE')}
-              className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-slate-950 font-black uppercase text-xs"
+              className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-slate-950 font-black uppercase text-xs btn-press"
             >
               Risk Your Fortune!
             </button>
             <button
               disabled={disabled}
               onClick={() => handleAction('SKIP')}
-              className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs"
+              className="flex-1 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs btn-press"
             >
               Skip
             </button>
@@ -208,7 +208,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-black uppercase text-xs btn-press"
           >
             Face the Knight's Trial!
           </button>
@@ -224,7 +224,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Claim the Fate Scroll!
           </button>
@@ -240,7 +240,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-black uppercase text-xs btn-press"
           >
             Trigger Royal Decree
           </button>
@@ -256,7 +256,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-black uppercase text-xs btn-press"
           >
             Step Through the Portal!
           </button>
@@ -272,7 +272,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-lime-500 hover:bg-lime-600 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-lime-500 hover:bg-lime-600 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Claim Your Relic!
           </button>
@@ -288,7 +288,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-sky-950/40 hover:bg-sky-900/50 border border-sky-700/40 text-sky-200 font-bold uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-sky-950/40 hover:bg-sky-900/50 border border-sky-700/40 text-sky-200 font-bold uppercase text-xs btn-press"
           >
             Endure the Curse
           </button>
@@ -304,7 +304,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Roll the Blessed Dice!
           </button>
@@ -320,7 +320,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black uppercase text-xs btn-press"
           >
             Invoke the Mirror!
           </button>
@@ -336,7 +336,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Collect Royal Gold!
           </button>
@@ -352,7 +352,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-orange-900 hover:bg-orange-800 border border-orange-700 text-orange-200 font-bold uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-orange-900 hover:bg-orange-800 border border-orange-700 text-orange-200 font-bold uppercase text-xs btn-press"
           >
             Press Forward
           </button>
@@ -365,7 +365,7 @@ export default function TileInteractPanel({
           <button
             disabled={disabled}
             onClick={() => handleAction('CONTINUE')}
-            className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-slate-950 font-black uppercase text-xs"
+            className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-slate-950 font-black uppercase text-xs btn-press"
           >
             Continue
           </button>

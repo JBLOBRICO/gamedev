@@ -309,3 +309,174 @@ body::before {
   box-shadow: 0 0 20px rgba(201, 168, 76, 0.3), 0 0 40px rgba(201, 168, 76, 0.1);
   animation: goldGlow 2.5s infinite ease-in-out;
 }
+
+/* ─── Premium Fantasy UI ─────────────────────────────────────────────────────── */
+.stone-panel {
+  background: linear-gradient(145deg, #1c1917, #292524);
+  border: 1px solid #44403c;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0,0,0,0.8);
+  border-radius: 12px;
+  position: relative;
+}
+
+.golden-border {
+  border: 2px solid #c9a84c;
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+}
+
+.scroll-texture {
+  background-color: #e5d8b8;
+  background-image: 
+    linear-gradient(90deg, rgba(166,145,92,0.5) 0%, transparent 5%, transparent 95%, rgba(166,145,92,0.5) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px);
+  color: #3d3325;
+  box-shadow: inset 0 0 30px rgba(100,70,20,0.3), 0 4px 15px rgba(0,0,0,0.5);
+  border: 1px solid #b89f66;
+}
+
+/* Hover effects */
+.btn-press:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+/* ─── 2.5D Isometric Board ───────────────────────────────────────────────────── */
+.board-viewport {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+.iso-board-container {
+  transform-style: preserve-3d;
+  /* Rotate to isometric angle */
+  transform: rotateX(60deg) rotateZ(-45deg);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.iso-tile {
+  transform-style: preserve-3d;
+  position: relative;
+  /* Lift up on hover */
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.iso-tile:hover {
+  transform: translateZ(10px);
+  filter: brightness(1.2);
+}
+
+/* The 3D Block Faces for a Tile */
+.iso-face {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.iso-face-top {
+  width: 100%;
+  height: 100%;
+  transform: translateZ(8px); /* Height of the tile */
+  border-radius: 8px;
+}
+
+/* Side walls of the tile to give it depth */
+.iso-face-bottom {
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  transform: translateZ(0px);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* ─── Pawn Standing Upright ──────────────────────────────────────────────────── */
+.pawn-upright {
+  /* Reverse the board rotation so pawn stands straight */
+  transform: rotateZ(45deg) rotateX(-60deg);
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+}
+
+/* ─── Cinematic Camera Effects ───────────────────────────────────────────────── */
+@keyframes cameraShake {
+  0% { transform: rotateX(60deg) rotateZ(-45deg) translate(1px, 1px) rotate(0deg); }
+  10% { transform: rotateX(60deg) rotateZ(-45deg) translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: rotateX(60deg) rotateZ(-45deg) translate(-3px, 0px) rotate(1deg); }
+  30% { transform: rotateX(60deg) rotateZ(-45deg) translate(3px, 2px) rotate(0deg); }
+  40% { transform: rotateX(60deg) rotateZ(-45deg) translate(1px, -1px) rotate(1deg); }
+  50% { transform: rotateX(60deg) rotateZ(-45deg) translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: rotateX(60deg) rotateZ(-45deg) translate(-3px, 1px) rotate(0deg); }
+  70% { transform: rotateX(60deg) rotateZ(-45deg) translate(3px, 1px) rotate(-1deg); }
+  80% { transform: rotateX(60deg) rotateZ(-45deg) translate(-1px, -1px) rotate(1deg); }
+  90% { transform: rotateX(60deg) rotateZ(-45deg) translate(1px, 2px) rotate(0deg); }
+  100% { transform: rotateX(60deg) rotateZ(-45deg) translate(1px, -2px) rotate(-1deg); }
+}
+.camera-shake {
+  animation: cameraShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* ─── Hero Personality Animations ────────────────────────────────────────────── */
+@keyframes walkHeavy {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-8px) scaleY(1.05); }
+}
+.anim-walk-heavy { animation: walkHeavy 0.4s infinite ease-in-out; }
+
+@keyframes walkFloat {
+  0%, 100% { transform: translateY(-5px); }
+  50% { transform: translateY(-12px); }
+}
+.anim-walk-float { animation: walkFloat 0.8s infinite ease-in-out; }
+
+@keyframes walkStealth {
+  0%, 100% { transform: translateY(0) scaleY(0.9); }
+  50% { transform: translateY(-4px) scaleY(1); }
+}
+.anim-walk-stealth { animation: walkStealth 0.3s infinite ease-in-out; }
+
+@keyframes walkBrisk {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+.anim-walk-brisk { animation: walkBrisk 0.25s infinite ease-in-out; }
+
+@keyframes walkProud {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.anim-walk-proud { animation: walkProud 0.5s infinite ease-out; }
+
+@keyframes walkSkip {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-15px) rotate(5deg); }
+  70% { transform: translateY(-15px) rotate(-5deg); }
+}
+.anim-walk-skip { animation: walkSkip 0.4s infinite ease-in-out; }
+
+@keyframes walkClunky {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(3deg); }
+}
+.anim-walk-clunky { animation: walkClunky 0.6s infinite steps(2); }
+
+@keyframes walkGlide {
+  0%, 100% { transform: translateY(-10px); opacity: 0.9; }
+  50% { transform: translateY(-12px); opacity: 1; }
+}
+.anim-walk-glide { animation: walkGlide 1s infinite ease-in-out; }
+
+@keyframes walkStomp {
+  0%, 100% { transform: translateY(0) scaleX(1.05); }
+  50% { transform: translateY(-6px) scaleX(1); }
+}
+.anim-walk-stomp { animation: walkStomp 0.5s infinite ease-in; }
+
+@keyframes walkElegant {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.anim-walk-elegant { animation: walkElegant 0.6s infinite ease-in-out; }
+
