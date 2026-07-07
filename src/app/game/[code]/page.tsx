@@ -384,7 +384,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
 
       {/* -- Sacred Board of Historia ------------------------------------------- */}
       <div className="max-w-6xl mx-auto">
-        <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} />
+        <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} />
       </div>
 
       {/* -- Controls Grid ------------------------------------------------------ */}
