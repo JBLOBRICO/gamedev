@@ -7,6 +7,7 @@ import { useProfile } from '@/hooks/useProfile';
 import ProfileEditModal from '@/components/ProfileEditModal';
 import ProfileStats from '@/components/ProfileStats';
 import SoundSettings from '@/components/SoundSettings';
+import HeroJournal from '@/components/HeroJournal';
 import { Settings, Plus, Users, ArrowRight, ShieldAlert, Sparkles, BookOpen, Crown, Sword, Castle, ScrollText } from 'lucide-react';
 import { sounds } from '@/lib/sounds';
 import { getRandomFlavorMessage } from '@/lib/heroes';
@@ -22,6 +23,7 @@ export default function Home() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [flavorMsg, setFlavorMsg] = useState('');
   const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number; dur: number }>>([]);
+  const [journalOpen, setJournalOpen] = useState(false);
 
   useEffect(() => {
     setFlavorMsg(getRandomFlavorMessage());
@@ -347,6 +349,27 @@ export default function Home() {
               </div>
             </Link>
 
+            {/* Chronicles of Historia */}
+            <button
+              onClick={() => { sounds.playClick(); setJournalOpen(true); }}
+              className="w-full text-left group block p-5 rounded-2xl stone-panel golden-border hover:brightness-110 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-amber-950/20 btn-press"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-900/20 border border-amber-700/30 flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-[#f5f0e8] flex items-center gap-2">
+                      Chronicles of Historia
+                    </p>
+                    <p className="text-[10px] text-amber-600/70 font-semibold italic">"Read the tales of legendary heroes"</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-500 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </button>
+
             {/* Kingdom modes info card */}
             <div className="p-4 rounded-xl border border-amber-900/20 bg-amber-950/10 space-y-2">
               <p className="text-[9px] font-black text-amber-600/70 uppercase tracking-widest flex items-center gap-1.5">
@@ -391,6 +414,7 @@ export default function Home() {
         />
       )}
 
+      <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
       <SoundSettings />
     </main>
   );
