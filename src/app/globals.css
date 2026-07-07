@@ -3,115 +3,212 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
+  --background: #0a0a0f;
+  --foreground: #f5f0e8;
+  --royal-gold: #c9a84c;
+  --royal-blue: #1e3a6e;
+  --crimson: #8b1a1a;
+  --emerald: #0d4a2e;
+  --stone: #3d3325;
+  --parchment: #f5f0e8;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(30, 27, 75, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(88, 28, 135, 0.15) 0px, transparent 60%);
+    radial-gradient(at 0% 0%, rgba(30, 58, 110, 0.35) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.2) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(61, 51, 37, 0.4) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(100, 70, 20, 0.08) 0px, transparent 60%);
   background-attachment: fixed;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
 
-/* Glassmorphism Classes */
+/* ─── Castle Stone Texture Overlay ─────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Glassmorphism — Castle Stone Style ────────────────────────────────────── */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(10, 8, 5, 0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px border-solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(201, 168, 76, 0.08);
 }
 
 .glass-panel-light {
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(30, 25, 15, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px border-solid rgba(255, 255, 255, 0.12);
 }
 
+/* ─── Parchment Panel ────────────────────────────────────────────────────────── */
+.parchment-panel {
+  background: linear-gradient(135deg, rgba(45, 35, 20, 0.8) 0%, rgba(30, 20, 10, 0.9) 100%);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(201, 168, 76, 0.03);
+}
+
+/* ─── Input Fields ───────────────────────────────────────────────────────────── */
 .glass-input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(10, 8, 5, 0.7);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  color: #f5f0e8;
   transition: all 0.2s ease-in-out;
 }
 
 .glass-input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  border-color: #c9a84c;
+  box-shadow: 0 0 12px rgba(201, 168, 76, 0.25);
   outline: none;
 }
 
+.glass-input::placeholder {
+  color: rgba(180, 160, 120, 0.4);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
 .glass-button {
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #38bdf8;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  color: #c9a84c;
   backdrop-filter: blur(4px);
   transition: all 0.2s ease-in-out;
 }
 
 .glass-button:hover {
-  background: rgba(56, 189, 248, 0.25);
-  border-color: #38bdf8;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  background: rgba(201, 168, 76, 0.28);
+  border-color: #c9a84c;
+  box-shadow: 0 0 18px rgba(201, 168, 76, 0.3);
 }
 
-/* Neon Text Gradients */
-.text-neon-cyan {
-  text-shadow: 0 0 5px rgba(6, 182, 212, 0.5), 0 0 15px rgba(6, 182, 212, 0.3);
+/* ─── Gold Text Glow ─────────────────────────────────────────────────────────── */
+.text-neon-gold {
+  text-shadow: 0 0 6px rgba(201, 168, 76, 0.6), 0 0 18px rgba(201, 168, 76, 0.3);
 }
 
-.text-neon-purple {
-  text-shadow: 0 0 5px rgba(168, 85, 247, 0.5), 0 0 15px rgba(168, 85, 247, 0.3);
+.text-neon-royal {
+  text-shadow: 0 0 5px rgba(96, 165, 250, 0.5), 0 0 15px rgba(96, 165, 250, 0.3);
 }
 
+.text-neon-crimson {
+  text-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+/* ─── Stone Grid Background ──────────────────────────────────────────────────── */
 .bg-grid-pattern {
-  background-size: 40px 40px;
+  background-size: 48px 48px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(201, 168, 76, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
 }
 
-/* Custom Scrollbar */
+/* ─── Royal Ornamental Border ────────────────────────────────────────────────── */
+.royal-border {
+  border-image: linear-gradient(135deg, #c9a84c 0%, #8b6914 50%, #c9a84c 100%) 1;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(10, 8, 5, 0.6);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
-  border-radius: 4px;
+  background: rgba(201, 168, 76, 0.35);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.6);
+  background: rgba(201, 168, 76, 0.6);
 }
 
-/* Glow animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
-  }
+/* ─── Gold Glow Pulse ────────────────────────────────────────────────────────── */
+@keyframes goldGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(201, 168, 76, 0.2), 0 0 12px rgba(201, 168, 76, 0.1); }
+  50% { box-shadow: 0 0 20px rgba(201, 168, 76, 0.5), 0 0 40px rgba(201, 168, 76, 0.2); }
 }
 
 .glow-pulse {
-  animation: pulseGlow 2s infinite ease-in-out;
+  animation: goldGlow 2.5s infinite ease-in-out;
 }
 
-/* Dice roll shake keyframes */
+/* ─── Torch Flicker ──────────────────────────────────────────────────────────── */
+@keyframes torchFlicker {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(-1deg); }
+  25% { opacity: 0.85; transform: scale(1.05) rotate(1deg); }
+  50% { opacity: 0.95; transform: scale(0.98) rotate(-0.5deg); }
+  75% { opacity: 0.9; transform: scale(1.02) rotate(1.5deg); }
+}
+
+.torch-flicker {
+  animation: torchFlicker 1.8s infinite ease-in-out;
+}
+
+/* ─── Banner Wave ────────────────────────────────────────────────────────────── */
+@keyframes bannerWave {
+  0%, 100% { transform: skewX(0deg) scaleX(1); }
+  25% { transform: skewX(1deg) scaleX(0.98); }
+  75% { transform: skewX(-1deg) scaleX(0.99); }
+}
+
+.banner-wave {
+  animation: bannerWave 3s infinite ease-in-out;
+  transform-origin: left center;
+}
+
+/* ─── Magical Sparkle Float ──────────────────────────────────────────────────── */
+@keyframes sparkleFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-8px) rotate(180deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(360deg); opacity: 0.6; }
+}
+
+.sparkle-float {
+  animation: sparkleFloat 3s infinite ease-in-out;
+}
+
+/* ─── Fog Drift ──────────────────────────────────────────────────────────────── */
+@keyframes fogDrift {
+  0% { transform: translateX(-5%) translateY(0); opacity: 0.3; }
+  50% { transform: translateX(5%) translateY(-3px); opacity: 0.15; }
+  100% { transform: translateX(-5%) translateY(0); opacity: 0.3; }
+}
+
+.fog-drift {
+  animation: fogDrift 8s infinite ease-in-out;
+}
+
+/* ─── Crown Float ────────────────────────────────────────────────────────────── */
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+
+.crown-float {
+  animation: crownFloat 4s infinite ease-in-out;
+}
+
+/* ─── Shield Pulse ───────────────────────────────────────────────────────────── */
+@keyframes shieldPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(96, 165, 250, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(96, 165, 250, 0.6), 0 0 30px rgba(96, 165, 250, 0.2); }
+}
+
+/* ─── Dice Shake ─────────────────────────────────────────────────────────────── */
 @keyframes shake {
   0% { transform: translate(1px, 1px) rotate(0deg); }
   10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -128,4 +225,87 @@ body {
 
 .animate-shake {
   animation: shake 0.5s infinite;
+}
+
+/* ─── Particle Float ─────────────────────────────────────────────────────────── */
+@keyframes particleRise {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  100% { transform: translateY(-40px) scale(0.5); opacity: 0; }
+}
+
+/* ─── Flavor text fade-in ────────────────────────────────────────────────────── */
+@keyframes flavorFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.flavor-text {
+  animation: flavorFadeIn 0.8s ease-out forwards;
+  font-style: italic;
+  color: rgba(201, 168, 76, 0.7);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Ornamental dividers ────────────────────────────────────────────────────── */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(201, 168, 76, 0.4);
+  font-size: 0.6rem;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.3), transparent);
+}
+
+/* ─── Medieval frame corners ─────────────────────────────────────────────────── */
+.medieval-frame {
+  position: relative;
+}
+
+.medieval-frame::before,
+.medieval-frame::after {
+  content: '✦';
+  position: absolute;
+  color: rgba(201, 168, 76, 0.4);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.medieval-frame::before {
+  top: 6px;
+  left: 8px;
+}
+
+.medieval-frame::after {
+  top: 6px;
+  right: 8px;
+}
+
+/* ─── Rarity Badge Colors ────────────────────────────────────────────────────── */
+.rarity-common {
+  border-color: rgba(156, 163, 175, 0.5);
+  box-shadow: 0 0 6px rgba(156, 163, 175, 0.15);
+}
+
+.rarity-rare {
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.2);
+}
+
+.rarity-epic {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+}
+
+.rarity-legendary {
+  border-color: rgba(201, 168, 76, 0.8);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.3), 0 0 40px rgba(201, 168, 76, 0.1);
+  animation: goldGlow 2.5s infinite ease-in-out;
 }

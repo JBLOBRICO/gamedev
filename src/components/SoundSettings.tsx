@@ -18,11 +18,11 @@ export default function SoundSettings() {
   return (
     <button
       onClick={toggleSound}
-      className="fixed bottom-4 right-4 z-50 flex items-center justify-center p-3 rounded-full border border-slate-700/60 glass-panel text-slate-300 hover:text-sky-400 transition-all hover:scale-110 active:scale-95 shadow-lg shadow-black/40"
-      title={enabled ? "Mute Game Sounds" : "Unmute Game Sounds"}
+      className="fixed bottom-4 right-4 z-50 flex items-center justify-center p-3 rounded-full border border-amber-900/40 glass-panel text-stone-400 hover:text-amber-400 transition-all hover:scale-110 active:scale-95 shadow-lg shadow-black/50"
+      title={enabled ? 'Mute Kingdom Sounds' : 'Unmute Kingdom Sounds'}
     >
       {enabled ? (
-        <Volume2 className="w-5 h-5 animate-pulse" />
+        <Volume2 className="w-5 h-5 text-amber-500/70 animate-pulse" />
       ) : (
         <VolumeX className="w-5 h-5" />
       )}

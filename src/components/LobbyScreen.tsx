@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Copy, Share2, Play, CheckCircle, Clock, ArrowLeftRight, MessageSquare, Send, Users } from 'lucide-react';
+import { Copy, Share2, Play, CheckCircle, Clock, ArrowLeftRight, MessageSquare, Send, Users, Crown, Sword, Shield } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { sounds } from '@/lib/sounds';
 
@@ -71,24 +71,20 @@ export default function LobbyScreen({
     setChatInput('');
   };
 
-  // Switch team inside lobby if team battle
   const handleSwitchTeam = async () => {
     if (mode !== 'TEAM') return;
     sounds.playClick();
-    
-    // Find next team
     const currentTeam = localPlayer?.teamId;
     const otherTeam = teams.find(t => t.id !== currentTeam);
     if (!otherTeam) return;
-
     try {
       await fetch(`/api/rooms/${roomCode}/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'BUY_ITEM', // We overload BUY_ITEM for switching teams, or action directly
+          action: 'BUY_ITEM',
           userId: currentUserId,
-          details: { itemId: 'switch_team', cost: 0 } // handled custom or let's call action
+          details: { itemId: 'switch_team', cost: 0 }
         })
       });
     } catch (err) {
@@ -96,215 +92,244 @@ export default function LobbyScreen({
     }
   };
 
+  const modeName = mode === 'DUEL' ? 'Royal Duel (1v1)' : mode === 'TEAM' ? 'Band of Heroes (2v2)' : 'Grand Melee (Free-for-All)';
+  const modeIcon = mode === 'DUEL' ? '⚔️' : mode === 'TEAM' ? '🛡️' : '👑';
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-6 duration-300">
-      
-      {/* Left Columns - Players List & Room Info */}
-      <div className="lg:col-span-2 space-y-6">
-        
-        {/* Room Header Info */}
-        <div className="p-6 rounded-2xl border border-slate-800 glass-panel flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <span className="text-[10px] text-sky-400 font-extrabold uppercase tracking-widest bg-sky-950/40 border border-sky-900/40 px-2.5 py-0.5 rounded-full">
-              Lobby Mode: {mode === 'DUEL' ? '1v1 Duel' : mode === 'TEAM' ? '2v2 Team Battle' : 'Free-for-All'}
-            </span>
-            <h1 className="text-3xl font-black text-white mt-1.5 tracking-tight">
-              Lobby Room
-            </h1>
-          </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-initial bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between gap-3 min-w-44">
-              <div>
-                <span className="block text-[9px] text-slate-500 font-black uppercase">Room Code</span>
-                <span className="text-lg font-black text-sky-400 tracking-wider uppercase">{roomCode}</span>
+      {/* ── Left: Great Hall & Heroes ─────────────────────────────────────── */}
+      <div className="lg:col-span-2 space-y-5">
+
+        {/* Great Hall Header */}
+        <div className="p-6 rounded-2xl border border-amber-900/35 glass-panel medieval-frame">
+          {/* Torch decorations */}
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-900/30 border border-amber-700/40 flex items-center justify-center shrink-0">
+                <Crown className="w-5 h-5 text-amber-400" />
               </div>
-              <button 
-                onClick={copyCode} 
-                className="p-2 bg-slate-900 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
-                title="Copy Room Code"
+              <div>
+                <span className="block text-[9px] text-amber-600/70 font-black uppercase tracking-[0.2em] mb-0.5">
+                  {modeIcon} {modeName}
+                </span>
+                <h1 className="text-2xl font-black text-[#f5f0e8] tracking-tight leading-none">
+                  The Great Hall
+                </h1>
+                <p className="text-[10px] text-stone-500 mt-0.5 italic">
+                  "Heroes gather before the Quest begins…"
+                </p>
+              </div>
+            </div>
+
+            {/* Room Code */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="bg-stone-950/60 border border-amber-800/40 rounded-xl px-4 py-2.5 flex items-center gap-3 min-w-44">
+                <div>
+                  <span className="block text-[8px] text-stone-500 font-black uppercase tracking-wider">Hall Seal</span>
+                  <span className="text-xl font-black text-amber-400 tracking-[0.2em] uppercase">{roomCode}</span>
+                </div>
+                <button
+                  onClick={copyCode}
+                  className="p-1.5 bg-stone-900 hover:bg-stone-800 rounded-lg text-stone-400 hover:text-amber-300 transition-colors"
+                >
+                  {copied ? <span className="text-[10px] text-emerald-400 font-black">✓</span> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <button
+                onClick={copyCode}
+                className="p-2.5 bg-stone-950 border border-stone-800/60 text-stone-400 hover:text-amber-300 rounded-xl transition-all active:scale-95"
               >
-                {copied ? <span className="text-xs text-emerald-400 font-bold">Copied!</span> : <Copy className="w-4 h-4" />}
+                <Share2 className="w-4 h-4" />
               </button>
             </div>
-            
-            <button
-              onClick={copyCode}
-              className="p-3 bg-slate-950 border border-slate-800 text-slate-300 hover:text-white rounded-xl transition-all active:scale-95"
-              title="Share Room Link"
-            >
-              <Share2 className="w-5 h-5" />
-            </button>
           </div>
-        </div>
 
-        {/* Players Grid */}
-        <div className="p-6 rounded-2xl border border-slate-800 glass-panel space-y-6">
-          <h2 className="text-lg font-black text-slate-300 flex items-center gap-2">
-            <Users className="w-5 h-5 text-sky-400" />
-            Connected Players ({players.length} / {mode === 'DUEL' ? 2 : 4})
-          </h2>
+          {/* Ornamental divider */}
+          <div className="ornament-divider mb-4">
+            <span>⚜ Heroes of Historia ⚜</span>
+          </div>
 
-          {mode === 'TEAM' ? (
-            /* 2v2 Teams View */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {teams.map((team) => {
-                const teamPlayers = players.filter(p => p.teamId === team.id);
-                return (
-                  <div key={team.id} className="p-4 rounded-xl border border-slate-800/80 bg-slate-950/20 space-y-3">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-800/60">
-                      <span className="text-sm font-black flex items-center gap-1.5" style={{ color: team.color }}>
-                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: team.color }} />
-                        {team.name}
-                      </span>
-                      {localPlayer?.teamId === team.id ? (
-                        <span className="text-[10px] text-slate-400 font-bold bg-slate-900 px-2 py-0.5 rounded">Your Team</span>
-                      ) : (
-                        <button
-                          onClick={handleSwitchTeam}
-                          className="flex items-center gap-1 text-[10px] text-sky-400 hover:text-sky-300 font-bold uppercase transition-colors"
-                        >
-                          Switch <ArrowLeftRight className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
+          {/* Players */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-black text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-amber-600/60" />
+                Assembled Heroes ({players.length} / {mode === 'DUEL' ? 2 : 4})
+              </h2>
+            </div>
 
-                    <div className="space-y-2">
-                      {teamPlayers.length === 0 ? (
-                        <p className="text-xs text-slate-600 italic py-2">Empty team slot...</p>
-                      ) : (
-                        teamPlayers.map((p) => (
-                          <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/40 border border-slate-800/40">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-slate-950 p-1 overflow-hidden border border-slate-800">
-                                {getAvatarById(p.user.avatarId).render("w-full h-full")}
+            {mode === 'TEAM' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {teams.map((team) => {
+                  const teamPlayers = players.filter(p => p.teamId === team.id);
+                  const isRedTeam = team.name === 'Red Team';
+                  return (
+                    <div key={team.id} className="p-4 rounded-xl border bg-stone-950/30 space-y-2.5"
+                      style={{ borderColor: team.color + '40' }}>
+                      <div className="flex justify-between items-center pb-2 border-b border-stone-800/40">
+                        <span className="text-sm font-black flex items-center gap-1.5" style={{ color: team.color }}>
+                          <span className="text-base">{isRedTeam ? '🔴' : '🔵'}</span>
+                          {isRedTeam ? 'Crimson Banner' : 'Azure Banner'}
+                        </span>
+                        {localPlayer?.teamId === team.id ? (
+                          <span className="text-[9px] text-stone-400 font-bold bg-stone-900 px-2 py-0.5 rounded">Your Banner</span>
+                        ) : (
+                          <button onClick={handleSwitchTeam} className="flex items-center gap-1 text-[10px] text-amber-400 hover:text-amber-300 font-bold uppercase transition-colors">
+                            Switch <ArrowLeftRight className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        {teamPlayers.length === 0 ? (
+                          <p className="text-[10px] text-stone-600 italic py-2">Awaiting a hero…</p>
+                        ) : teamPlayers.map((p) => (
+                          <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-stone-900/40 border border-stone-800/30">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-9 h-9 rounded-lg bg-stone-950 p-0.5 overflow-hidden border border-stone-800">
+                                {getAvatarById(p.user.avatarId).render('w-full h-full')}
                               </div>
-                              <div className="text-left">
+                              <div>
                                 <span className="block text-xs font-bold" style={{ color: p.user.nameColor }}>
                                   {p.user.username} {p.isHost && '👑'}
                                 </span>
-                                <span className="block text-[9px] text-slate-500 font-semibold uppercase">{p.user.title}</span>
+                                <span className="block text-[9px] text-stone-500 font-semibold">{p.user.title}</span>
                               </div>
                             </div>
-                            
-                            <div className="flex items-center gap-2">
-                              {p.isReady ? (
-                                <span className="text-emerald-400 bg-emerald-950/25 border border-emerald-900/30 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Ready</span>
-                              ) : (
-                                <span className="text-amber-400 bg-amber-950/25 border border-amber-900/30 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Waiting</span>
-                              )}
-                            </div>
+                            {p.isReady ? (
+                              <span className="text-emerald-400 bg-emerald-950/25 border border-emerald-900/30 px-2 py-0.5 rounded text-[9px] font-black uppercase">Ready ⚔️</span>
+                            ) : (
+                              <span className="text-amber-500 bg-amber-950/25 border border-amber-900/30 px-2 py-0.5 rounded text-[9px] font-black uppercase">Preparing…</span>
+                            )}
                           </div>
-                        ))
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {players.map((p, idx) => (
+                  <div key={p.id} className={`flex items-center justify-between p-3.5 rounded-xl border ${
+                    p.userId === currentUserId
+                      ? 'border-amber-700/40 bg-amber-950/15'
+                      : 'border-stone-800/60 bg-stone-900/20'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      {/* Knight rank badge */}
+                      <span className="text-xs font-black text-stone-600 min-w-5 text-center">
+                        {idx === 0 ? '👑' : `#${idx + 1}`}
+                      </span>
+                      <div className="w-11 h-11 rounded-xl bg-stone-950 p-1 overflow-hidden border border-stone-800">
+                        {getAvatarById(p.user.avatarId).render('w-full h-full')}
+                      </div>
+                      <div>
+                        <span className="block text-xs font-black flex items-center gap-1" style={{ color: p.user.nameColor }}>
+                          {p.user.username}
+                          {p.isHost && <span className="text-amber-400" title="Room Host">👑</span>}
+                          {p.userId === currentUserId && <span className="text-[8px] text-stone-500 font-bold">(you)</span>}
+                        </span>
+                        <span className="block text-[9px] text-stone-500 font-bold uppercase tracking-wider">{p.user.title}</span>
+                      </div>
+                    </div>
+                    <div>
+                      {p.isReady ? (
+                        <span className="flex items-center gap-1 text-emerald-400 bg-emerald-950/35 border border-emerald-900/35 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                          <CheckCircle className="w-3 h-3" /> Ready ⚔️
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-amber-500 bg-amber-950/25 border border-amber-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                          <Clock className="w-3 h-3" /> Arming…
+                        </span>
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            /* 1v1 / FFA Players List */
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {players.map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-900/20">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-slate-950 p-1 overflow-hidden border border-slate-800">
-                      {getAvatarById(p.user.avatarId).render("w-full h-full")}
+                ))}
+                {/* Empty slots */}
+                {Array.from({ length: Math.max(0, (mode === 'DUEL' ? 2 : 4) - players.length) }).map((_, i) => (
+                  <div key={`empty-${i}`} className="flex items-center gap-3 p-3.5 rounded-xl border border-dashed border-stone-800/40 bg-stone-950/10">
+                    <div className="w-11 h-11 rounded-xl border border-dashed border-stone-800/40 bg-stone-950/20 flex items-center justify-center">
+                      <span className="text-stone-700 text-base">⚔️</span>
                     </div>
-                    <div className="text-left">
-                      <span className="block text-sm font-black flex items-center gap-1.5" style={{ color: p.user.nameColor }}>
-                        {p.user.username}
-                        {p.isHost && <span className="text-xs" title="Lobby Host">👑</span>}
-                      </span>
-                      <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-wide">{p.user.title}</span>
-                    </div>
+                    <span className="text-[10px] text-stone-700 italic">Awaiting a hero…</span>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-                  <div className="flex items-center gap-2">
-                    {p.isReady ? (
-                      <span className="text-emerald-400 bg-emerald-950/40 border border-emerald-900/40 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                        <CheckCircle className="w-3.5 h-3.5" /> Ready
-                      </span>
-                    ) : (
-                      <span className="text-amber-400 bg-amber-950/40 border border-amber-900/40 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> Waiting
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Lobby Controller Actions */}
-          <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+          {/* Lobby Actions */}
+          <div className="flex items-center justify-between pt-5 mt-2 border-t border-stone-800/40">
             <button
               onClick={() => { sounds.playClick(); onLeaveRoom(); }}
-              className="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-900 transition-all font-semibold active:scale-95 text-xs sm:text-sm"
+              className="px-5 py-2.5 rounded-xl border border-stone-700/50 text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-900 transition-all font-semibold active:scale-95 text-xs"
             >
-              Leave Lobby
+              Abandon Quest
             </button>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={onToggleReady}
-                className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider transition-all active:scale-95 text-xs sm:text-sm ${
-                  isReady 
-                    ? 'bg-slate-800 text-emerald-400 border border-emerald-500/20' 
-                    : 'bg-emerald-500 hover:bg-emerald-600 text-slate-950'
+                className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider transition-all active:scale-95 text-xs border ${
+                  isReady
+                    ? 'bg-stone-800 text-emerald-400 border-emerald-600/30'
+                    : 'bg-emerald-700 hover:bg-emerald-600 text-stone-950 border-emerald-500/50'
                 }`}
               >
-                {isReady ? 'Unready' : 'Ready Up'}
+                {isReady ? '✓ Battle-Ready' : "Answer the King's Call"}
               </button>
-
               {isHost && (
                 <button
                   onClick={onStartGame}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-slate-950 font-black uppercase tracking-wider transition-all active:scale-95 text-xs sm:text-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-wider transition-all active:scale-95 text-xs shadow-lg shadow-amber-900/30"
                 >
-                  Start Match <Play className="w-4 h-4 fill-current" />
+                  The Quest Begins <Play className="w-4 h-4 fill-current" />
                 </button>
               )}
             </div>
           </div>
-
         </div>
-
       </div>
 
-      {/* Right Column - Lobby Chat */}
-      <div className="lg:col-span-1 p-6 rounded-2xl border border-slate-800 glass-panel flex flex-col h-[500px]">
-        <h3 className="text-lg font-black text-slate-300 flex items-center gap-2 pb-4 border-b border-slate-800/80">
-          <MessageSquare className="w-5 h-5 text-sky-400" />
-          Lobby Chat
-        </h3>
+      {/* ── Right: Scroll of Whispers (Chat) ──────────────────────────────── */}
+      <div className="lg:col-span-1 p-5 rounded-2xl border border-stone-800/50 glass-panel flex flex-col h-[520px]">
+        <div className="flex items-center gap-2 pb-3 border-b border-stone-800/50">
+          <MessageSquare className="w-4 h-4 text-amber-600/60" />
+          <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest">
+            Scroll of Whispers
+          </h3>
+        </div>
+        <p className="text-[9px] text-stone-600 italic mt-1.5 mb-2">"Words exchanged in the Great Hall before battle…"</p>
 
-        {/* Message Log */}
-        <div className="flex-1 overflow-y-auto py-4 space-y-3 p-1">
+        <div className="flex-1 overflow-y-auto py-2 space-y-2">
           {chatMessages.length === 0 ? (
-            <p className="text-xs text-slate-600 italic text-center pt-8">No messages yet. Say hello!</p>
+            <p className="text-[10px] text-stone-600 italic text-center pt-8">
+              📜 The scroll is empty. Speak, hero!
+            </p>
           ) : (
             [...chatMessages].reverse().map((msg: any, index: number) => {
-              const detailsObj = JSON.parse(msg.details || '{}');
+              const det = JSON.parse(msg.details || '{}');
               const isSystem = msg.playerUsername === 'System';
               return (
-                <div key={index} className={`text-xs ${isSystem ? 'text-slate-400 text-center italic my-1 bg-slate-900/30 p-1.5 rounded-lg border border-slate-950/20' : 'text-left'}`}>
-                  {!isSystem && (
-                    <span className="font-extrabold text-sky-400 block mb-0.5">
-                      {msg.playerUsername}
+                <div key={index} className={`text-[10px] ${isSystem ? 'text-center italic my-1' : 'text-left'}`}>
+                  {isSystem ? (
+                    <span className="text-amber-700/60 bg-amber-950/10 px-2 py-0.5 rounded border border-amber-900/20 text-[9px]">
+                      ✦ {det.message || ''}
                     </span>
+                  ) : (
+                    <>
+                      <span className="font-extrabold text-amber-500/80 block mb-0.5">{msg.playerUsername}:</span>
+                      <span className="text-stone-300">{det.message || ''}</span>
+                    </>
                   )}
-                  <span className={isSystem ? 'text-[11px] text-slate-500' : 'text-slate-200'}>
-                    {detailsObj.message || ''}
-                  </span>
                 </div>
               );
             })
           )}
         </div>
 
-        {/* Chat input form */}
-        <form onSubmit={handleSendChat} className="flex gap-2 pt-4 border-t border-slate-800/80">
+        <form onSubmit={handleSendChat} className="flex gap-2 pt-3 border-t border-stone-800/50">
           <input
             type="text"
             required
@@ -312,17 +337,13 @@ export default function LobbyScreen({
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             className="flex-1 px-3 py-2 rounded-xl glass-input text-xs"
-            placeholder="Type message..."
+            placeholder="Speak to your allies…"
           />
-          <button
-            type="submit"
-            className="p-2 bg-sky-500 hover:bg-sky-600 text-slate-950 rounded-xl transition-all active:scale-95"
-          >
-            <Send className="w-4 h-4" />
+          <button type="submit" className="p-2 bg-amber-700 hover:bg-amber-600 text-stone-950 rounded-xl transition-all active:scale-95">
+            <Send className="w-3.5 h-3.5" />
           </button>
         </form>
       </div>
-
     </div>
   );
 }

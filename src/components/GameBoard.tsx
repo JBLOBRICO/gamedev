@@ -57,7 +57,7 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
 
   const getTileIcon = (type: string) => {
     switch (type) {
-      case 'START':        return <Compass className="w-4 h-4" />;
+      case 'START':        return <Compass className="w-4 h-4 text-emerald-400" />;
       case 'FINISH':       return <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />;
       case 'BONUS':
       case 'COIN_BONUS':   return <Gift className="w-4 h-4 text-yellow-300" />;
@@ -82,8 +82,18 @@ export default function GameBoard({ players, activePlayerId }: GameBoardProps) {
   };
 
   return (
-    <div className="w-full p-3 sm:p-5 rounded-3xl border border-slate-800 glass-panel relative overflow-hidden bg-grid-pattern">
-      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-950/10 via-transparent to-purple-950/10 pointer-events-none" />
+    <div className="w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern">
+      {/* Castle wall atmospheric overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-950/10 via-transparent to-stone-950/20 pointer-events-none" />
+      {/* Top decorative banner line */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
+
+      {/* Board label */}
+      <div className="flex items-center justify-center gap-2 mb-3 opacity-50">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
+        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-700">⚜ Kingdom of Historia · Sacred Board ⚜</span>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
+      </div>
 
       {/*
         Board: 10 columns × 5 rows serpentine layout

@@ -16,40 +16,40 @@ interface ShopItem {
 const SHOP_ITEMS: ShopItem[] = [
   {
     id: 'shield',
-    name: 'Shield',
-    description: 'Blocks the next trap or negative tile effect.',
+    name: '🛡️ Iron Shield',
+    description: 'Blocks the next Cursed Rune or negative tile effect.',
     cost: 20,
     icon: <Shield className="w-5 h-5 text-sky-400" />,
     activeKey: 'shieldActive',
   },
   {
     id: 'extra_time',
-    name: 'Extra Time',
-    description: 'Adds +15 seconds to answer your next trivia question.',
+    name: '⏳ Hourglass Relic',
+    description: 'Grants +15 seconds to answer your next ancient trial.',
     cost: 10,
     icon: <Hourglass className="w-5 h-5 text-cyan-400" />,
     activeKey: 'extraTimeActive',
   },
   {
     id: 'lucky_dice',
-    name: 'Lucky Dice',
-    description: 'Guarantees your next dice roll is a 5 or 6.',
+    name: '🎲 Blessed Dice',
+    description: 'Guarantees your next roll yields a 5 or 6. Never waste a turn!',
     cost: 20,
     icon: <Dices className="w-5 h-5 text-amber-400" />,
     activeKey: 'luckyDiceActive',
   },
   {
     id: 'trap_immunity',
-    name: 'Trap Immunity',
-    description: 'Passively blocks the next trap tile you land on.',
+    name: '🌑 Shadow Cloak',
+    description: 'Passively absorbs the next Cursed Rune you land upon.',
     cost: 18,
     icon: <Shield className="w-5 h-5 text-indigo-400" />,
     activeKey: 'trapImmunity',
   },
   {
     id: 'multiplier',
-    name: 'Coin Multiplier',
-    description: 'Doubles all coins rewarded on your next correct answer.',
+    name: '💰 Royal Multiplier',
+    description: 'Doubles all Royal Gold earned on your next correct trial answer.',
     cost: 15,
     icon: <Coins className="w-5 h-5 text-yellow-400" />,
     activeKey: 'doubleCoinsActive',
@@ -86,18 +86,18 @@ export default function ItemShop({
 
   return (
     <div className="w-full p-5 border border-slate-800 glass-panel rounded-2xl space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 className="text-sm font-black text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
-          <ShoppingCart className="w-4 h-4 text-sky-400" />
-          Item Shop
+      <div className="flex items-center justify-between border-b border-stone-800/50 pb-3">
+        <h3 className="text-xs font-black text-stone-300 flex items-center gap-1.5 uppercase tracking-wider">
+          <ShoppingCart className="w-4 h-4 text-amber-600/60" />
+          Merchant's Caravan
         </h3>
-        <span className="text-xs font-black text-yellow-400 flex items-center gap-1 bg-yellow-950/40 border border-yellow-900/40 px-3 py-1 rounded-xl">
-          <Coins className="w-3.5 h-3.5" /> {playerCoins}g
+        <span className="text-xs font-black text-amber-400 flex items-center gap-1 bg-amber-950/30 border border-amber-900/35 px-3 py-1 rounded-xl">
+          <Coins className="w-3.5 h-3.5" /> {playerCoins} Gold
         </span>
       </div>
 
-      <p className="text-[10px] text-slate-500 -mt-1">
-        Shop is open anytime — items apply on your next turn.
+      <p className="text-[9px] text-stone-600 italic -mt-1">
+        "Relics available at any time — they take effect on your next turn."
       </p>
 
       <div className="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-1">
@@ -112,26 +112,26 @@ export default function ItemShop({
               key={item.id}
               className={`flex items-center justify-between p-3 rounded-xl border transition-all gap-3 ${
                 isActive
-                  ? 'border-emerald-700/50 bg-emerald-950/20'
-                  : 'border-slate-800/80 bg-slate-900/10 hover:border-slate-700/60'
+                  ? 'border-emerald-700/40 bg-emerald-950/15'
+                  : 'border-stone-800/60 bg-stone-900/10 hover:border-stone-700/50'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 bg-slate-950 border border-slate-800 rounded-lg shrink-0">
+                <div className="p-2 bg-stone-950 border border-stone-800/50 rounded-lg shrink-0">
                   {item.icon}
                 </div>
                 <div className="text-left min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-extrabold text-slate-200 leading-tight">
+                    <span className="text-xs font-extrabold text-[#f5f0e8] leading-tight">
                       {item.name}
                     </span>
                     {isActive && (
-                      <span className="text-[8px] font-black uppercase bg-emerald-900/60 border border-emerald-700/40 text-emerald-400 px-1.5 py-0.5 rounded-full leading-none">
-                        Active
+                      <span className="text-[8px] font-black uppercase bg-emerald-900/50 border border-emerald-700/35 text-emerald-400 px-1.5 py-0.5 rounded-full leading-none">
+                        ✓ Active
                       </span>
                     )}
                   </div>
-                  <span className="block text-[10px] text-slate-500 leading-snug mt-0.5">
+                  <span className="block text-[9px] text-stone-500 leading-snug mt-0.5">
                     {item.description}
                   </span>
                 </div>
@@ -142,8 +142,8 @@ export default function ItemShop({
                 onClick={() => handleBuy(item)}
                 className={`shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 ${
                   canAfford && !disabled
-                    ? 'bg-sky-500 hover:bg-sky-600 text-slate-950'
-                    : 'bg-slate-800 text-slate-500 border border-slate-800/40 cursor-not-allowed'
+                    ? 'bg-amber-600 hover:bg-amber-500 text-stone-950'
+                    : 'bg-stone-800 text-stone-500 border border-stone-800/30 cursor-not-allowed'
                 }`}
               >
                 {item.cost}g

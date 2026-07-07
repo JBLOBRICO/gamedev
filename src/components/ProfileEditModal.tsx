@@ -27,14 +27,15 @@ const PRESET_COLORS = [
 
 const PRESET_TITLES = [
   "Novice",
-  "Trivia Rookie",
+  "Apprentice Hero",
+  "Trivia Squire",
   "Adept Scholar",
   "Knowledge Sage",
-  "Lobbyist",
-  "Lucky Roller",
-  "Coin Collector",
-  "Risk Specialist",
-  "Grand Legend"
+  "Grand Lorekeeper",
+  "Royal Tactician",
+  "Lucky Adventurer",
+  "Gold Seeker",
+  "Crowned Champion",
 ];
 
 export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEditModalProps) {
@@ -67,13 +68,16 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-700/80 glass-panel animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-800">
-          <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
-            Customize Profile
-          </h2>
+        <div className="flex items-center justify-between p-6 border-b border-amber-900/30">
+          <div>
+            <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">
+              ⚜ Hero Customisation
+            </h2>
+            <p className="text-[10px] text-stone-500 italic mt-0.5">Shape your legend in the Kingdom of Historia</p>
+          </div>
           <button
             onClick={() => { sounds.playClick(); onClose(); }}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+            className="p-2 rounded-lg text-stone-400 hover:text-[#f5f0e8] hover:bg-stone-800/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -90,8 +94,8 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
           {/* Username & Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Display Username
+              <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+                Hero Name
               </label>
               <input
                 type="text"
@@ -105,8 +109,8 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
             </div>
             
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Active Title
+              <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+                Hero Title
               </label>
               <select
                 value={selectedTitle}
@@ -124,8 +128,8 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
 
           {/* Name Color */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Username Tag Color
+            <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+              Heraldic Name Colour
             </label>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
@@ -146,8 +150,8 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
 
           {/* Avatar chooser */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Choose Avatar ({AVATARS.length} Available)
+            <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
+              Choose Hero Avatar ({AVATARS.length} Heroes Available)
             </label>
             <div className="grid grid-cols-5 sm:grid-cols-8 gap-3 max-h-56 overflow-y-auto p-2 border border-slate-800/80 rounded-xl bg-slate-950/40">
               {AVATARS.map((av) => {

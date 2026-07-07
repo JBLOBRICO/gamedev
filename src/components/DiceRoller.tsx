@@ -50,13 +50,13 @@ export default function DiceRoller({ onRoll, disabled, luckyDiceActive = false }
     const activeDots = dotsMap[face] || [4];
 
     return (
-      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-900 border-2 border-sky-400 rounded-2xl grid grid-cols-3 p-3.5 gap-2 relative shadow-lg shadow-sky-500/10">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-stone-950 border-2 border-amber-600/60 rounded-2xl grid grid-cols-3 p-3.5 gap-2 relative shadow-lg shadow-amber-900/20">
         {Array.from({ length: 9 }).map((_, idx) => (
           <div key={idx} className="flex items-center justify-center">
             {activeDots.includes(idx) && (
               <motion.div 
                 layoutId={`dot_${idx}`}
-                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-sky-400" 
+                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-500/60" 
               />
             )}
           </div>
@@ -66,19 +66,19 @@ export default function DiceRoller({ onRoll, disabled, luckyDiceActive = false }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 border border-slate-800 glass-panel rounded-2xl space-y-4 max-w-xs mx-auto">
+    <div className="flex flex-col items-center justify-center p-6 border border-amber-900/30 glass-panel rounded-2xl space-y-4 max-w-xs mx-auto bg-gradient-to-b from-stone-950/40 to-transparent">
       <div className="flex items-center justify-between w-full">
-        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-          Dice Roll Phase
+        <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">
+          ⚔️ Roll the Ancient Dice
         </span>
         {luckyDiceActive && (
-          <span className="flex items-center gap-1 text-[10px] text-amber-400 font-extrabold uppercase bg-amber-950/40 border border-amber-900/40 px-2 py-0.5 rounded-full animate-bounce">
-            <Sparkles className="w-3 h-3" /> Lucky Active
+          <span className="flex items-center gap-1 text-[9px] text-amber-400 font-black uppercase bg-amber-950/35 border border-amber-800/40 px-2 py-0.5 rounded-full animate-bounce">
+            <Sparkles className="w-3 h-3" /> Blessed Dice
           </span>
         )}
       </div>
 
-      {/* 3D Rolling Cube */}
+      {/* Dice face */}
       <motion.div
         animate={rolling ? {
           rotateX: [0, 360, 720, 1080],
@@ -95,10 +95,10 @@ export default function DiceRoller({ onRoll, disabled, luckyDiceActive = false }
       <button
         disabled={disabled || rolling}
         onClick={handleRoll}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-sky-400 to-indigo-500 hover:from-sky-500 hover:to-indigo-600 text-slate-950 font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 shadow-lg shadow-amber-900/30"
       >
         <Dices className="w-5 h-5" />
-        {rolling ? 'Rolling...' : 'Roll Dice'}
+        {rolling ? 'Rolling…' : 'Cast the Dice!'}
       </button>
     </div>
   );

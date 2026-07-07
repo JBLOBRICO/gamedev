@@ -148,19 +148,20 @@ export default function AdminDashboard() {
 
   if (!authorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-950">
-        <div className="w-full max-w-md p-8 rounded-2xl border border-slate-800 glass-panel space-y-6 text-center">
-          <div className="w-16 h-16 mx-auto rounded-full bg-sky-500/10 flex items-center justify-center border border-sky-500/20">
-            <Lock className="w-8 h-8 text-sky-400" />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0a0a0f] bg-grid-pattern">
+        <div className="w-full max-w-md p-8 rounded-2xl border border-amber-900/35 glass-panel space-y-6 text-center medieval-frame">
+          <div className="w-16 h-16 mx-auto rounded-full bg-amber-900/20 flex items-center justify-center border border-amber-700/30">
+            <Lock className="w-8 h-8 text-amber-500/70" />
           </div>
 
           <div>
-            <h1 className="text-2xl font-black text-white">Admin Workspace</h1>
-            <p className="text-xs text-slate-500 mt-1">Please enter passcode to access dashboard. Default: admin123</p>
+            <p className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.25em] mb-1">⚜ Royal Sanctum ⚜</p>
+            <h1 className="text-2xl font-black text-[#f5f0e8]">Royal Scribe's Chamber</h1>
+            <p className="text-xs text-stone-500 mt-1 italic">Enter the passcode to access the kingdom's records. Default: admin123</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            {error && <p className="text-xs text-rose-400 font-bold bg-rose-950/20 p-2.5 rounded-lg">{error}</p>}
+            {error && <p className="text-xs text-rose-400 font-bold bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/30">{error}</p>}
             <input
               type="password"
               required
@@ -172,9 +173,9 @@ export default function AdminDashboard() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-slate-950 font-black uppercase text-xs transition-all active:scale-95 disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase text-xs transition-all active:scale-95 disabled:opacity-50"
             >
-              {loading ? 'Authenticating...' : 'Enter Dashboard'}
+              {loading ? 'Verifying Seal…' : 'Enter the Chamber'}
             </button>
           </form>
         </div>
@@ -183,76 +184,84 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 bg-slate-950 space-y-6">
-      
+    <div className="min-h-screen p-4 sm:p-8 bg-[#0a0a0f] text-[#f5f0e8] space-y-6 bg-grid-pattern">
+
+      {/* Ambient top border */}
+      <div className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/35 to-transparent z-50 pointer-events-none" />
+
       {/* Header */}
-      <div className="max-w-6xl mx-auto flex justify-between items-center pb-6 border-b border-slate-800">
+      <div className="max-w-6xl mx-auto flex flex-wrap justify-between items-center pb-5 border-b border-amber-900/25 gap-4 pt-3">
         <div className="flex items-center gap-3">
-          <Link href="/" className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors">
+          <Link href="/" className="p-2.5 bg-stone-900/60 border border-stone-800/50 rounded-xl text-stone-400 hover:text-amber-300 transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <ShieldAlert className="w-6 h-6 text-sky-400" />
-              Admin Control Panel
+            <p className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.2em]">⚜ Royal Sanctum</p>
+            <h1 className="text-xl font-black text-[#f5f0e8] flex items-center gap-2 mt-0.5">
+              <ShieldAlert className="w-5 h-5 text-amber-500/70" />
+              Royal Scribe's Chamber
             </h1>
-            <p className="text-xs text-slate-500">Configure questions, match logs, and statistics</p>
+            <p className="text-xs text-stone-500 italic">Manage the kingdom's trial scrolls and chronicles</p>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab('questions')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'questions' ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400 hover:text-white'}`}
-          >
-            Questions ({questions.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('add_question')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'add_question' ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400 hover:text-white'}`}
-          >
-            Add Question
-          </button>
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'logs' ? 'bg-sky-500 text-slate-950' : 'bg-slate-900 text-slate-400 hover:text-white'}`}
-          >
-            Match Logs ({matches.length})
-          </button>
+        <div className="flex gap-2 flex-wrap">
+          {[
+            { id: 'questions', label: `📜 Trial Scrolls (${questions.length})` },
+            { id: 'add_question', label: '✍️ Inscribe Trial' },
+            { id: 'logs', label: `📖 Chronicles (${matches.length})` },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-amber-600 text-stone-950'
+                  : 'bg-stone-900/50 border border-stone-800/50 text-stone-400 hover:text-[#f5f0e8]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto">
-        {/* QUESTIONS LIST */}
+
+        {/* TRIAL SCROLLS (Questions List) */}
         {activeTab === 'questions' && (
-          <div className="p-6 rounded-2xl border border-slate-800 glass-panel space-y-4">
-            <h2 className="text-base font-black text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-5 h-5 text-sky-400" />
-              Question Pool ({questions.length} Total)
+          <div className="p-6 rounded-2xl border border-stone-800/50 glass-panel space-y-4">
+            <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider flex items-center gap-2">
+              <FileText className="w-4 h-4 text-amber-500/60" />
+              Trial Scroll Pool — {questions.length} Ancient Trials Recorded
             </h2>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                    <th className="py-3 px-2">Category</th>
-                    <th className="py-3 px-2">Difficulty</th>
-                    <th className="py-3 px-2">Question</th>
+                  <tr className="border-b border-stone-800/60 text-stone-500 font-black uppercase tracking-wider">
+                    <th className="py-3 px-2">Realm</th>
+                    <th className="py-3 px-2">Rank</th>
+                    <th className="py-3 px-2">The Trial</th>
                     <th className="py-3 px-2">Correct Answer</th>
                     <th className="py-3 px-2 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-stone-800/40">
                   {questions.map((q) => (
-                    <tr key={q.id} className="hover:bg-slate-900/20 text-slate-300">
-                      <td className="py-3 px-2 font-bold text-sky-400">{q.category}</td>
+                    <tr key={q.id} className="hover:bg-stone-900/20 text-stone-300">
+                      <td className="py-3 px-2 font-bold text-amber-500/80">{q.category}</td>
                       <td className="py-3 px-2">
-                        <span className={`px-2 py-0.5 rounded font-black text-[10px] ${q.difficulty === 'EASY' ? 'text-emerald-400 bg-emerald-950/20' : q.difficulty === 'MEDIUM' ? 'text-amber-400 bg-amber-950/20' : 'text-rose-400 bg-rose-950/20'}`}>
-                          {q.difficulty}
+                        <span className={`px-2 py-0.5 rounded font-black text-[10px] ${
+                          q.difficulty === 'EASY'   ? 'text-emerald-400 bg-emerald-950/25' :
+                          q.difficulty === 'MEDIUM' ? 'text-amber-400 bg-amber-950/25' :
+                                                      'text-rose-400 bg-rose-950/25'
+                        }`}>
+                          {q.difficulty === 'EASY' ? '⭐ Squire' : q.difficulty === 'MEDIUM' ? '⭐⭐ Knight' : '⭐⭐⭐ Legend'}
                         </span>
                       </td>
-                      <td className="py-3 px-2 max-w-sm truncate">{q.question}</td>
-                      <td className="py-3 px-2 text-emerald-400">{q.correctAnswer}</td>
+                      <td className="py-3 px-2 max-w-sm truncate text-stone-300">{q.question}</td>
+                      <td className="py-3 px-2 text-emerald-400 font-semibold">{q.correctAnswer}</td>
                       <td className="py-3 px-2 text-right">
                         <button
                           onClick={() => handleDeleteQuestion(q.id)}
@@ -263,31 +272,37 @@ export default function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
+                  {questions.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-stone-600 italic text-xs">
+                        The Royal Library holds no trial scrolls yet. Inscribe the first one!
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* ADD QUESTION FORM */}
+        {/* INSCRIBE TRIAL (Add Question) */}
         {activeTab === 'add_question' && (
-          <div className="max-w-xl mx-auto p-6 rounded-2xl border border-slate-800 glass-panel space-y-6">
-            <h2 className="text-base font-black text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Plus className="w-5 h-5 text-sky-400" />
-              Create Custom Question
-            </h2>
+          <div className="max-w-xl mx-auto p-6 rounded-2xl border border-stone-800/50 glass-panel space-y-6">
+            <div>
+              <p className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.2em] mb-0.5">Royal Librarian's Quill</p>
+              <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider flex items-center gap-2">
+                <Plus className="w-4 h-4 text-amber-500/70" />
+                Inscribe a New Ancient Trial
+              </h2>
+            </div>
 
             <form onSubmit={handleAddQuestion} className="space-y-4">
-              {error && <p className="text-xs text-rose-400 font-bold bg-rose-950/20 p-2.5 rounded-lg">{error}</p>}
-              
+              {error && <p className="text-xs text-rose-400 font-bold bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/30">{error}</p>}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Category</label>
-                  <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input bg-slate-900"
-                  >
+                  <label className="block text-[9px] text-stone-500 font-black uppercase tracking-wider mb-1.5">Realm (Category)</label>
+                  <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full px-4 py-2 rounded-xl glass-input bg-stone-950/60 text-xs">
                     <option value="General Knowledge">General Knowledge</option>
                     <option value="Science">Science</option>
                     <option value="History">History</option>
@@ -298,130 +313,94 @@ export default function AdminDashboard() {
                     <option value="Music">Music</option>
                     <option value="Sports">Sports</option>
                     <option value="Pop Culture">Pop Culture</option>
+                    <option value="Philippines">Philippines</option>
+                    <option value="Food & Drinks">Food & Drinks</option>
+                    <option value="TV Shows & Anime">TV Shows & Anime</option>
+                    <option value="Animals">Animals</option>
+                    <option value="Logic">Logic</option>
+                    <option value="World Wonders">World Wonders</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Difficulty</label>
-                  <select
-                    value={newDifficulty}
-                    onChange={(e) => setNewDifficulty(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input bg-slate-900"
-                  >
-                    <option value="EASY">EASY</option>
-                    <option value="MEDIUM">MEDIUM</option>
-                    <option value="HARD">HARD</option>
+                  <label className="block text-[9px] text-stone-500 font-black uppercase tracking-wider mb-1.5">Trial Rank</label>
+                  <select value={newDifficulty} onChange={(e) => setNewDifficulty(e.target.value)} className="w-full px-4 py-2 rounded-xl glass-input bg-stone-950/60 text-xs">
+                    <option value="EASY">⭐ Squire (Easy)</option>
+                    <option value="MEDIUM">⭐⭐ Knight (Medium)</option>
+                    <option value="HARD">⭐⭐⭐ Legend (Hard)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Question Text</label>
-                <input
-                  type="text"
-                  required
-                  value={newQuestionText}
-                  onChange={(e) => setNewQuestionText(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl glass-input"
-                  placeholder="Enter trivia question..."
-                />
+                <label className="block text-[9px] text-stone-500 font-black uppercase tracking-wider mb-1.5">The Trial Question</label>
+                <input type="text" required value={newQuestionText} onChange={(e) => setNewQuestionText(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl glass-input text-sm" placeholder="Enter the ancient trial text…" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Option A</label>
-                  <input
-                    type="text"
-                    required
-                    value={newOptionA}
-                    onChange={(e) => setNewOptionA(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Option B</label>
-                  <input
-                    type="text"
-                    required
-                    value={newOptionB}
-                    onChange={(e) => setNewOptionB(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Option C</label>
-                  <input
-                    type="text"
-                    required
-                    value={newOptionC}
-                    onChange={(e) => setNewOptionC(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Option D</label>
-                  <input
-                    type="text"
-                    required
-                    value={newOptionD}
-                    onChange={(e) => setNewOptionD(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl glass-input"
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Answer A', val: newOptionA, set: setNewOptionA },
+                  { label: 'Answer B', val: newOptionB, set: setNewOptionB },
+                  { label: 'Answer C', val: newOptionC, set: setNewOptionC },
+                  { label: 'Answer D', val: newOptionD, set: setNewOptionD },
+                ].map(opt => (
+                  <div key={opt.label}>
+                    <label className="block text-[9px] text-stone-500 font-black uppercase tracking-wider mb-1.5">{opt.label}</label>
+                    <input type="text" required value={opt.val} onChange={(e) => opt.set(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl glass-input text-xs" />
+                  </div>
+                ))}
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Exact Correct Answer</label>
-                <input
-                  type="text"
-                  required
-                  value={newCorrectAnswer}
-                  onChange={(e) => setNewCorrectAnswer(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl glass-input border-emerald-500/30 text-emerald-400"
-                  placeholder="Must match one of the options exactly"
-                />
+                <label className="block text-[9px] text-stone-500 font-black uppercase tracking-wider mb-1.5">✓ Correct Answer (must match exactly)</label>
+                <input type="text" required value={newCorrectAnswer} onChange={(e) => setNewCorrectAnswer(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl glass-input border-emerald-600/30 text-emerald-400 text-sm" placeholder="Must match one of the answers exactly" />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-slate-950 font-black uppercase text-xs transition-all active:scale-95"
+              <button type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase text-xs transition-all active:scale-95 shadow-lg shadow-amber-900/25"
               >
-                Publish Question
+                ✍️ Seal the Trial Scroll
               </button>
             </form>
           </div>
         )}
 
-        {/* MATCH HISTORY LOGS */}
+        {/* CHRONICLES (Match History) */}
         {activeTab === 'logs' && (
-          <div className="p-6 rounded-2xl border border-slate-800 glass-panel space-y-4">
-            <h2 className="text-base font-black text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Award className="w-5 h-5 text-sky-400" />
-              Recent Matches Log
+          <div className="p-6 rounded-2xl border border-stone-800/50 glass-panel space-y-4">
+            <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider flex items-center gap-2">
+              <Award className="w-4 h-4 text-amber-500/60" />
+              Chronicles of Historia — Recent Quests
             </h2>
 
             <div className="overflow-x-auto">
               {matches.length === 0 ? (
-                <p className="text-xs text-slate-600 italic py-4">No matches completed yet.</p>
+                <p className="text-xs text-stone-600 italic py-6 text-center">
+                  📜 The Chronicles are empty. No quests have been completed yet.
+                </p>
               ) : (
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="py-3 px-2">Match ID</th>
-                      <th className="py-3 px-2">Mode</th>
-                      <th className="py-3 px-2">Winner</th>
-                      <th className="py-3 px-2">Rounds</th>
-                      <th className="py-3 px-2">Completed At</th>
+                    <tr className="border-b border-stone-800/60 text-stone-500 font-black uppercase tracking-wider">
+                      <th className="py-3 px-2">Quest ID</th>
+                      <th className="py-3 px-2">Battle Mode</th>
+                      <th className="py-3 px-2">Crowned Champion</th>
+                      <th className="py-3 px-2">Trials Faced</th>
+                      <th className="py-3 px-2">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                  <tbody className="divide-y divide-stone-800/40 text-stone-300">
                     {matches.map((m) => (
-                      <tr key={m.id} className="hover:bg-slate-900/10">
-                        <td className="py-3 px-2 font-mono text-[10px] text-slate-500">{m.id}</td>
-                        <td className="py-3 px-2 font-bold text-sky-400">{m.mode}</td>
-                        <td className="py-3 px-2 font-bold text-emerald-400">{m.winnerUsername}</td>
-                        <td className="py-3 px-2">{m.roundCount} Rounds</td>
-                        <td className="py-3 px-2 text-slate-500">{new Date(m.createdAt).toLocaleString()}</td>
+                      <tr key={m.id} className="hover:bg-stone-900/15">
+                        <td className="py-3 px-2 font-mono text-[9px] text-stone-600">{m.id.slice(0, 8)}…</td>
+                        <td className="py-3 px-2 font-bold text-amber-500/80">
+                          {m.mode === 'DUEL' ? '⚔️ Royal Duel' : m.mode === 'TEAM' ? '🛡️ Band of Heroes' : '👑 Grand Melee'}
+                        </td>
+                        <td className="py-3 px-2 font-black text-amber-300">👑 {m.winnerUsername}</td>
+                        <td className="py-3 px-2 text-stone-400">{m.roundCount} Rounds</td>
+                        <td className="py-3 px-2 text-stone-500">{new Date(m.createdAt).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
