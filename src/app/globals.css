@@ -395,19 +395,12 @@ body::before {
   box-shadow: 0 0 20px rgba(0,0,0,0.8);
 }
 
-/* ─── Pawn Standing Upright (Chess Piece Billboard) ─────────────────────────── */
-/*
-  The board is tilted with rotateX(60deg) rotateZ(-45deg).
-  To make pawns stand upright like chess pieces (facing the screen),
-  we counter-rotate: rotateZ(45deg) then rotateX(-60deg).
-  We also disable preserve-3d on the wrapper so the avatar image
-  renders as a flat billboard instead of being flattened onto the tile.
-*/
+/* ─── Pawn Overlay (screen-space, no 3D transform needed) ───────────────────── */
+/* Pawns are rendered outside the iso-board-container so they always face
+   the screen upright — no counter-rotation tricks required.               */
 .pawn-upright {
-  transform: rotateZ(45deg) rotateX(-60deg) translateZ(12px);
-  transform-origin: bottom center;
-  transform-style: flat;        /* flat = billboard; do NOT use preserve-3d here */
-  pointer-events: none;
+  /* legacy class kept for safety — no longer used for rotation */
+  transform: none;
 }
 
 /* ─── Chess Piece Base ───────────────────────────────────────────────────────── */
@@ -423,7 +416,6 @@ body::before {
   pointer-events: none;
 }
 
-/* Active player base glow ring */
 .chess-piece-base-active {
   background: radial-gradient(ellipse at center, rgba(250,204,21,0.85) 0%, rgba(250,204,21,0.3) 50%, transparent 70%);
   animation: baseGlow 1.2s infinite ease-in-out;
@@ -434,7 +426,6 @@ body::before {
   50%       { transform: translateX(-50%) scaleX(1.2); opacity: 1;   }
 }
 
-/* ─── Chess Piece Pedestal (cylindrical base illusion) ───────────────────────── */
 .chess-piece-pedestal {
   width: 100%;
   display: flex;
