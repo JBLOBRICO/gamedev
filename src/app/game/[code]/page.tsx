@@ -26,12 +26,12 @@ interface ActionError {
 
 // Loading lore tips shown while connecting
 const LOADING_LORE = [
-  'The ancient gates of Historia creak open…',
-  'The Royal Librarians prepare the trials…',
-  'Castle bells echo across the realm…',
-  'Heroes of Historia answer the call…',
-  'The Crown of Wisdom awaits the worthy…',
-  'Scrolls of forgotten knowledge are unsealed…',
+  'The ancient gates of Historia creak open-',
+  'The Royal Librarians prepare the trials-',
+  'Castle bells echo across the realm-',
+  'Heroes of Historia answer the call-',
+  'The Crown of Wisdom awaits the worthy-',
+  'Scrolls of forgotten knowledge are unsealed-',
 ];
 
 export default function GameRoom({ params }: { params: Promise<{ code: string }> }) {
@@ -57,7 +57,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     return () => clearInterval(iv);
   }, []);
 
-  // ── Fetch room state ────────────────────────────────────────────────────────
+  // -- Fetch room state --------------------------------------------------------
   const fetchRoomState = useCallback(async () => {
     try {
       const res = await fetch(`/api/rooms/${code}`, { cache: 'no-store' });
@@ -85,7 +85,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     }
   }, [code]);
 
-  // ── Heartbeat ───────────────────────────────────────────────────────────────
+  // -- Heartbeat ---------------------------------------------------------------
   useEffect(() => {
     fetchRoomState();
     const heartbeatTimer = setInterval(() => {
@@ -99,13 +99,13 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     return () => clearInterval(heartbeatTimer);
   }, [code, profile, fetchRoomState]);
 
-  // ── Polling ─────────────────────────────────────────────────────────────────
+  // -- Polling -----------------------------------------------------------------
   useEffect(() => {
     const pollTimer = setInterval(() => fetchRoomState(), 1500);
     return () => clearInterval(pollTimer);
   }, [fetchRoomState]);
 
-  // ── Action executor ──────────────────────────────────────────────────────────
+  // -- Action executor ----------------------------------------------------------
   const executeAction = useCallback(async (action: string, details: any = null): Promise<boolean> => {
     if (!profile) return false;
     if (actionPending) return false;
@@ -128,14 +128,14 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
       setActionError(null);
       return true;
     } catch (err: any) {
-      setActionError({ message: 'The ancient network wavers — please try again.', retryable: true });
+      setActionError({ message: 'The ancient network wavers - please try again.', retryable: true });
       return false;
     } finally {
       setActionPending(false);
     }
   }, [profile, code, fetchRoomState, actionPending]);
 
-  // ── Game actions ─────────────────────────────────────────────────────────────
+  // -- Game actions -------------------------------------------------------------
   const toggleReady = () => executeAction('LOBBY_READY');
   const startGame = () => executeAction('START_GAME');
   const sendChat = (msg: string) => { if (msg.trim()) executeAction('CHAT', { message: msg }); };
@@ -152,7 +152,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
   const forceAdvance = () => executeAction('FORCE_ADVANCE');
   const leaveRoom = () => { sounds.playClick(); router.push('/'); };
 
-  // ── Loading screen ───────────────────────────────────────────────────────────
+  // -- Loading screen -----------------------------------------------------------
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
@@ -175,7 +175,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     );
   }
 
-  // ── Room error ───────────────────────────────────────────────────────────────
+  // -- Room error ---------------------------------------------------------------
   if (error || !room) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#0a0a0f]">
@@ -196,7 +196,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     );
   }
 
-  // ── Lobby screen ─────────────────────────────────────────────────────────────
+  // -- Lobby screen -------------------------------------------------------------
   if (room.status === 'LOBBY') {
     return (
       <main className="min-h-screen py-10 bg-[#0a0a0f] text-[#f5f0e8] relative bg-grid-pattern">
@@ -219,7 +219,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     );
   }
 
-  // ── Finished screen ───────────────────────────────────────────────────────────
+  // -- Finished screen -----------------------------------------------------------
   if (room.status === 'FINISHED') {
     const winner = room.players.find((p: any) => p.userId === room.winnerId);
     return (
@@ -250,9 +250,9 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════════════
-  //  ACTIVE MATCH VIEW — The Quest Is Underway
-  // ════════════════════════════════════════════════════════════════════════════
+  // ----------------------------------------------------------------------------
+  //  ACTIVE MATCH VIEW - The Quest Is Underway
+  // ----------------------------------------------------------------------------
 
   const currentTurnRecord = room.turns?.[0] || null;
   const isMyTurn = currentTurnRecord?.activePlayerId === profile?.id;
@@ -271,11 +271,11 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
       {/* Flavor text ticker */}
       {flavorMsg && (
         <div className="fixed top-0.5 left-0 right-0 text-center pointer-events-none z-40">
-          <span className="flavor-text text-[9px] text-amber-700/40 tracking-widest">✦ {flavorMsg} ✦</span>
+          <span className="flavor-text text-[9px] text-amber-700/40 tracking-widest">- {flavorMsg} -</span>
         </div>
       )}
 
-      {/* ── Top HUD ─────────────────────────────────────────────────────────── */}
+      {/* -- Top HUD ----------------------------------------------------------- */}
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center p-4 rounded-2xl border border-amber-900/25 glass-panel gap-4 mt-3">
 
         <div className="flex items-center gap-3">
@@ -288,29 +288,29 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           </Link>
           <div className="text-left">
             <span className="block text-[9px] text-stone-500 font-black uppercase tracking-[0.2em]">
-              ⚔️ Round {room.round} · Hall {room.code}
+              -- Round {room.round} - Hall {room.code}
             </span>
             <h2 className="text-sm font-black text-[#f5f0e8] flex items-center gap-2 mt-0.5">
               {!currentTurnRecord ? (
-                <span className="text-stone-500">Awaiting the first roll…</span>
+                <span className="text-stone-500">Awaiting the first roll-</span>
               ) : isTurnStalled ? (
                 <span className="text-amber-400 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> Advancing the quest…
+                  <Clock className="w-3.5 h-3.5" /> Advancing the quest-
                 </span>
               ) : isMyTurn ? (
                 <span className="text-amber-300 animate-pulse flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-amber-400" /> Your Turn, Hero! ⚜
+                  <Crown className="w-3.5 h-3.5 text-amber-400" /> Your Turn, Hero! -
                 </span>
               ) : (
                 <span className="text-stone-300">
-                  {activePlayer?.user.username || '…'}&apos;s Turn
+                  {activePlayer?.user.username || '-'}&apos;s Turn
                 </span>
               )}
             </h2>
           </div>
         </div>
 
-        {/* Players Quick HUD — "Heroes of the Quest" */}
+        {/* Players Quick HUD - "Heroes of the Quest" */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
           {room.players.map((p: any) => {
             const isActive = p.userId === activePlayer?.userId;
@@ -332,11 +332,11 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                     style={{ color: p.user.nameColor }}
                   >
                     {p.user.username}
-                    {p.isHost ? ' 👑' : ''}
+                    {p.isHost ? ' --' : ''}
                     {!p.isConnected ? ' (away)' : ''}
                   </span>
                   <span className="block text-[8px] text-stone-500 leading-none mt-0.5">
-                    Tile {p.position} · {p.coins}g
+                    Tile {p.position} - {p.coins}g
                   </span>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
         )}
       </div>
 
-      {/* ── Action error banner ─────────────────────────────────────────────── */}
+      {/* -- Action error banner ----------------------------------------------- */}
       {actionError && (
         <div className="max-w-6xl mx-auto p-4 rounded-2xl border border-rose-800/40 bg-rose-950/15 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-rose-400 font-bold">
@@ -375,29 +375,29 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
         </div>
       )}
 
-      {/* ── Royal Decree (Global Event) ─────────────────────────────────────── */}
+      {/* -- Royal Decree (Global Event) --------------------------------------- */}
       {room.activeEvent && (
         <div className="max-w-6xl mx-auto">
           <DynamicEventPanel eventName={room.activeEvent} roundsLeft={room.eventRoundsLeft} />
         </div>
       )}
 
-      {/* ── Sacred Board of Historia ─────────────────────────────────────────── */}
+      {/* -- Sacred Board of Historia ------------------------------------------- */}
       <div className="max-w-6xl mx-auto">
         <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} />
       </div>
 
-      {/* ── Controls Grid ────────────────────────────────────────────────────── */}
+      {/* -- Controls Grid ------------------------------------------------------ */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
 
-        {/* ── Turn phase window ─────────────────────────────────────────────── */}
+        {/* -- Turn phase window ----------------------------------------------- */}
         <div className="lg:col-span-2 space-y-4">
 
           {/* No turn yet */}
           {!currentTurnRecord && (
             <div className="p-6 border border-stone-800/50 glass-panel rounded-2xl text-center space-y-3">
               <RefreshCw className="w-6 h-6 text-stone-600 animate-spin mx-auto" />
-              <p className="text-sm text-stone-400 font-bold italic">Awaiting the first roll of the ancient dice…</p>
+              <p className="text-sm text-stone-400 font-bold italic">Awaiting the first roll of the ancient dice-</p>
               {isHost && (
                 <button
                   onClick={forceAdvance}
@@ -414,7 +414,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           {isTurnStalled && (
             <div className="p-6 border border-amber-900/25 bg-amber-950/10 glass-panel rounded-2xl text-center space-y-2">
               <Clock className="w-6 h-6 text-amber-500/60 animate-spin mx-auto" />
-              <p className="text-sm text-amber-400 font-bold">The herald advances the quest…</p>
+              <p className="text-sm text-amber-400 font-bold">The herald advances the quest-</p>
               <p className="text-[10px] text-stone-600 italic">
                 "This advances automatically. If stuck, the host may use Force Advance."
               </p>
@@ -435,7 +435,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-stone-800/40 glass-panel">
                       <p className="text-sm text-stone-400 italic">
-                        Awaiting <span className="font-black text-amber-300">{activePlayer.user.username}</span> to cast the dice…
+                        Awaiting <span className="font-black text-amber-300">{activePlayer.user.username}</span> to cast the dice-
                       </p>
                     </div>
                   )}
@@ -459,7 +459,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-amber-900/25 bg-amber-950/10">
                       <p className="text-sm text-amber-300 font-bold animate-pulse">
-                        📜 {activePlayer.user.username} faces the ancient trial…
+                        -- {activePlayer.user.username} faces the ancient trial-
                       </p>
                     </div>
                   )}
@@ -481,7 +481,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-amber-900/25 bg-amber-950/10">
                       <p className="text-sm text-amber-300 font-bold animate-pulse">
-                        ⚔️ {activePlayer.user.username} encounters a tile of fate…
+                        -- {activePlayer.user.username} encounters a tile of fate-
                       </p>
                     </div>
                   )}
@@ -491,7 +491,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
           )}
         </div>
 
-        {/* ── Right sidebar ─────────────────────────────────────────────────── */}
+        {/* -- Right sidebar --------------------------------------------------- */}
         <div className="lg:col-span-1 space-y-5">
 
           {/* Merchant's Caravan (Item Shop) */}
@@ -514,7 +514,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
             <div className="flex items-center gap-1.5 pb-2 border-b border-stone-800/40 mb-1">
               <Scroll className="w-3.5 h-3.5 text-amber-700/50" />
               <h3 className="text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">
-                Chronicles · Quest Log
+                Chronicles - Quest Log
               </h3>
             </div>
 
@@ -542,7 +542,7 @@ export default function GameRoom({ params }: { params: Promise<{ code: string }>
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 className="flex-1 px-3 py-1.5 rounded-xl glass-input text-[10px]"
-                placeholder="Speak to your allies…"
+                placeholder="Speak to your allies-"
               />
               <button
                 type="submit"

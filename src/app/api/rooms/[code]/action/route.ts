@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getTileByIndex, BOARD_SIZE } from '@/lib/boardConfig';
 import { getHeroByAvatarId } from '@/lib/heroes';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 async function checkAndAwardAchievements(userId: string) {
   try {
@@ -67,7 +67,7 @@ async function advanceToNextTurn(
         roomId,
         playerUsername: 'System',
         actionType: 'EVENT',
-        details: JSON.stringify({ message: `🌍 GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
+        details: JSON.stringify({ message: `-- GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
       }
     });
   } else if (nextTurnIndex === 0 && newEventRoundsLeft > 0) {
@@ -82,7 +82,7 @@ async function advanceToNextTurn(
 
   const nextPlayer = players[nextTurnIndex];
 
-  // Check if the next player has skip turns applied — apply from their skipTurns field via extraData
+  // Check if the next player has skip turns applied - apply from their skipTurns field via extraData
   // We track skip via coins field is not possible; instead we store it in roomAction log as skip
   // and handle it when creating the next turn (skip their turn if needed)
   await prisma.turn.create({
@@ -125,7 +125,7 @@ async function handleVictory(room: any, winner: any, currentTurnId: string) {
   await prisma.roomAction.create({
     data: {
       roomId: room.id, playerUsername: 'System', actionType: 'EVENT',
-      details: JSON.stringify({ message: `🏆 ${winner.user.username} REACHED THE FINISH LINE AND WON!` })
+      details: JSON.stringify({ message: `-- ${winner.user.username} REACHED THE FINISH LINE AND WON!` })
     }
   });
   await prisma.turn.update({ where: { id: currentTurnId }, data: { status: 'COMPLETED' } });
@@ -150,13 +150,13 @@ async function grantFreeItem(playerId: string, username: string, roomId: string)
   await prisma.roomAction.create({
     data: {
       roomId, playerUsername: 'System', actionType: 'TILE',
-      details: JSON.stringify({ message: `🎁 ${username} received a free ${label}!` })
+      details: JSON.stringify({ message: `-- ${username} received a free ${label}!` })
     }
   });
   return label;
 }
 
-// ─── POST Handler ─────────────────────────────────────────────────────────────
+// --- POST Handler -------------------------------------------------------------
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -197,7 +197,7 @@ export async function POST(
     const player = room.players.find(p => p.userId === userId);
     if (!player) return NextResponse.json({ error: 'You are not in this room.' }, { status: 403 });
 
-    // ── HEARTBEAT ────────────────────────────────────────────────────────────
+    // -- HEARTBEAT ------------------------------------------------------------
     if (action === 'HEARTBEAT') {
       await prisma.player.update({ where: { id: player.id }, data: { lastActive: new Date(), isConnected: true } });
       return NextResponse.json({ success: true });
@@ -205,19 +205,19 @@ export async function POST(
 
     await prisma.player.update({ where: { id: player.id }, data: { lastActive: new Date(), isConnected: true } });
 
-    // ── LOBBY_READY ──────────────────────────────────────────────────────────
+    // -- LOBBY_READY ----------------------------------------------------------
     if (action === 'LOBBY_READY') {
       if (room.status !== 'LOBBY') return NextResponse.json({ error: 'Game has already started' }, { status: 400 });
       const updated = await prisma.player.update({ where: { id: player.id }, data: { isReady: !player.isReady }, include: { user: true } });
       await prisma.roomAction.create({
         data: { roomId: room.id, playerUsername: player.user.username, actionType: 'CHAT',
-          details: JSON.stringify({ message: `${player.user.username} is ${updated.isReady ? 'READY ✅' : 'NOT READY ❌'}.` }) }
+          details: JSON.stringify({ message: `${player.user.username} is ${updated.isReady ? 'READY -' : 'NOT READY -'}.` }) }
       });
       await checkAndAwardAchievements(userId);
       return NextResponse.json({ success: true });
     }
 
-    // ── START_GAME ────────────────────────────────────────────────────────────
+    // -- START_GAME ------------------------------------------------------------
     if (action === 'START_GAME') {
       if (!player.isHost) return NextResponse.json({ error: 'Only the host can start the game' }, { status: 403 });
       if (room.status === 'ACTIVE') return NextResponse.json({ error: 'Game is already in progress' }, { status: 400 });
@@ -252,7 +252,7 @@ export async function POST(
       });
       await prisma.roomAction.create({
         data: { roomId: room.id, playerUsername: 'System', actionType: 'EVENT',
-          details: JSON.stringify({ message: `🎮 Game started! ${first.user.username} goes first!` }) }
+          details: JSON.stringify({ message: `-- Game started! ${first.user.username} goes first!` }) }
       });
       return NextResponse.json({ success: true });
     }
@@ -261,7 +261,7 @@ export async function POST(
 
     const currentTurnRecord = room.turns[0];
 
-    // ── FORCE_ADVANCE ──────────────────────────────────────────────────────────
+    // -- FORCE_ADVANCE ----------------------------------------------------------
     if (action === 'FORCE_ADVANCE') {
       if (!player.isHost) return NextResponse.json({ error: 'Only the host can force-advance' }, { status: 403 });
       if (currentTurnRecord && currentTurnRecord.status !== 'COMPLETED') {
@@ -275,7 +275,7 @@ export async function POST(
       return NextResponse.json({ success: true });
     }
 
-    // ── END_TURN ───────────────────────────────────────────────────────────────
+    // -- END_TURN ---------------------------------------------------------------
     if (action === 'END_TURN') {
       const isActivePlayer = currentTurnRecord?.activePlayerId === userId;
       if (!isActivePlayer && !player.isHost) return NextResponse.json({ error: 'Only the active player or host can end the turn' }, { status: 403 });
@@ -289,7 +289,7 @@ export async function POST(
       return NextResponse.json({ success: true });
     }
 
-    // ── CHAT ───────────────────────────────────────────────────────────────────
+    // -- CHAT -------------------------------------------------------------------
     if (action === 'CHAT') {
       const msg = details?.message;
       if (!msg || typeof msg !== 'string' || !msg.trim()) return NextResponse.json({ error: 'Message cannot be empty' }, { status: 400 });
@@ -300,7 +300,7 @@ export async function POST(
       return NextResponse.json({ success: true });
     }
 
-    // ── BUY_ITEM — allowed at any time during an active game ──────────────────
+    // -- BUY_ITEM - allowed at any time during an active game ------------------
     if (action === 'BUY_ITEM') {
       const { itemId, cost } = details || {};
       if (!itemId || typeof itemId !== 'string') return NextResponse.json({ error: 'Item ID required' }, { status: 400 });
@@ -330,7 +330,7 @@ export async function POST(
       return NextResponse.json({ success: true });
     }
 
-    // ── Turn-gated actions ─────────────────────────────────────────────────────
+    // -- Turn-gated actions -----------------------------------------------------
     if (!currentTurnRecord || currentTurnRecord.status === 'COMPLETED') {
       return NextResponse.json({ error: 'No active turn. Waiting for the next turn to begin.' }, { status: 400 });
     }
@@ -339,10 +339,10 @@ export async function POST(
       return NextResponse.json({ error: `It is not your turn. Waiting for ${ap?.user.username || 'the active player'}.` }, { status: 400 });
     }
 
-    // ── ROLL_DICE ──────────────────────────────────────────────────────────────
+    // -- ROLL_DICE --------------------------------------------------------------
     if (action === 'ROLL_DICE') {
       if (currentTurnRecord.status !== 'ROLLING') {
-        return NextResponse.json({ error: `Cannot roll — turn status is "${currentTurnRecord.status}".` }, { status: 400 });
+        return NextResponse.json({ error: `Cannot roll - turn status is "${currentTurnRecord.status}".` }, { status: 400 });
       }
 
       let roll = Math.floor(1 + Math.random() * 6);
@@ -374,7 +374,7 @@ export async function POST(
 
       let questionCount = await prisma.triviaQuestion.count({ where: { category, difficulty, id: { notIn: askedQ } } });
       if (questionCount === 0) {
-        // Soft reset for this category/difficulty pair — don't wipe all
+        // Soft reset for this category/difficulty pair - don't wipe all
         const catDiffIds = (await prisma.triviaQuestion.findMany({ where: { category, difficulty }, select: { id: true } })).map(q => q.id);
         askedQ = askedQ.filter(id => !catDiffIds.includes(id));
         questionCount = catDiffIds.length;
@@ -416,10 +416,10 @@ export async function POST(
       return NextResponse.json({ success: true, roll });
     }
 
-    // ── ANSWER_TRIVIA ──────────────────────────────────────────────────────────
+    // -- ANSWER_TRIVIA ----------------------------------------------------------
     if (action === 'ANSWER_TRIVIA') {
       if (currentTurnRecord.status !== 'TRIVIA') {
-        return NextResponse.json({ error: `Cannot answer — turn status is "${currentTurnRecord.status}".` }, { status: 400 });
+        return NextResponse.json({ error: `Cannot answer - turn status is "${currentTurnRecord.status}".` }, { status: 400 });
       }
 
       const { answer } = details || {};
@@ -503,7 +503,7 @@ export async function POST(
       });
       await prisma.roomAction.create({
         data: { roomId: room.id, playerUsername: player.user.username, actionType: 'ANSWER',
-          details: JSON.stringify({ message: `${player.user.username} answered correctly! ✓ Moved to tile ${newPosition} (${landedTile.name}).` }) }
+          details: JSON.stringify({ message: `${player.user.username} answered correctly! - Moved to tile ${newPosition} (${landedTile.name}).` }) }
       });
 
       if (newPosition >= FINISH) {
@@ -514,10 +514,10 @@ export async function POST(
       return NextResponse.json({ success: true, isCorrect: true, newPosition, tileType: landedTile.type, nextStep: 'TILE_EFFECT' });
     }
 
-    // ── INTERACT_TILE ──────────────────────────────────────────────────────────
+    // -- INTERACT_TILE ----------------------------------------------------------
     if (action === 'INTERACT_TILE') {
       if (currentTurnRecord.status !== 'TILE_EFFECT') {
-        return NextResponse.json({ error: `Cannot interact — turn status is "${currentTurnRecord.status}".` }, { status: 400 });
+        return NextResponse.json({ error: `Cannot interact - turn status is "${currentTurnRecord.status}".` }, { status: 400 });
       }
 
       const tile = getTileByIndex(player.position);
@@ -533,60 +533,60 @@ export async function POST(
 
       switch (tile.type) {
 
-        // ── BONUS (legacy Coin Fountain) ─────────────────────────────────────
+        // -- BONUS (legacy Coin Fountain) -------------------------------------
         case 'BONUS':
           coinsChange = 10;
-          logMessage = `${player.user.username} collected 10 coins from the Coin Fountain! 🎁`;
+          logMessage = `${player.user.username} collected 10 coins from the Coin Fountain! --`;
           break;
 
-        // ── COIN_BONUS ────────────────────────────────────────────────────────
+        // -- COIN_BONUS --------------------------------------------------------
         case 'COIN_BONUS': {
           const amounts: Record<string, number> = {
             'Gold Pile': 8, 'Coin Fountain': 10, 'Treasure Cache': 15,
             'Star Chest': 20, 'Victory Cache': 25
           };
           coinsChange = amounts[tile.name] ?? 10;
-          logMessage = `${player.user.username} collected ${coinsChange} coins! 💰`;
+          logMessage = `${player.user.username} collected ${coinsChange} coins! --`;
           break;
         }
 
-        // ── COIN_DRAIN ────────────────────────────────────────────────────────
+        // -- COIN_DRAIN --------------------------------------------------------
         case 'COIN_DRAIN':
           coinsChange = -Math.min(12, player.coins);
-          logMessage = `${player.user.username} lost ${Math.abs(coinsChange)} coins to the Tax Collector! 💸`;
+          logMessage = `${player.user.username} lost ${Math.abs(coinsChange)} coins to the Tax Collector! --`;
           break;
 
-        // ── SHORTCUT / MOVE_FORWARD ───────────────────────────────────────────
+        // -- SHORTCUT / MOVE_FORWARD -------------------------------------------
         case 'SHORTCUT':
         case 'MOVE_FORWARD': {
           const fwdAmounts: Record<string, number> = {
             'Wind Tunnel': 3, 'Springpad': 2, 'Tailwind': 3, 'Launch Pad': 4
           };
           posChange = fwdAmounts[tile.name] ?? 2;
-          logMessage = `${player.user.username} zoomed forward ${posChange} tiles! 💨`;
+          logMessage = `${player.user.username} zoomed forward ${posChange} tiles! --`;
           break;
         }
 
-        // ── MOVE_BACK ─────────────────────────────────────────────────────────
+        // -- MOVE_BACK ---------------------------------------------------------
         case 'MOVE_BACK':
           posChange = -4;
-          logMessage = `${player.user.username} fell into the sinkhole! −4 tiles 🕳️`;
+          logMessage = `${player.user.username} fell into the sinkhole! -4 tiles ---`;
           break;
 
-        // ── TRAP ──────────────────────────────────────────────────────────────
+        // -- TRAP --------------------------------------------------------------
         case 'TRAP':
           if (player.shieldActive || player.trapImmunity) {
-            logMessage = `${player.user.username} blocked the trap with their protection! 🛡️`;
+            logMessage = `${player.user.username} blocked the trap with their protection! ---`;
             await prisma.player.update({ where: { id: player.id }, data: { shieldActive: false, trapImmunity: false } });
           } else {
             const hData = getHeroByAvatarId(player.user.avatarId);
             coinsChange = hData?.avatarId === 'avatar_9' ? -7 : -10; // Ragnar's passive
             posChange = -2;
-            logMessage = `${player.user.username} hit a trap! ${coinsChange} coins, −2 tiles 💥`;
+            logMessage = `${player.user.username} hit a trap! ${coinsChange} coins, -2 tiles --`;
           }
           break;
 
-        // ── TREASURE ──────────────────────────────────────────────────────────
+        // -- TREASURE ----------------------------------------------------------
         case 'TREASURE':
           if (choice === 'OPEN') {
             if (player.coins < 10) return NextResponse.json({ error: 'Not enough coins to open (needs 10)' }, { status: 400 });
@@ -594,24 +594,24 @@ export async function POST(
             const r = Math.random();
             if (r < 0.35) {
               await prisma.player.update({ where: { id: player.id }, data: { shieldActive: true } });
-              logMessage = `${player.user.username} opened a chest and found a SHIELD! 🛡️`;
+              logMessage = `${player.user.username} opened a chest and found a SHIELD! ---`;
             } else if (r < 0.7) {
               coinsChange += 25;
-              logMessage = `${player.user.username} opened a chest and found 25 COINS! 💰`;
+              logMessage = `${player.user.username} opened a chest and found 25 COINS! --`;
             } else if (r < 0.9) {
               coinsChange += 15;
               await grantFreeItem(player.id, player.user.username, room.id);
-              logMessage = `${player.user.username} opened a chest and found an item + 15 coins! 🎁`;
+              logMessage = `${player.user.username} opened a chest and found an item + 15 coins! --`;
             } else {
               posChange = -3;
-              logMessage = `${player.user.username} opened a chest — MIMIC! Fell back 3 tiles 🪤`;
+              logMessage = `${player.user.username} opened a chest - MIMIC! Fell back 3 tiles --`;
             }
           } else {
             logMessage = `${player.user.username} left the chest unopened.`;
           }
           break;
 
-        // ── MYSTERY ───────────────────────────────────────────────────────────
+        // -- MYSTERY -----------------------------------------------------------
         case 'MYSTERY': {
           const r = Math.random();
           if (r < 0.2 && room.players.length > 1) {
@@ -620,74 +620,74 @@ export async function POST(
             const tempPos = player.position;
             await prisma.player.update({ where: { id: player.id }, data: { position: target.position } });
             await prisma.player.update({ where: { id: target.id }, data: { position: tempPos } });
-            logMessage = `Mystery! ${player.user.username} swapped with ${target.user.username}! 🔄`;
+            logMessage = `Mystery! ${player.user.username} swapped with ${target.user.username}! --`;
             skipGenericUpdate = true; // positions already updated above
           } else if (r < 0.4) {
             posChange = 5;
-            logMessage = `Mystery warp! ${player.user.username} teleported +5 tiles ahead! ⚡`;
+            logMessage = `Mystery warp! ${player.user.username} teleported +5 tiles ahead! -`;
           } else if (r < 0.6) {
             coinsChange = 15;
-            logMessage = `Mystery blessing! ${player.user.username} received 15 coins! ✨`;
+            logMessage = `Mystery blessing! ${player.user.username} received 15 coins! -`;
           } else if (r < 0.75) {
             coinsChange = -8;
             posChange = -2;
-            logMessage = `Mystery curse! ${player.user.username} lost 8 coins and fell back 2 tiles! 💀`;
+            logMessage = `Mystery curse! ${player.user.username} lost 8 coins and fell back 2 tiles! --`;
           } else if (r < 0.88) {
             await grantFreeItem(player.id, player.user.username, room.id);
-            logMessage = `Mystery gift! ${player.user.username} received a free item! 🎁`;
+            logMessage = `Mystery gift! ${player.user.username} received a free item! --`;
           } else {
             bonusRoll = true;
-            logMessage = `Mystery momentum! ${player.user.username} gets to roll again! 🎲`;
+            logMessage = `Mystery momentum! ${player.user.username} gets to roll again! --`;
           }
           break;
         }
 
-        // ── RISK ──────────────────────────────────────────────────────────────
+        // -- RISK --------------------------------------------------------------
         case 'RISK':
           if (choice === 'GAMBLE') {
             const win = Math.random() > 0.4;
             if (win) {
               coinsChange = player.coins;
-              logMessage = `${player.user.username} gambled and DOUBLED their coins! 🎲💸`;
+              logMessage = `${player.user.username} gambled and DOUBLED their coins! ----`;
             } else {
               coinsChange = -Math.floor(player.coins / 2);
-              logMessage = `${player.user.username} gambled and lost HALF their coins! 😬`;
+              logMessage = `${player.user.username} gambled and lost HALF their coins! --`;
             }
           } else {
             logMessage = `${player.user.username} skipped the gamble.`;
           }
           break;
 
-        // ── TELEPORT ──────────────────────────────────────────────────────────
+        // -- TELEPORT ----------------------------------------------------------
         case 'TELEPORT': {
           // Pick random tile excluding start (0) and finish (FINISH)
           const randTile = 1 + Math.floor(Math.random() * (FINISH - 2));
           posChange = randTile - player.position;
-          logMessage = `${player.user.username} teleported to tile ${randTile}! ⚡`;
+          logMessage = `${player.user.username} teleported to tile ${randTile}! -`;
           break;
         }
 
-        // ── ITEM_REWARD ────────────────────────────────────────────────────────
+        // -- ITEM_REWARD --------------------------------------------------------
         case 'ITEM_REWARD':
           await grantFreeItem(player.id, player.user.username, room.id);
-          logMessage = `${player.user.username} claimed a free item reward! 🎁`;
+          logMessage = `${player.user.username} claimed a free item reward! --`;
           break;
 
-        // ── SKIP_TURN ─────────────────────────────────────────────────────────
+        // -- SKIP_TURN ---------------------------------------------------------
         case 'SKIP_TURN': {
           skipTurns = tile.name === 'Time Warp' ? 2 : 1;
           // We implement skip by creating placeholder completed turns for this player
-          logMessage = `${player.user.username} is frozen and will skip ${skipTurns} turn(s)! ❄️`;
+          logMessage = `${player.user.username} is frozen and will skip ${skipTurns} turn(s)! --`;
           break;
         }
 
-        // ── DICE_AGAIN ────────────────────────────────────────────────────────
+        // -- DICE_AGAIN --------------------------------------------------------
         case 'DICE_AGAIN':
           bonusRoll = true;
-          logMessage = `${player.user.username} gets a bonus roll! 🎲`;
+          logMessage = `${player.user.username} gets a bonus roll! --`;
           break;
 
-        // ── SWAP ──────────────────────────────────────────────────────────────
+        // -- SWAP --------------------------------------------------------------
         case 'SWAP':
           if (room.players.length > 1) {
             const others = room.players.filter(p => p.id !== player.id);
@@ -697,22 +697,22 @@ export async function POST(
             const tempPos = player.position;
             await prisma.player.update({ where: { id: player.id }, data: { position: target.position } });
             await prisma.player.update({ where: { id: target.id }, data: { position: tempPos } });
-            logMessage = `${player.user.username} swapped positions with ${target.user.username}! 🔄`;
+            logMessage = `${player.user.username} swapped positions with ${target.user.username}! --`;
             skipGenericUpdate = true; // positions already updated above
           } else {
             logMessage = `${player.user.username} tried to swap but there's no one else!`;
           }
           break;
 
-        // ── EVENT ─────────────────────────────────────────────────────────────
+        // -- EVENT -------------------------------------------------------------
         case 'EVENT': {
           const evt = GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)];
           await prisma.room.update({ where: { id: room.id }, data: { activeEvent: evt, eventRoundsLeft: 2 } });
-          logMessage = `${player.user.username} triggered a global event: ${evt}! 🌍`;
+          logMessage = `${player.user.username} triggered a global event: ${evt}! --`;
           break;
         }
 
-        // ── CHALLENGE / WILD ──────────────────────────────────────────────────
+        // -- CHALLENGE / WILD --------------------------------------------------
         case 'CHALLENGE':
         case 'WILD':
         default:
@@ -758,7 +758,7 @@ export async function POST(
         await prisma.turn.update({ where: { id: currentTurnRecord.id }, data: { status: 'ROLLING', tileEffectTriggered: true } });
         await prisma.roomAction.create({
           data: { roomId: room.id, playerUsername: 'System', actionType: 'TILE',
-            details: JSON.stringify({ message: `🎲 ${player.user.username} rolls again!` }) }
+            details: JSON.stringify({ message: `-- ${player.user.username} rolls again!` }) }
         });
         return NextResponse.json({ success: true, bonusRoll: true });
       }
