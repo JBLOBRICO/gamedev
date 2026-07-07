@@ -231,7 +231,10 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                   }`}></div>
                   
-                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${isNight ? 'filter brightness-75' : ''}`}>
+                  <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)]`}>
+                    
+                    {/* Night Mode Dark Overlay (instead of CSS filter which breaks 3D) */}
+                    {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
                     
                     {/* Environmental Textures Container (replaces overflow-hidden on parent) */}
                     <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
@@ -262,9 +265,11 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10">
                       {tile.name}
                     </span>
+                  </div>
 
-                    {/* Pawns slot */}
-                    <div className="h-5 sm:h-7 flex flex-wrap items-center justify-center gap-0.5 mt-0.5 z-20 pawn-upright">
+                  {/* Pawns slot (Moved OUTSIDE iso-face-top to prevent flattening) */}
+                  <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none pawn-upright">
+                    <div className="flex flex-wrap items-center justify-center gap-1 pointer-events-auto mt-2">
                       <AnimatePresence>
                         {playersOnTile.map((p) => {
                           const avatar = getAvatarById(p.user.avatarId);

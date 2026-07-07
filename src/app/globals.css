@@ -366,6 +366,8 @@ body::before {
 
 .iso-tile:hover {
   transform: translateZ(10px);
+}
+.iso-tile:hover .iso-face-top {
   filter: brightness(1.2);
 }
 
