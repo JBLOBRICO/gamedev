@@ -325,11 +325,12 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             style={{ transform: 'none' }}
           >
             <div
-              className="grid gap-1.5 sm:gap-2 select-none relative z-10"
+              className="grid gap-1.5 sm:gap-2 select-none relative z-10 mx-auto"
               style={{
-                gridTemplateColumns: 'repeat(10, minmax(min(12vw, 64px), 1fr))',
+                gridTemplateColumns: 'repeat(10, minmax(min(11.5vw, 52px), 52px))',
                 gridTemplateRows: 'repeat(5, auto)',
                 minWidth: 'min-content',
+                width: 'fit-content',
               }}
             >
             {BOARD_TILES.map((tile) => (
