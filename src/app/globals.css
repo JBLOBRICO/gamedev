@@ -342,47 +342,42 @@ body::before {
 /* ─── 2.5D Isometric Board ───────────────────────────────────────────────────── */
 
 /*
-  CRITICAL: The 3D chain must be:
-    .board-viewport (perspective)
-      └── .iso-board-container (rotateX + rotateZ, preserve-3d)
-            └── .iso-tile (preserve-3d)
-                  └── .iso-face-top (translateZ)
-
-  ANY animation or transition on .board-viewport or its ancestors that uses
-  "transform" will break preserve-3d in Chrome/Safari. So:
-  - Camera shake lives on a SIBLING wrapper, NOT on .board-viewport.
-  - .board-viewport has NO transform of its own.
-  - .iso-board-container transform is set via inline style only (no CSS transition).
+  BOARD REDESIGN: Top-down readable layout with 3D block illusion.
+  Removed isometric tilt — tiles are now flat/top-down but appear
+  elevated using layered box-shadows and border tricks.
+  Chess pieces remain in screen-space overlay (unchanged).
 */
 
 .board-viewport {
-  perspective: 1200px;
+  perspective: 800px;
   width: 100%;
   height: 100%;
   position: relative;
   overflow: visible;
-  /* NO transform-style here — perspective establishes the 3D context */
 }
 
 .iso-board-container {
-  transform-style: preserve-3d;
-  /* transform set via inline style in JSX so nothing can override it */
+  /* Slight camera tilt — just enough depth without making tiles sideways */
+  transform-style: flat;
   will-change: transform;
 }
 
 .iso-tile {
-  transform-style: preserve-3d;
   position: relative;
-  transition: filter 0.3s ease;
-  /* NO transform transition here — it conflicts with preserve-3d chain */
+  transition: filter 0.25s ease, transform 0.25s ease;
+  border-radius: 10px;
+}
+
+.iso-tile:hover {
+  transform: translateY(-3px) scale(1.04);
+  z-index: 10;
 }
 
 .iso-tile:hover .iso-face-top {
-  filter: brightness(1.25);
-  box-shadow: inset 0 0 20px rgba(251,191,36,0.35);
+  filter: brightness(1.3);
 }
 
-/* The 3D Block Faces */
+/* The tile face — now just a flat card with 3D shadow illusion */
 .iso-face {
   position: absolute;
   box-sizing: border-box;
@@ -391,18 +386,23 @@ body::before {
 .iso-face-top {
   width: 100%;
   height: 100%;
-  transform: translateZ(8px);
-  border-radius: 8px;
-  transform-style: preserve-3d;
+  border-radius: 10px;
+  transform: none; /* no translateZ needed — flat layout */
+  /* Multi-layer box shadow creates the 3D block illusion */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 4px 0 rgba(0,0,0,0.6),
+    0 6px 8px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0,0,0,0.4);
 }
 
+/* Bottom face — now acts as a colored drop shadow for depth */
 .iso-face-bottom {
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.8);
-  transform: translateZ(0px);
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.0); /* invisible — depth comes from iso-face-top shadow */
+  transform: none;
+  border-radius: 10px;
 }
 
 /* ─── Camera Shake ───────────────────────────────────────────────────────────── */

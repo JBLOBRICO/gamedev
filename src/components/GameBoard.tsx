@@ -223,7 +223,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
   return (
     <div
       ref={boardWrapperRef}
-      className={`w-full p-3 sm:p-5 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern h-[520px] sm:h-[600px] flex items-center justify-center transition-colors duration-1000`}
+      className={`w-full p-3 sm:p-4 rounded-3xl border border-amber-900/30 glass-panel relative overflow-hidden bg-grid-pattern flex items-center justify-center transition-colors duration-1000`}
     >
       {/* Atmospheric overlays */}
       <div className={`absolute inset-0 pointer-events-none transition-colors duration-1000 ${ambientClass}`} />
@@ -292,15 +292,15 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
-      {/* ── 3D Board ── shake wrapper is a plain sibling div, completely outside the 3D context ── */}
+      {/* ── Board (flat top-down with 3D shadow illusion) ── */}
       <div className={cameraShake ? 'camera-shake-wrapper' : undefined}>
         <div className="board-viewport">
           <div
-            className="iso-board-container w-full max-w-4xl mx-auto h-[400px] mt-10"
-            style={{ transform: 'rotateX(60deg) rotateZ(-45deg)' }}
+            className="iso-board-container w-full max-w-5xl mx-auto py-4"
+            style={{ transform: 'none' }}
           >
             <div
-              className="grid gap-3 sm:gap-4 select-none relative z-10 w-full h-full"
+              className="grid gap-1.5 sm:gap-2 select-none relative z-10 w-full"
               style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
             >
             {BOARD_TILES.map((tile) => (
@@ -331,9 +331,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
                   'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                 }`} />
-                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-500 ${tile.bgClass} border-2 border-stone-800/80 shadow-inner group-hover:border-amber-400/60 group-hover:shadow-[inset_0_0_20px_rgba(251,191,36,0.3)] ${
+                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 border-stone-800/80 group-hover:border-amber-400/70 ${
                   visitedTiles.has(tile.index) && tile.type !== 'START' && tile.type !== 'FINISH'
-                    ? 'opacity-60' : 'opacity-100'
+                    ? 'opacity-55' : 'opacity-100'
                 }`}>
                   {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
                   <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
@@ -346,11 +346,11 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                       <div className="absolute inset-0 bg-transparent sparkle-float" />
                     )}
                   </div>
-                  <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-70 font-black leading-none z-10 drop-shadow-md text-stone-300">
+                  <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-80 font-black leading-none z-10 drop-shadow-sm text-stone-300">
                     <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
-                    <span className="shrink-0 filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{getTileIcon(tile.type)}</span>
+                    <span className="shrink-0">{getTileIcon(tile.type)}</span>
                   </div>
-                  <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10">
+                  <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10 drop-shadow-sm">
                     {tile.name}
                   </span>
                 </div>
