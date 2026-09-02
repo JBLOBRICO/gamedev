@@ -327,7 +327,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             <div
               className="grid gap-1.5 sm:gap-2 select-none relative z-10"
               style={{
-                gridTemplateColumns: 'repeat(10, minmax(min(9.5vw, 60px), 1fr))',
+                gridTemplateColumns: 'repeat(10, minmax(min(12vw, 64px), 1fr))',
                 gridTemplateRows: 'repeat(5, auto)',
                 minWidth: 'min-content',
               }}
@@ -395,11 +395,11 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                       <div className="absolute inset-0 bg-transparent sparkle-float" />
                     )}
                   </div>
-                  <div className="w-full flex justify-between items-center text-[7px] sm:text-[9px] opacity-80 font-black leading-none z-10 drop-shadow-sm text-stone-300">
+                  <div className="w-full flex justify-between items-center text-[8px] sm:text-[11px] opacity-90 font-black leading-none z-10 drop-shadow-sm text-stone-200">
                     <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
-                    <span className="shrink-0">{getTileIcon(tile.type)}</span>
+                    <span className="shrink-0 text-[10px] sm:text-[14px]">{getTileIcon(tile.type)}</span>
                   </div>
-                  <span className="text-[6px] sm:text-[8px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10 drop-shadow-sm">
+                  <span className="text-[7px] sm:text-[10px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10 drop-shadow-sm text-stone-100">
                     {tile.name}
                   </span>
                 </div>

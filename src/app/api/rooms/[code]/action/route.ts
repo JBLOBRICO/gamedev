@@ -59,20 +59,23 @@ async function advanceToNextTurn(
   let newActiveEvent = activeEvent;
   let newEventRoundsLeft = eventRoundsLeft;
 
-  if (nextTurnIndex === 0 && nextRound % 4 === 0) {
-    newActiveEvent = GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)];
-    newEventRoundsLeft = 2;
-    await prisma.roomAction.create({
-      data: {
-        roomId,
-        playerUsername: 'System',
-        actionType: 'EVENT',
-        details: JSON.stringify({ message: `-- GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
-      }
-    });
-  } else if (nextTurnIndex === 0 && newEventRoundsLeft > 0) {
-    newEventRoundsLeft -= 1;
-    if (newEventRoundsLeft === 0) newActiveEvent = null;
+  if (nextTurnIndex === 0) {
+    // 50% chance each full round to trigger a new global event; otherwise count down any active one
+    if (Math.random() < 0.5) {
+      newActiveEvent = GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)];
+      newEventRoundsLeft = 2;
+      await prisma.roomAction.create({
+        data: {
+          roomId,
+          playerUsername: 'System',
+          actionType: 'EVENT',
+          details: JSON.stringify({ message: `-- GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
+        }
+      });
+    } else if (newEventRoundsLeft > 0) {
+      newEventRoundsLeft -= 1;
+      if (newEventRoundsLeft === 0) newActiveEvent = null;
+    }
   }
 
   await prisma.room.update({
