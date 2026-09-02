@@ -234,9 +234,13 @@ export async function POST(
       if (!player.isHost) return NextResponse.json({ error: 'Only the host can start the game' }, { status: 403 });
       if (room.status === 'ACTIVE') return NextResponse.json({ error: 'Game is already in progress' }, { status: 400 });
       if (room.players.length < 1) return NextResponse.json({ error: 'Need at least 1 player' }, { status: 400 });
-      const notReady = room.players.filter(p => !p.isReady && p.userId !== userId);
-      if (notReady.length > 0 && room.players.length > 1) {
-        return NextResponse.json({ error: `Players not ready: ${notReady.map(p => p.user.username).join(', ')}` }, { status: 400 });
+      // "New Quest" rematch: skip the ready-check (players are no longer marked ready after a match)
+      const isReset = details?.reset === true && room.status === 'FINISHED';
+      if (!isReset) {
+        const notReady = room.players.filter(p => !p.isReady && p.userId !== userId);
+        if (notReady.length > 0 && room.players.length > 1) {
+          return NextResponse.json({ error: `Players not ready: ${notReady.map(p => p.user.username).join(', ')}` }, { status: 400 });
+        }
       }
       const shuffled = [...room.players].sort(() => Math.random() - 0.5);
       for (let i = 0; i < shuffled.length; i++) {
