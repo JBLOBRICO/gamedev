@@ -3,28 +3,58 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #f5f0e8;
-  --royal-gold: #c9a84c;
+  /* LIGHT (default) theme — pleasant parchment & ivory */
+  --background: #faf6ef;
+  --background-rgb: 250, 246, 239;
+  --foreground: #2a2722;
+  --foreground-soft: #5c564b;
+  --panel-bg: rgba(255, 252, 245, 0.72);
+  --panel-border: rgba(201, 168, 76, 0.45);
+  --panel-shadow: 0 8px 32px 0 rgba(120, 100, 60, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+  --gold: #c9a84c;
+  --gold-strong: #a9851f;
   --royal-blue: #1e3a6e;
   --crimson: #8b1a1a;
   --emerald: #0d4a2e;
-  --stone: #3d3325;
+  --stone: #7a6a52;
   --parchment: #f5f0e8;
+}
+
+.dark {
+  /* DARK theme — royal night castle */
+  --background: #0a0a0f;
+  --background-rgb: 10, 10, 15;
+  --foreground: #f5f0e8;
+  --foreground-soft: #a8a29e;
+  --panel-bg: rgba(10, 8, 5, 0.65);
+  --panel-border: rgba(201, 168, 76, 0.2);
+  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(201, 168, 76, 0.08);
+  --gold: #c9a84c;
+  --gold-strong: #fbbf24;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  background-image: 
+  background-image:
+    radial-gradient(at 0% 0%, rgba(30, 58, 110, 0.30) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.16) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.16) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(122, 106, 82, 0.18) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(201, 168, 76, 0.06) 0px, transparent 60%);
+  background-attachment: fixed;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-image:
     radial-gradient(at 0% 0%, rgba(30, 58, 110, 0.35) 0px, transparent 55%),
     radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.2) 0px, transparent 50%),
     radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.2) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(61, 51, 37, 0.4) 0px, transparent 55%),
     radial-gradient(at 50% 50%, rgba(100, 70, 20, 0.08) 0px, transparent 60%);
-  background-attachment: fixed;
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
 }
 
 /* ─── Castle Stone Texture Overlay ─────────────────────────────────────────── */
@@ -39,23 +69,24 @@ body::before {
 
 /* ─── Glassmorphism — Castle Stone Style ────────────────────────────────────── */
 .glass-panel {
-  background: rgba(10, 8, 5, 0.65);
+  background: var(--panel-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(201, 168, 76, 0.08);
+  box-shadow: var(--panel-shadow);
+  border: 1px solid var(--panel-border);
 }
 
 .glass-panel-light {
-  background: rgba(30, 25, 15, 0.7);
+  background: var(--panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 /* ─── Parchment Panel ────────────────────────────────────────────────────────── */
 .parchment-panel {
-  background: linear-gradient(135deg, rgba(45, 35, 20, 0.8) 0%, rgba(30, 20, 10, 0.9) 100%);
-  border: 1px solid rgba(201, 168, 76, 0.3);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 30px rgba(201, 168, 76, 0.03);
+  background: linear-gradient(135deg, var(--panel-bg) 0%, var(--panel-bg) 100%);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow), inset 0 0 30px rgba(201, 168, 76, 0.03);
 }
 
 /* ─── Input Fields ───────────────────────────────────────────────────────────── */

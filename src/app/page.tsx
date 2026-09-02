@@ -8,6 +8,7 @@ import ProfileEditModal from '@/components/ProfileEditModal';
 import ProfileStats from '@/components/ProfileStats';
 import SoundSettings from '@/components/SoundSettings';
 import HeroJournal from '@/components/HeroJournal';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   Settings, Plus, Users, ArrowRight, ArrowLeft, ShieldAlert, Sparkles,
   BookOpen, Crown, Castle, Volume2, VolumeX, Monitor, Info,
@@ -165,7 +166,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-[#f5f0e8] relative overflow-hidden">
+    <main className="min-h-screen text-[var(--foreground)] relative overflow-hidden">
 
       {/* ── Global ambient BG ─────────────────────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -201,6 +202,7 @@ export default function Home() {
             <div className="flex items-center justify-between px-4 sm:px-8 pt-8 pb-4">
               <div />
               <div className="flex items-center gap-2">
+                <ThemeToggle className="border-amber-900/40 bg-amber-950/20 hover:bg-amber-950/40 text-amber-300" />
                 {profile && (
                   <button onClick={() => { sounds.playClick(); setShowEdit(true); }}
                     className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-900/40 bg-amber-950/20 hover:bg-amber-950/40 text-xs font-bold transition-all text-amber-300 active:scale-95">
@@ -229,7 +231,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none">
-                    <span className="text-[#f5f0e8]">HISTORIA</span>
+                    <span className="text-[var(--foreground)]">HISTORIA</span>
                     <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500">
                       LEGENDS
@@ -291,7 +293,7 @@ export default function Home() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => nav(s)}
-                    className="w-full flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl border border-stone-700/60 bg-stone-900/50 hover:bg-stone-800/60 hover:border-amber-700/40 text-[#f5f0e8] font-black text-sm uppercase tracking-widest transition-all backdrop-blur-sm"
+                    className="w-full flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl border border-stone-700/60 bg-stone-900/50 hover:bg-stone-800/60 hover:border-amber-700/40 text-[var(--foreground)] font-black text-sm uppercase tracking-widest transition-all backdrop-blur-sm"
                   >
                     {icon}
                     {label}
@@ -341,7 +343,7 @@ export default function Home() {
                 <div className="p-5 rounded-2xl glass-panel border border-amber-900/30 space-y-4">
                   <div className="flex items-center gap-2 pb-2 border-b border-amber-900/25">
                     <Castle className="w-5 h-5 text-amber-500" />
-                    <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider">Summon the Great Hall</h2>
+                    <h2 className="text-sm font-black text-[var(--foreground)] uppercase tracking-wider">Summon the Great Hall</h2>
                   </div>
                   <div>
                     <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest mb-2">Choose Battle Mode</p>
@@ -383,7 +385,7 @@ export default function Home() {
                 <div className="p-5 rounded-2xl glass-panel border border-stone-800/40 space-y-4">
                   <div className="flex items-center gap-2 pb-2 border-b border-stone-800/40">
                     <Users className="w-5 h-5 text-sky-400" />
-                    <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider">Answer the King's Call</h2>
+                    <h2 className="text-sm font-black text-[var(--foreground)] uppercase tracking-wider">Answer the King's Call</h2>
                   </div>
                   <form onSubmit={handleJoinRoom} className="space-y-3">
                     <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest">Hall Seal (Room Code)</p>
@@ -603,7 +605,7 @@ function ScreenHeader({ title, subtitle, onBack }: { title: string; subtitle: st
         <ArrowLeft className="w-4 h-4" /> Back
       </motion.button>
       <div>
-        <h1 className="text-lg sm:text-2xl font-black text-[#f5f0e8] uppercase tracking-tight leading-none">{title}</h1>
+        <h1 className="text-lg sm:text-2xl font-black text-[var(--foreground)] uppercase tracking-tight leading-none">{title}</h1>
         <p className="text-[10px] text-amber-700/60 italic mt-0.5">{subtitle}</p>
       </div>
       <div className="ml-auto">
@@ -635,7 +637,7 @@ function SettingRow({ icon, label, desc, children }: { icon: React.ReactNode; la
       <div className="flex items-center gap-3 min-w-0">
         {icon}
         <div className="min-w-0">
-          <p className="text-sm font-black text-[#f5f0e8] leading-tight">{label}</p>
+          <p className="text-sm font-black text-[var(--foreground)] leading-tight">{label}</p>
           <p className="text-[9px] text-stone-500 leading-snug mt-0.5">{desc}</p>
         </div>
       </div>
