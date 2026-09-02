@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Flame, Star, Coins, Shuffle, Shield, Zap } from 'lucide-react';
+import { AlertCircle, Flame, Star, Coins, Shuffle, Shield, Zap, X } from 'lucide-react';
 
 interface DynamicEventPanelProps {
   eventName: string;
   roundsLeft: number;
+  onDismiss?: () => void;
 }
 
-export default function DynamicEventPanel({ eventName, roundsLeft }: DynamicEventPanelProps) {
+export default function DynamicEventPanel({ eventName, roundsLeft, onDismiss }: DynamicEventPanelProps) {
   const [pulseWarning, setPulseWarning] = useState(false);
 
   useEffect(() => {
@@ -100,6 +101,17 @@ export default function DynamicEventPanel({ eventName, roundsLeft }: DynamicEven
           className="absolute inset-0 pointer-events-none rounded-2xl"
           style={{ boxShadow: `inset 0 0 20px ${meta.glowColor}` }}
         />
+      )}
+
+      {/* Dismiss button — hide the decree banner */}
+      {onDismiss && (
+        <button
+          onClick={onDismiss}
+          aria-label="Dismiss global event"
+          className="absolute top-2 right-2 z-20 p-1 rounded-md text-stone-400 hover:text-amber-300 hover:bg-white/10 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
       )}
 
       <div className="flex items-center justify-between gap-4 relative z-10">

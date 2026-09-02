@@ -122,6 +122,15 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   // Event popup & round recap
   const [eventPopup, setEventPopup] = useState<string | null>(null);
   const prevEventRef = useRef<string | null>(null);
+  // Dismiss flag so the player can hide the decree banner; resets on new event
+  const [eventDismissed, setEventDismissed] = useState(false);
+  const lastActiveEventRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (lastActiveEventRef.current !== room?.activeEvent) {
+      lastActiveEventRef.current = room?.activeEvent ?? null;
+      setEventDismissed(false);
+    }
+  }, [room?.activeEvent]);
   const [roundRecap, setRoundRecap] = useState<{ round: number; players: any[] } | null>(null);
   const prevRoundRef = useRef<number>(1);
   const prevPositionsRef = useRef<Record<string, number>>({});
@@ -711,9 +720,9 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
       )}
 
       {/* -- Royal Decree (Global Event) --------------------------------------- */}
-      {room.activeEvent && (
+      {room.activeEvent && !eventDismissed && (
         <div className="max-w-6xl mx-auto">
-          <DynamicEventPanel eventName={room.activeEvent} roundsLeft={room.eventRoundsLeft} />
+          <DynamicEventPanel eventName={room.activeEvent} roundsLeft={room.eventRoundsLeft} onDismiss={() => setEventDismissed(true)} />
         </div>
       )}
 

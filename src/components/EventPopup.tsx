@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import { sounds } from '@/lib/sounds';
 
 interface EventPopupProps {
@@ -156,8 +157,16 @@ export default function EventPopup({ eventName, onDismiss }: EventPopupProps) {
             animate={{ scale: 1, rotate: 0, opacity: 1, y: 0 }}
             exit={{ scale: 1.2, opacity: 0, y: -30 }}
             transition={{ type: 'spring', damping: 12, stiffness: 180 }}
-            className={`relative z-[156] flex flex-col items-center gap-4 p-8 rounded-3xl border-2 bg-stone-950/95 backdrop-blur-xl text-center max-w-sm mx-4 ${meta.border} ${meta.glow}`}
+            className={`relative z-[156] flex flex-col items-center gap-4 p-8 rounded-3xl border-2 bg-stone-950/95 backdrop-blur-xl text-center max-w-sm mx-4 pointer-events-auto ${meta.border} ${meta.glow}`}
           >
+            {/* Close button — dismiss the decree popup immediately */}
+            <button
+              onClick={onDismiss}
+              aria-label="Dismiss global event"
+              className="absolute top-3 right-3 z-10 p-1.5 rounded-lg text-stone-400 hover:text-amber-300 hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
             {/* Triple pulse rings */}
             <div className={`absolute inset-0 rounded-3xl border-2 ${meta.border} animate-ping opacity-20`} />
             <div className={`absolute inset-[-8px] rounded-3xl border ${meta.border} animate-ping opacity-10`} style={{ animationDelay: '0.3s' }} />
