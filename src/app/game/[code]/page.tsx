@@ -22,7 +22,7 @@ import LiveReactionFeed from '@/components/LiveReactionFeed';
 import MiniMapStrip from '@/components/MiniMapStrip';
 import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, WifiOff, Flag, HelpCircle } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
-import { getTileByIndex } from '@/lib/boardConfig';
+import { getTileByIndex, BOARD_SIZE } from '@/lib/boardConfig';
 import { sounds } from '@/lib/sounds';
 import { getRandomFlavorMessage, getHeroByAvatarId } from '@/lib/heroes';
 
@@ -71,8 +71,6 @@ const LOADING_LORE = [
   'The Crown of Wisdom awaits the worthy-',
   'Scrolls of forgotten knowledge are unsealed-',
 ];
-
-const BOARD_SIZE = 46; // tiles 0–45
 
 export default function GameRoom({ params }: { params: Promise<{ code: string }> }) {
   return (
@@ -644,7 +642,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                   <span className="block w-[76px] mt-1 h-1 rounded-full bg-stone-800/70 overflow-hidden">
                     <span
                       className="block h-full rounded-full transition-all duration-700"
-                      style={{ width: `${Math.min(100, (p.position / 45) * 100)}%`, background: `linear-gradient(90deg, #fbbf24, #f59e0b)` }}
+                      style={{ width: `${Math.min(100, (p.position / (BOARD_SIZE - 1)) * 100)}%`, background: `linear-gradient(90deg, #fbbf24, #f59e0b)` }}
                     />
                   </span>
                 </div>
@@ -767,7 +765,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               <p><span className="font-black text-amber-400">📜 Answer</span> — Land on a tile? Face an ancient trial (trivia). Correct = advance; wrong = fall back.</p>
               <p><span className="font-black text-amber-400">🏰 Tiles</span> — Each colored tile has an effect (gold, traps, teleports, mystery…).</p>
               <p><span className="font-black text-amber-400">🛒 Shop</span> — Spend coins on items (shield, extra time, blessed dice).</p>
-              <p><span className="font-black text-amber-400">👑 Goal</span> — Be the first to reach tile 45, the Crown of Wisdom!</p>
+              <p><span className="font-black text-amber-400">👑 Goal</span> — Be the first to reach tile {BOARD_SIZE - 1}, the Crown of Wisdom!</p>
               <p className="text-[10px] text-stone-500">Use the <span className="text-amber-300 font-bold">🗺️ Map</span> at the top to see all players — tap a tile for details.</p>
             </div>
           </div>

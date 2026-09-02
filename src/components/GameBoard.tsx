@@ -406,7 +406,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   </div>
                   {/* Tile index badge (uniform position, top-left) */}
                   <div className="absolute top-0.5 left-1.5 z-10 text-[9px] sm:text-[11px] font-black leading-none opacity-70 text-stone-400 drop-shadow-sm">
-                    {tile.index === 0 ? '▶' : tile.index === 45 ? '⛳' : tile.index}
+                    {tile.index === 0 ? '▶' : tile.type === 'FINISH' ? '⛳' : tile.index}
                   </div>
                   {/* Type icon — larger, centered */}
                   <div className="flex-1 flex items-center justify-center z-10 mt-1 pointer-events-none">
@@ -448,23 +448,6 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     />
                   ))}
                 </AnimatePresence>
-              </div>
-            ))}
-            {/* Decorative filler tiles to complete the last row (even board) */}
-            {[6, 7, 8, 9].map(gx => (
-              <div
-                key={`decor-${gx}`}
-                className="relative aspect-square pointer-events-none iso-tile"
-                style={{ gridRowStart: 5, gridColumnStart: gx + 1 }}
-              >
-                <div className="iso-face iso-face-bottom bg-stone-900/40 shadow-[0_0_12px_rgba(0,0,0,0.6)]" />
-                <div className="iso-face iso-face-top flex items-center justify-center bg-gradient-to-b from-[#1b212b]/80 to-[#0e1218]/80 border-2 border-slate-700/40">
-                  <div className="absolute inset-0 rounded-lg overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-20 mix-blend-overlay" />
-                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent" />
-                  </div>
-                  <span className="text-stone-600/70 text-lg sm:text-xl drop-shadow-sm">·</span>
-                </div>
               </div>
             ))}
             </div>

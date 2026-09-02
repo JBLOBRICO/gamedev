@@ -141,7 +141,7 @@ function ChapterBoard() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black text-[#f5f0e8]">The <span className="text-indigo-400">Sacred Board</span></h2>
-        <p className="text-stone-400 text-sm">The board has 46 tiles (0–45) across the Kingdom of Historia. Tap each tile type to learn what it does.</p>
+        <p className="text-stone-400 text-sm">The board has 50 tiles (0–49) across the Kingdom of Historia. Tap each tile type to learn what it does.</p>
       </div>
 
       {/* Tile selector grid */}
@@ -183,7 +183,7 @@ function ChapterBoard() {
       </AnimatePresence>
 
         <div className="p-4 rounded-xl bg-stone-950/40 border border-stone-800/40 text-xs text-stone-400 leading-relaxed">
-        <span className="text-amber-500/70 font-bold">⚜ Royal Lore:</span> The sacred board follows a serpentine path. Start at tile 0 (The Kingdom Gate) and race toward tile 45 (Finish Line). Roll first, then answer a trial to determine your advance.
+        <span className="text-amber-500/70 font-bold">⚜ Royal Lore:</span> The sacred board follows a serpentine path. Start at tile 0 (The Kingdom Gate) and race toward tile 49 (Finish Line). Roll first, then answer a trial to determine your advance.
       </div>
     </div>
   );

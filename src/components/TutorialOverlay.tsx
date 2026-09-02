@@ -13,7 +13,7 @@ const STEPS = [
   {
     icon: '👑',
     title: 'Welcome to Historia Legends!',
-    body: 'Race across the sacred 46-tile board and be the first to reach the Crown of Wisdom to win. Along the way you will answer trivia, earn Royal Gold, and dodge traps.',
+    body: 'Race across the sacred 50-tile board and be the first to reach the Crown of Wisdom to win. Along the way you will answer trivia, earn Royal Gold, and dodge traps.',
     accent: '#fbbf24',
   },
   {
@@ -25,7 +25,7 @@ const STEPS = [
   {
     icon: '🚩',
     title: 'Start & Finish',
-    body: 'You begin at tile 0 (the green flag) and move in a snaking path. The crowned tile at position 45 is the Finish Line — reach it to claim victory!',
+    body: 'You begin at tile 0 (the green flag) and move in a snaking path. The crowned tile at position 49 is the Finish Line — reach it to claim victory!',
     accent: '#34d399',
   },
   {

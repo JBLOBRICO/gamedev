@@ -558,7 +558,7 @@ export default function Home() {
                 { icon: '🎯', title: 'Purpose', body: 'Historia Legends is an educational-entertainment trivia game designed to make learning fun through competitive multiplayer gameplay, fantasy storytelling, and strategic board mechanics.' },
                 { icon: '⚙️', title: 'Technology', body: 'Built with Next.js 15 (App Router) · TypeScript · Tailwind CSS · Framer Motion · Prisma ORM · PostgreSQL · Lucide Icons · canvas-confetti' },
                 { icon: '👥', title: 'Credits', body: 'Designed & developed as a full-stack multiplayer game. Game design, UI/UX, backend logic, trivia system, and all visual elements crafted from scratch.' },
-                { icon: '🎮', title: 'Game Modes', body: 'Royal Duel (1v1) · Band of Heroes (2v2 Teams) · Grand Melee (Free-for-All, up to 4 players). All modes share the same 46-tile isometric board and trivia trial system.' },
+                { icon: '🎮', title: 'Game Modes', body: 'Royal Duel (1v1) · Band of Heroes (2v2 Teams) · Grand Melee (Free-for-All, up to 4 players). All modes share the same 50-tile isometric board and trivia trial system.' },
               ].map((item, i) => (
                 <motion.div key={item.title}
                   initial={{ opacity: 0, y: 12 }}
@@ -651,7 +651,7 @@ const GAMEPLAY_SECTIONS = [
   {
     icon: '🗺️',
     title: 'The Sacred Board',
-    body: 'Historia Legends is played on a 46-tile isometric 3D board arranged in a serpentine 10×5 grid. Players start at Tile 0 and race to Tile 45 (the Finish Line) to claim the Crown of Wisdom and win the match.',
+    body: 'Historia Legends is played on a 50-tile isometric 3D board arranged in a serpentine 10×5 grid. Players start at Tile 0 and race to Tile 49 (the Finish Line) to claim the Crown of Wisdom and win the match.',
   },
   {
     icon: '🎲',

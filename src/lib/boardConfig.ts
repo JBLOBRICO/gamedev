@@ -32,12 +32,12 @@ export interface BoardTile {
   gridY: number; // Row index (0-4)
 }
 
-// 46 tiles (0-45) in a 10-column × 5-row serpentine layout
+// 50 tiles (0-49) in a full 10-column × 5-row serpentine layout
 // Row 0: left→right (0–9)
 // Row 1: right→left (10–19)
 // Row 2: left→right (20–29)
 // Row 3: right→left (30–39)
-// Row 4: left→right (40–45), FINISH at 45
+// Row 4: left→right (40–49), full row, FINISH at 49
 
 export const BOARD_TILES: BoardTile[] = [
   // ── Row 0: left to right (col 0 → 9) ──────────────────────────────────────
@@ -88,17 +88,21 @@ export const BOARD_TILES: BoardTile[] = [
   { index: 38, type: 'MOVE_FORWARD',name: 'Launch Pad',      description: 'A spring launches you +4 tiles ahead!',               color: '#06b6d4', bgClass: 'bg-cyan-500/20 border-cyan-500 text-cyan-400',       gridX: 1, gridY: 3 },
   { index: 39, type: 'TRAP',        name: 'Gravity Well',    description: 'Pulled back — lose 12 coins and move back 2 tiles.',  color: '#ef4444', bgClass: 'bg-red-500/20 border-red-500 text-red-400',           gridX: 0, gridY: 3 },
 
-  // ── Row 4: left to right (col 0 → 5) ──────────────────────────────────────
+  // ── Row 4: left to right (col 0 → 9), full row, FINISH at 49 ──────────────
   { index: 40, type: 'WILD',        name: 'Grand Nexus',     description: 'Final stretch — choose your trivia category!',        color: '#14b8a6', bgClass: 'bg-teal-500/20 border-teal-500 text-teal-400',         gridX: 0, gridY: 4 },
   { index: 41, type: 'TREASURE',    name: 'Vault of Legends',description: 'The legendary vault — spend 10g for a huge reward!',  color: '#eab308', bgClass: 'bg-amber-500/20 border-amber-500 text-amber-400',     gridX: 1, gridY: 4 },
   { index: 42, type: 'SWAP',        name: 'Mirror World',    description: 'Dimensions collide — swap with the closest opponent!',color: '#f43f5e', bgClass: 'bg-rose-500/20 border-rose-500 text-rose-400',       gridX: 2, gridY: 4 },
   { index: 43, type: 'MYSTERY',     name: 'Final Mystery',   description: 'A last wild card — anything could happen!',           color: '#a855f7', bgClass: 'bg-purple-500/20 border-purple-500 text-purple-400', gridX: 3, gridY: 4 },
   { index: 44, type: 'COIN_BONUS',  name: 'Victory Cache',   description: 'So close to victory — grab +25 free coins!',         color: '#eab308', bgClass: 'bg-yellow-500/20 border-yellow-500 text-yellow-400', gridX: 4, gridY: 4 },
-  { index: 45, type: 'FINISH',      name: 'Finish Line',     description: 'Reach here to claim ultimate victory!',               color: '#ef4444', bgClass: 'bg-red-600/30 border-red-500 text-red-300 font-bold', gridX: 5, gridY: 4 },
+  { index: 45, type: 'NORMAL',      name: 'Pearl Coast',     description: 'Past the midpoint — a calm walk toward the throne.',  color: '#64748b', bgClass: 'bg-slate-500/20 border-slate-500 text-slate-400',       gridX: 5, gridY: 4 },
+  { index: 46, type: 'MOVE_FORWARD',name: 'Victory Wind',    description: 'The crown calls a gust forward +3 tiles!',            color: '#06b6d4', bgClass: 'bg-cyan-500/20 border-cyan-500 text-cyan-400',         gridX: 6, gridY: 4 },
+  { index: 47, type: 'ITEM_REWARD', name: 'Royal Chest',     description: 'A noble reward awaits — claim a free item!',          color: '#a3e635', bgClass: 'bg-lime-500/20 border-lime-500 text-lime-400',           gridX: 7, gridY: 4 },
+  { index: 48, type: 'COIN_BONUS',  name: 'Crown Hoard',     description: 'Glittering gold for the champion — +20 free coins!',  color: '#eab308', bgClass: 'bg-yellow-500/20 border-yellow-500 text-yellow-400', gridX: 8, gridY: 4 },
+  { index: 49, type: 'FINISH',      name: 'Finish Line',     description: 'Reach here to claim ultimate victory!',               color: '#ef4444', bgClass: 'bg-red-600/30 border-red-500 text-red-300 font-bold', gridX: 9, gridY: 4 },
 ];
 
 /** How many tiles on the board (0..BOARD_SIZE-1 is valid, BOARD_SIZE = finish) */
-export const BOARD_SIZE = BOARD_TILES.length; // 46
+export const BOARD_SIZE = BOARD_TILES.length; // 50
 
 export function getTileByIndex(index: number): BoardTile {
   if (index >= BOARD_TILES.length) return BOARD_TILES[BOARD_TILES.length - 1];
