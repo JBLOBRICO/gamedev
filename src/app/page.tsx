@@ -202,10 +202,10 @@ export default function Home() {
             <div className="flex items-center justify-between px-4 sm:px-8 pt-8 pb-4">
               <div />
               <div className="flex items-center gap-2">
-                <ThemeToggle className="border-amber-900/40 bg-amber-950/20 hover:bg-amber-950/40 text-amber-300" />
+                <ThemeToggle className="btn-surface" />
                 {profile && (
                   <button onClick={() => { sounds.playClick(); setShowEdit(true); }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-900/40 bg-amber-950/20 hover:bg-amber-950/40 text-xs font-bold transition-all text-amber-300 active:scale-95">
+                    className="btn-surface flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold">
                     <Settings className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Hero Profile</span>
                   </button>
@@ -249,7 +249,7 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.25 }}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-2xl border border-stone-800/50 bg-stone-900/30 backdrop-blur-sm"
+                  className="btn-surface flex items-center gap-3 px-4 py-2.5 rounded-2xl"
                 >
                   <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-amber-700/40">
                     {getAvatarById(profile.avatarId).render('w-full h-full object-cover')}
@@ -258,7 +258,7 @@ export default function Home() {
                     <p className="text-xs font-black" style={{ color: profile.nameColor }}>
                       {profile.username}
                     </p>
-                    <p className="text-[9px] text-stone-500 font-bold">Level {profile.level} · {profile.gamesWon} victories</p>
+                    <p className="theme-muted text-[9px] font-bold">Level {profile.level} · {profile.gamesWon} victories</p>
                   </div>
                 </motion.div>
               )}
@@ -293,7 +293,7 @@ export default function Home() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => nav(s)}
-                    className="w-full flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl border border-stone-700/60 bg-stone-900/50 hover:bg-stone-800/60 hover:border-amber-700/40 text-[var(--foreground)] font-black text-sm uppercase tracking-widest transition-all backdrop-blur-sm"
+                    className="btn-surface w-full flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl font-black text-sm uppercase tracking-widest"
                   >
                     {icon}
                     {label}
@@ -309,7 +309,7 @@ export default function Home() {
                 className="flex flex-wrap justify-center gap-2"
               >
                 {['⚔️ Royal Duels', '🏰 Castle Arena', '📜 Ancient Trials', '👑 Relics', '🌿 Enchanted Realm'].map(t => (
-                  <span key={t} className="text-[9px] font-bold uppercase tracking-wider text-amber-600/60 bg-amber-950/20 border border-amber-900/25 px-2.5 py-1 rounded-full">
+                  <span key={t} className="btn-surface text-[9px] font-bold uppercase tracking-wider text-[var(--gold-strong)] px-2.5 py-1 rounded-full">
                     {t}
                   </span>
                 ))}
@@ -317,7 +317,7 @@ export default function Home() {
             </div>
 
             {/* Bottom bar */}
-            <div className="relative z-10 border-t border-amber-900/20 bg-stone-950/50 backdrop-blur-sm py-3 px-6 flex items-center justify-between text-[9px] text-stone-600">
+            <div className="relative z-10 border-t border-amber-900/20 bg-[var(--panel-bg)] backdrop-blur-sm py-3 px-6 flex items-center justify-between theme-muted text-[9px]">
               <span>© 2026 Historia Legends</span>
               <span className="hidden sm:flex items-center gap-3">
                 <span>⚔️ Duels</span><span>🛡️ Teams</span><span>👑 Melee</span>
@@ -346,7 +346,7 @@ export default function Home() {
                     <h2 className="text-sm font-black text-[var(--foreground)] uppercase tracking-wider">Summon the Great Hall</h2>
                   </div>
                   <div>
-                    <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest mb-2">Choose Battle Mode</p>
+                    <p className="theme-muted text-[9px] font-bold uppercase tracking-widest mb-2">Choose Battle Mode</p>
                     <div className="grid grid-cols-3 gap-2">
                       {([
                         { mode: 'DUEL', label: 'Royal Duel', sub: '1v1', icon: '⚔️' },
@@ -357,8 +357,8 @@ export default function Home() {
                           onClick={() => { sounds.playClick(); setSelectedMode(mode); }}
                           className={`py-2.5 px-2 rounded-xl text-[10px] font-bold transition-all border flex flex-col items-center gap-1 ${
                             selectedMode === mode
-                              ? 'border-amber-500/60 bg-amber-950/40 text-amber-300'
-                              : 'border-stone-800/50 bg-stone-900/20 text-stone-400 hover:border-stone-700'
+                              ? 'btn-gold'
+                              : 'btn-surface'
                           }`}>
                           <span className="text-base">{icon}</span>
                           <span className="uppercase tracking-wider leading-none">{sub}</span>
@@ -366,7 +366,7 @@ export default function Home() {
                         </button>
                       ))}
                     </div>
-                    <p className="text-[9px] text-stone-500 mt-2 leading-snug">
+                    <p className="theme-muted text-[9px] mt-2 leading-snug">
                       {selectedMode === 'DUEL' && '⚔️ Two heroes face off in a test of wisdom.'}
                       {selectedMode === 'TEAM' && '🛡️ Four heroes form two bands sharing a banner.'}
                       {selectedMode === 'FFA' && '👑 Up to four heroes battle for the crown.'}
@@ -388,13 +388,13 @@ export default function Home() {
                     <h2 className="text-sm font-black text-[var(--foreground)] uppercase tracking-wider">Answer the King's Call</h2>
                   </div>
                   <form onSubmit={handleJoinRoom} className="space-y-3">
-                    <p className="text-[9px] text-stone-500 font-bold uppercase tracking-widest">Hall Seal (Room Code)</p>
+                    <p className="theme-muted text-[9px] font-bold uppercase tracking-widest">Hall Seal (Room Code)</p>
                     <input type="text" required maxLength={6} value={roomCodeInput}
                       onChange={e => setRoomCodeInput(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl glass-input text-center font-black tracking-[0.35em] uppercase text-amber-300 text-base"
+                      className="w-full px-4 py-2.5 rounded-xl glass-input text-center font-black tracking-[0.35em] uppercase text-[var(--foreground)] text-base"
                       placeholder="· · · · · ·" />
                     <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={actionLoading || !roomCodeInput}
-                      className="w-full py-3 rounded-xl border border-stone-700/50 bg-stone-900/40 hover:bg-stone-800/50 text-[#f5f0e8] font-bold uppercase text-xs tracking-wider transition-all disabled:opacity-50">
+                      className="btn-gold w-full py-3 rounded-xl font-bold uppercase text-xs tracking-wider disabled:opacity-50">
                       Enter the Great Hall
                     </motion.button>
                   </form>
@@ -426,14 +426,14 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl">{sec.icon}</span>
-                    <h3 className="text-sm font-black text-amber-300 uppercase tracking-wider">{sec.title}</h3>
+                    <h3 className="text-sm font-black text-[var(--gold-strong)] uppercase tracking-wider">{sec.title}</h3>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-stone-400 leading-relaxed">{sec.body}</p>
+                  <p className="theme-soft text-[11px] sm:text-xs leading-relaxed">{sec.body}</p>
                   {sec.bullets && (
                     <ul className="space-y-1 pt-1">
                       {sec.bullets.map(b => (
-                        <li key={b} className="flex items-start gap-2 text-[10px] sm:text-[11px] text-stone-500">
-                          <span className="text-amber-600/60 mt-0.5 shrink-0">⚜</span>
+                        <li key={b} className="theme-muted flex items-start gap-2 text-[10px] sm:text-[11px]">
+                          <span className="text-[var(--gold)] mt-0.5 shrink-0">⚜</span>
                           {b}
                         </li>
                       ))}
@@ -508,14 +508,14 @@ export default function Home() {
 
               {/* Reset */}
               <motion.button whileTap={{ scale: 0.97 }} onClick={resetSettings}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-rose-800/40 bg-rose-950/15 text-rose-400 hover:bg-rose-950/30 font-bold uppercase text-xs tracking-wider transition-all">
-                <RotateCcw className="w-4 h-4" /> Reset to Defaults
+                className="btn-surface w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold uppercase text-xs tracking-wider">
+                <RotateCcw className="w-4 h-4" style={{ color: 'var(--crimson)' }} /> Reset to Defaults
               </motion.button>
 
               {/* Hero Profile shortcut */}
               {profile && (
                 <motion.button whileTap={{ scale: 0.97 }} onClick={() => { sounds.playClick(); setShowEdit(true); }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-amber-800/40 bg-amber-950/15 text-amber-400 hover:bg-amber-950/30 font-bold uppercase text-xs tracking-wider transition-all">
+                  className="btn-gold w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold uppercase text-xs tracking-wider">
                   <Settings className="w-4 h-4" /> Edit Hero Profile & Avatar
                 </motion.button>
               )}
@@ -546,7 +546,7 @@ export default function Home() {
                     Crown of Wisdom · Kingdom Quest
                   </p>
                 </div>
-                <p className="text-xs text-stone-400 leading-relaxed max-w-md mx-auto">
+                <p className="theme-soft text-xs leading-relaxed max-w-md mx-auto">
                   A real-time multiplayer trivia board game set in the medieval fantasy Kingdom of Historia.
                   Heroes compete across an isometric 3D board, answering ancient trivia trials to advance,
                   collect Royal Gold, and claim the legendary Crown of Wisdom.
@@ -568,16 +568,16 @@ export default function Home() {
                 >
                   <span className="text-xl shrink-0 mt-0.5">{item.icon}</span>
                   <div>
-                    <h3 className="text-xs font-black text-amber-300 uppercase tracking-wider mb-1">{item.title}</h3>
-                    <p className="text-[11px] text-stone-400 leading-relaxed">{item.body}</p>
+                    <h3 className="text-xs font-black text-[var(--gold-strong)] uppercase tracking-wider mb-1">{item.title}</h3>
+                    <p className="theme-soft text-[11px] leading-relaxed">{item.body}</p>
                   </div>
                 </motion.div>
               ))}
 
               {/* Version */}
               <div className="text-center pt-2 pb-4 space-y-1">
-                <p className="text-[10px] text-stone-600 font-bold uppercase tracking-widest">Version 1.0.0</p>
-                <p className="text-[9px] text-stone-700">© 2026 Historia Legends · All rights reserved</p>
+                <p className="theme-muted text-[10px] font-bold uppercase tracking-widest">Version 1.0.0</p>
+                <p className="theme-muted text-[9px]">© 2026 Historia Legends · All rights reserved</p>
               </div>
             </div>
           </motion.div>
@@ -601,7 +601,7 @@ function ScreenHeader({ title, subtitle, onBack }: { title: string; subtitle: st
   return (
     <div className="flex items-center gap-4 px-4 sm:px-8 pt-6 pb-4 border-b border-amber-900/20">
       <motion.button whileTap={{ scale: 0.93 }} onClick={onBack}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-700/50 bg-stone-900/40 hover:bg-stone-800/60 text-stone-300 text-xs font-bold uppercase tracking-wider transition-all shrink-0">
+        className="btn-surface flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider shrink-0">
         <ArrowLeft className="w-4 h-4" /> Back
       </motion.button>
       <div>
@@ -638,7 +638,7 @@ function SettingRow({ icon, label, desc, children }: { icon: React.ReactNode; la
         {icon}
         <div className="min-w-0">
           <p className="text-sm font-black text-[var(--foreground)] leading-tight">{label}</p>
-          <p className="text-[9px] text-stone-500 leading-snug mt-0.5">{desc}</p>
+          <p className="theme-muted text-[9px] leading-snug mt-0.5">{desc}</p>
         </div>
       </div>
       <div className="shrink-0">{children}</div>

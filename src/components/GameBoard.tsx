@@ -327,7 +327,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             <div
               className="grid gap-1.5 sm:gap-2 select-none relative z-10 mx-auto"
               style={{
-                gridTemplateColumns: 'repeat(10, minmax(min(11.5vw, 52px), 52px))',
+                gridTemplateColumns: 'repeat(10, 50px)',
                 gridTemplateRows: 'repeat(5, auto)',
                 minWidth: 'min-content',
                 width: 'fit-content',

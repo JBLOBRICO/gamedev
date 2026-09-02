@@ -3,45 +3,53 @@
 @tailwind utilities;
 
 :root {
-  /* LIGHT (default) theme — pleasant parchment & ivory */
-  --background: #faf6ef;
-  --background-rgb: 250, 246, 239;
-  --foreground: #2a2722;
-  --foreground-soft: #5c564b;
-  --panel-bg: rgba(255, 252, 245, 0.72);
-  --panel-border: rgba(201, 168, 76, 0.45);
-  --panel-shadow: 0 8px 32px 0 rgba(120, 100, 60, 0.18), inset 0 1px 0 rgba(255,255,255,0.6);
-  --gold: #c9a84c;
-  --gold-strong: #a9851f;
+  /* LIGHT (default) — luxurious ivory & antique gold */
+  --background: #f6f1e7;
+  --background-rgb: 246, 241, 231;
+  --foreground: #2b2418;
+  --foreground-soft: #6b6150;
+  --muted: #8a7f6a;
+  --panel-bg: rgba(255, 252, 246, 0.85);
+  --panel-border: rgba(169, 133, 31, 0.35);
+  --panel-shadow: 0 10px 34px 0 rgba(120, 95, 40, 0.16), inset 0 1px 0 rgba(255,255,255,0.7);
+  --gold: #b8912f;
+  --gold-strong: #96710f;
+  --gold-soft: #e8cf8a;
   --royal-blue: #1e3a6e;
   --crimson: #8b1a1a;
   --emerald: #0d4a2e;
-  --stone: #7a6a52;
-  --parchment: #f5f0e8;
+  --stone: #8a7f6a;
+  --parchment: #f6f1e7;
+  --btn-text: #3a2f1c;
+  color-scheme: light;
 }
 
 .dark {
-  /* DARK theme — royal night castle */
-  --background: #0a0a0f;
-  --background-rgb: 10, 10, 15;
-  --foreground: #f5f0e8;
-  --foreground-soft: #a8a29e;
-  --panel-bg: rgba(10, 8, 5, 0.65);
-  --panel-border: rgba(201, 168, 76, 0.2);
-  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(201, 168, 76, 0.08);
-  --gold: #c9a84c;
-  --gold-strong: #fbbf24;
+  /* DARK — royal night castle, deep & rich */
+  --background: #0b0b12;
+  --background-rgb: 11, 11, 18;
+  --foreground: #f2eadd;
+  --foreground-soft: #b6aba0;
+  --muted: #8d8578;
+  --panel-bg: rgba(15, 13, 10, 0.78);
+  --panel-border: rgba(201, 168, 76, 0.22);
+  --panel-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(201, 168, 76, 0.10);
+  --gold: #d4af57;
+  --gold-strong: #f0cd78;
+  --gold-soft: #7a6427;
+  --btn-text: #1a1408;
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   background-image:
-    radial-gradient(at 0% 0%, rgba(30, 58, 110, 0.30) 0px, transparent 55%),
-    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.16) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.16) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(122, 106, 82, 0.18) 0px, transparent 55%),
-    radial-gradient(at 50% 50%, rgba(201, 168, 76, 0.06) 0px, transparent 60%);
+    radial-gradient(at 0% 0%, rgba(198, 166, 92, 0.18) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.07) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.07) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(122, 106, 82, 0.10) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(201, 168, 76, 0.07) 0px, transparent 60%);
   background-attachment: fixed;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
@@ -51,9 +59,9 @@ body {
 .dark body {
   background-image:
     radial-gradient(at 0% 0%, rgba(30, 58, 110, 0.35) 0px, transparent 55%),
-    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.2) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.2) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(61, 51, 37, 0.4) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(139, 26, 26, 0.20) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(13, 74, 46, 0.20) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(61, 51, 37, 0.40) 0px, transparent 55%),
     radial-gradient(at 50% 50%, rgba(100, 70, 20, 0.08) 0px, transparent 60%);
 }
 
@@ -82,6 +90,52 @@ body::before {
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* ─── Luxury gold gradient button ───────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, #e8cf8a 0%, #d4af57 45%, #b8912f 100%);
+  color: var(--btn-text);
+  border: 1px solid rgba(150, 113, 15, 0.55);
+  box-shadow: 0 6px 18px rgba(150, 113, 15, 0.32), inset 0 1px 0 rgba(255,255,255,0.4);
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-gold:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 8px 22px rgba(150, 113, 15, 0.42), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.btn-gold:active { transform: scale(0.97); }
+.btn-gold:disabled { filter: grayscale(0.4) brightness(0.85); cursor: not-allowed; }
+
+/* ─── Gold gradient headline text ──────────────────────────────────────────── */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #e6cf8f 0%, #d4af57 45%, #b8912f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dark .text-gold-gradient {
+  background: linear-gradient(135deg, #f4dd98 0%, #d4af57 45%, #f0cd78 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ─── Theme-aware surface button ───────────────────────────────────────────── */
+.btn-surface {
+  background: var(--panel-bg);
+  color: var(--foreground);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-surface:hover { border-color: rgba(169, 133, 31, 0.65); }
+.btn-surface:active { transform: scale(0.97); }
+
+/* ─── Theme-aware body text helpers ────────────────────────────────────────── */
+.theme-fg { color: var(--foreground); }
+.theme-soft { color: var(--foreground-soft); }
+.theme-muted { color: var(--muted); }
+
+
 /* ─── Parchment Panel ────────────────────────────────────────────────────────── */
 .parchment-panel {
   background: linear-gradient(135deg, var(--panel-bg) 0%, var(--panel-bg) 100%);
@@ -91,20 +145,21 @@ body::before {
 
 /* ─── Input Fields ───────────────────────────────────────────────────────────── */
 .glass-input {
-  background: rgba(10, 8, 5, 0.7);
-  border: 1px solid rgba(201, 168, 76, 0.25);
-  color: #f5f0e8;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--foreground);
   transition: all 0.2s ease-in-out;
 }
 
 .glass-input:focus {
-  border-color: #c9a84c;
+  border-color: var(--gold);
   box-shadow: 0 0 12px rgba(201, 168, 76, 0.25);
   outline: none;
 }
 
 .glass-input::placeholder {
-  color: rgba(180, 160, 120, 0.4);
+  color: var(--foreground-soft);
+  opacity: 0.6;
 }
 
 /* ─── Buttons ────────────────────────────────────────────────────────────────── */
