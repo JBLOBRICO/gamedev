@@ -408,20 +408,17 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   <div className="absolute top-0.5 left-1.5 z-10 text-[9px] sm:text-[11px] font-black leading-none opacity-70 text-stone-400 drop-shadow-sm">
                     {tile.index === 0 ? '▶' : tile.index === 45 ? '⛳' : tile.index}
                   </div>
-                  {/* Type icon — larger, colored, centered */}
+                  {/* Type icon — larger, centered */}
                   <div className="flex-1 flex items-center justify-center z-10 mt-1 pointer-events-none">
-                    <span className="text-xl sm:text-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]" style={{ filter: `drop-shadow(0 0 6px ${tile.color}55)` }}>
+                    <span className="text-xl sm:text-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
                       {getTileIcon(tile.type)}
                     </span>
                   </div>
                   <span className="text-[8px] sm:text-[11px] font-black uppercase text-center tracking-tight leading-tight px-1 select-none line-clamp-2 z-10 text-stone-100 drop-shadow-sm">
                     {tile.name}
                   </span>
-                  {/* Uniform bottom accent bar showing tile color */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 z-10 h-1 rounded-b-lg"
-                    style={{ background: `linear-gradient(90deg, ${tile.color}, ${tile.color}88)` }}
-                  />
+                  {/* Uniform bottom accent bar (same for every tile) */}
+                  <div className="absolute bottom-0 left-0 right-0 z-10 h-1 rounded-b-lg bg-gradient-to-r from-amber-500/70 via-amber-400/50 to-amber-500/70" />
                   {tile.type === 'FINISH' && (
                     <div className="absolute -top-2 -right-2 z-20 pointer-events-none">
                       <span className="text-base sm:text-lg drop-shadow-[0_0_8px_rgba(251,191,36,0.95)] animate-bounce-slow">👑</span>
@@ -451,6 +448,23 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     />
                   ))}
                 </AnimatePresence>
+              </div>
+            ))}
+            {/* Decorative filler tiles to complete the last row (even board) */}
+            {[6, 7, 8, 9].map(gx => (
+              <div
+                key={`decor-${gx}`}
+                className="relative aspect-square pointer-events-none iso-tile"
+                style={{ gridRowStart: 5, gridColumnStart: gx + 1 }}
+              >
+                <div className="iso-face iso-face-bottom bg-stone-900/40 shadow-[0_0_12px_rgba(0,0,0,0.6)]" />
+                <div className="iso-face iso-face-top flex items-center justify-center bg-gradient-to-b from-[#1b212b]/80 to-[#0e1218]/80 border-2 border-slate-700/40">
+                  <div className="absolute inset-0 rounded-lg overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-20 mix-blend-overlay" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent" />
+                  </div>
+                  <span className="text-stone-600/70 text-lg sm:text-xl drop-shadow-sm">·</span>
+                </div>
               </div>
             ))}
             </div>

@@ -713,7 +713,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
       )}
 
       {/* -- Royal Decree (Global Event) --------------------------------------- */}
-      {room.activeEvent && (room.eventRoundsLeft ?? 0) > 0 && (
+      {room.activeEvent && (
         <div className="max-w-6xl mx-auto">
           <DynamicEventPanel eventName={room.activeEvent} roundsLeft={room.eventRoundsLeft} />
         </div>
