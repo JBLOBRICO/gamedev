@@ -145,7 +145,7 @@ function ChapterBoard() {
       </div>
 
       {/* Tile selector grid */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {TILES.map((tile) => (
           <button
             key={tile.type}

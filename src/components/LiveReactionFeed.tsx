@@ -82,7 +82,7 @@ export default function LiveReactionFeed({ actions }: LiveReactionFeedProps) {
   }, [actions]);
 
   return (
-    <div className="fixed bottom-6 left-4 z-[120] flex flex-col-reverse gap-1.5 pointer-events-none max-w-xs">
+    <div className="fixed bottom-6 left-3 sm:left-4 z-[120] flex flex-col-reverse gap-1.5 pointer-events-none w-[min(20rem,calc(100vw-6rem))]">
       <AnimatePresence>
         {reactions.map((r) => (
           <motion.div
@@ -91,7 +91,7 @@ export default function LiveReactionFeed({ actions }: LiveReactionFeedProps) {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -60 }}
             transition={{ type: 'spring', damping: 18, stiffness: 220 }}
-            className={`flex items-start gap-2 px-3 py-2 rounded-xl border backdrop-blur-md bg-stone-950/80 shadow-lg ${r.color}`}
+            className={`flex items-start gap-2 px-3 py-2 rounded-xl border backdrop-blur-md bg-stone-950/80 shadow-lg overflow-hidden ${r.color}`}
           >
             <motion.span
               animate={{ scale: [1, 1.3, 1] }}
@@ -100,7 +100,7 @@ export default function LiveReactionFeed({ actions }: LiveReactionFeedProps) {
             >
               {r.emoji}
             </motion.span>
-            <p className="text-[10px] font-bold leading-snug">
+            <p className="text-[10px] font-bold leading-snug line-clamp-2">
               {r.message}
             </p>
           </motion.div>

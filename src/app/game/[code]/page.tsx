@@ -278,6 +278,16 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
     return () => clearInterval(pollTimer);
   }, [fetchRoomState]);
 
+  // -- Auto-switch mobile tab to controls when it's your turn to act ----------
+  useEffect(() => {
+    if (!room || room.status !== 'ACTIVE') return;
+    const turn = room.turns?.[0];
+    if (!turn || turn.status === 'COMPLETED') return;
+    const needsAction = turn.activePlayerId === profile?.id &&
+      (turn.status === 'TRIVIA' || turn.status === 'TILE_EFFECT' || turn.status === 'ROLLING');
+    if (needsAction) setMobileTab('controls');
+  }, [room, profile?.id]);
+
   // -- Action executor ----------------------------------------------------------
   const executeAction = useCallback(async (action: string, details: any = null): Promise<boolean> => {
     if (!profile) return false;
@@ -491,7 +501,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
         </div>
 
         {/* Players Quick HUD - with rank badges */}
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+        <div className="flex gap-2 w-full md:w-auto max-w-full overflow-x-auto pb-1 -mb-1">
           {[...room.players]
             .sort((a: any, b: any) => b.position - a.position)
             .map((p: any, rankIdx: number) => {
@@ -501,7 +511,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             return (
               <div
                 key={p.id}
-                className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 text-xs font-bold transition-all shrink-0 ${
                   isActive
                     ? 'border-amber-600/50 bg-amber-950/25 shadow-md shadow-amber-900/15'
                     : 'border-stone-800/50 bg-stone-900/30 opacity-65'
@@ -880,7 +890,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
               exit={{ scale: 1.3, opacity: 0 }}
               transition={{ type: 'spring', damping: 11, stiffness: 200 }}
-              className="relative z-10 flex flex-col items-center gap-2 px-12 py-8 rounded-3xl bg-stone-950/90 border-2 border-orange-500/70 shadow-[0_0_80px_rgba(249,115,22,0.5)]"
+              className="relative z-10 flex flex-col items-center gap-2 px-6 py-6 sm:px-12 sm:py-8 rounded-3xl bg-stone-950/90 border-2 border-orange-500/70 shadow-[0_0_80px_rgba(249,115,22,0.5)] max-w-[92vw]"
             >
               <motion.div
                 animate={{ scale: [1, 1.4, 1], rotate: [0, -12, 12, 0] }}
@@ -896,7 +906,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                 className="text-center"
               >
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-400">Combo Multiplier</span>
-                <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 mt-1">
+                <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 mt-1 break-words text-center">
                   COMBO x{comboBanner.count}!
                 </h2>
                 <p className="text-sm font-bold text-stone-300 mt-1">
@@ -928,7 +938,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 80 }}
               transition={{ type: 'spring', damping: 18 }}
-              className="flex items-center gap-3 bg-stone-950/95 border border-amber-700/50 rounded-2xl px-4 py-3 shadow-2xl shadow-amber-900/30 backdrop-blur-md min-w-[220px]"
+              className="flex items-center gap-3 bg-stone-950/95 border border-amber-700/50 rounded-2xl px-4 py-3 shadow-2xl shadow-amber-900/30 backdrop-blur-md min-w-[180px] max-w-[72vw]"
             >
               <span className="text-2xl">{ach.icon}</span>
               <div>
@@ -950,7 +960,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: 'spring', damping: 20 }}
-              className="w-72 bg-stone-950/95 border border-amber-800/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden"
+              className="w-72 max-w-[calc(100vw-4rem)] bg-stone-950/95 border border-amber-800/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden"
             >
               <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-stone-800/50">
                 <Scroll className="w-3.5 h-3.5 text-amber-700/50" />

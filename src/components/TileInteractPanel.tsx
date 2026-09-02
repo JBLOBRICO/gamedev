@@ -124,7 +124,7 @@ export default function TileInteractPanel({
   return (
     <motion.div 
       {...animProps}
-      className={`w-full p-6 rounded-3xl space-y-4 max-w-md mx-auto text-center stone-panel golden-border scroll-texture ${extraClasses}`}
+      className={`w-full p-4 sm:p-6 rounded-3xl space-y-4 max-w-md mx-auto text-center stone-panel golden-border scroll-texture ${extraClasses}`}
     >
       {/* Ornament */}
       <div className="text-[9px] font-black text-amber-700/50 uppercase tracking-[0.25em]">⚜ Tile Encountered ⚜</div>

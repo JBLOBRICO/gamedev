@@ -125,30 +125,30 @@ export default function LobbyScreen({
         {/* Great Hall Header */}
         <div className="p-6 rounded-2xl stone-panel golden-border medieval-frame scroll-texture">
           {/* Torch decorations */}
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-xl bg-amber-900/30 border border-amber-700/40 flex items-center justify-center shrink-0">
                 <Crown className="w-5 h-5 text-amber-400" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="block text-[9px] text-amber-600/70 font-black uppercase tracking-[0.2em] mb-0.5">
                   {modeIcon} {modeName}
                 </span>
-                <h1 className="text-2xl font-black text-[#f5f0e8] tracking-tight leading-none">
+                <h1 className="text-xl sm:text-2xl font-black text-[#f5f0e8] tracking-tight leading-none truncate">
                   The Great Hall
                 </h1>
-                <p className="text-[10px] text-stone-500 mt-0.5 italic">
+                <p className="text-[10px] text-stone-500 mt-0.5 italic truncate">
                   "Heroes gather before the Quest begins…"
                 </p>
               </div>
             </div>
 
             {/* Room Code */}
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="bg-stone-950/60 border border-amber-800/40 rounded-xl px-4 py-2.5 flex items-center gap-3 min-w-44">
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <div className="bg-stone-950/60 border border-amber-800/40 rounded-xl px-3 sm:px-4 py-2 flex sm:py-2.5 items-center gap-3">
                 <div>
                   <span className="block text-[8px] text-stone-500 font-black uppercase tracking-wider">Hall Seal</span>
-                  <span className="text-xl font-black text-amber-400 tracking-[0.2em] uppercase">{roomCode}</span>
+                  <span className="text-lg sm:text-xl font-black text-amber-400 tracking-[0.2em] uppercase">{roomCode}</span>
                 </div>
                 <button
                   onClick={copyCode}
@@ -354,7 +354,7 @@ export default function LobbyScreen({
       </div>
 
       {/* ── Right: Scroll of Whispers (Chat) ──────────────────────────────── */}
-      <div className="lg:col-span-1 p-5 rounded-2xl stone-panel golden-border scroll-texture flex flex-col h-[520px]">
+      <div className="lg:col-span-1 p-5 rounded-2xl stone-panel golden-border scroll-texture flex flex-col h-[420px] lg:h-[520px] max-h-[55vh] lg:max-h-none">
         <div className="flex items-center gap-2 pb-3 border-b border-stone-800/50">
           <MessageSquare className="w-4 h-4 text-amber-600/60" />
           <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest">

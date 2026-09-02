@@ -17,6 +17,15 @@ export const metadata: Metadata = {
   description: "A multiplayer trivia board game set in the Kingdom of Historia. Roll the dice, answer ancient trials, and race to claim the legendary Crown of Wisdom.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#0a0a0f",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

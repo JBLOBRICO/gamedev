@@ -78,7 +78,13 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
   useEffect(() => {
     measureTiles();
     window.addEventListener('resize', measureTiles);
-    return () => window.removeEventListener('resize', measureTiles);
+    // Re-measure on horizontal scroll so pawns track the scrolled board
+    const wrapper = boardWrapperRef.current;
+    wrapper?.addEventListener('scroll', measureTiles, { passive: true });
+    return () => {
+      window.removeEventListener('resize', measureTiles);
+      wrapper?.removeEventListener('scroll', measureTiles);
+    };
   }, [measureTiles]);
 
   // Animate pawns tile-by-tile
@@ -315,12 +321,16 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
       <div className={cameraShake ? 'camera-shake-wrapper' : undefined}>
         <div className="board-viewport">
           <div
-            className="iso-board-container w-full max-w-5xl mx-auto py-4"
+            className="iso-board-container w-full max-w-5xl mx-auto py-4 overflow-x-auto"
             style={{ transform: 'none' }}
           >
             <div
-              className="grid gap-1.5 sm:gap-2 select-none relative z-10 w-full"
-              style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))', gridTemplateRows: 'repeat(5, auto)' }}
+              className="grid gap-1.5 sm:gap-2 select-none relative z-10"
+              style={{
+                gridTemplateColumns: 'repeat(10, minmax(min(9.5vw, 60px), 1fr))',
+                gridTemplateRows: 'repeat(5, auto)',
+                minWidth: 'min-content',
+              }}
             >
             {BOARD_TILES.map((tile) => (
               <div
@@ -344,6 +354,20 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   }
                 }}
                 onMouseLeave={() => { setHoveredTile(null); setTooltipPos(null); }}
+                onTouchStart={(e) => {
+                  // Toggle tooltip on tap (touch devices)
+                  const wrapper = boardWrapperRef.current;
+                  if (!wrapper) return;
+                  const wRect = wrapper.getBoundingClientRect();
+                  const t = e.touches[0];
+                  if (hoveredTile === tile.index) {
+                    setHoveredTile(null);
+                    setTooltipPos(null);
+                  } else {
+                    setHoveredTile(tile.index);
+                    setTooltipPos({ x: t.clientX - wRect.left, y: t.clientY - wRect.top });
+                  }
+                }}
               >
                 <div className={`iso-face iso-face-bottom ${
                   tile.type === 'TRAP' ? 'bg-rose-950/80 shadow-[0_0_30px_rgba(225,29,72,0.6)]' :
@@ -495,8 +519,9 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
 
                 {/* Name tag */}
                 <div
-                  className="mt-0.5 whitespace-nowrap text-[7px] font-black px-1 py-0.5 rounded bg-black/80 leading-none z-20 cursor-pointer select-none"
+                  className="mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[70px] text-[7px] font-black px-1 py-0.5 rounded bg-black/80 leading-none z-20 cursor-pointer select-none"
                   style={{ color: p.user.nameColor || '#f5f0e8' }}
+                  title={p.user.username}
                   onClick={() => {
                     if (p.userId === activePlayerId) {
                       setEmoteOpen(o => !o);
