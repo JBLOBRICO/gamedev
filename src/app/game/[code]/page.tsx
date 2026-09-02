@@ -13,6 +13,7 @@ import TileInteractPanel from '@/components/TileInteractPanel';
 import DynamicEventPanel from '@/components/DynamicEventPanel';
 import MatchSummary from '@/components/MatchSummary';
 import LobbyScreen from '@/components/LobbyScreen';
+import TutorialOverlay from '@/components/TutorialOverlay';
 import SoundSettings from '@/components/SoundSettings';
 import HeroJournal from '@/components/HeroJournal';
 import EventPopup from '@/components/EventPopup';
@@ -107,6 +108,17 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const [mobileTab, setMobileTab] = useState<'board' | 'controls'>('board');
   // How-to-play helper panel (mobile)
   const [showHelp, setShowHelp] = useState(false);
+  // Tutorial walkthrough (first-time players)
+  const [showTutorial, setShowTutorial] = useState(false);
+  useEffect(() => {
+    if (room?.status === 'ACTIVE') {
+      const seen = localStorage.getItem('historia-tutorial-seen');
+      if (!seen) {
+        const t = setTimeout(() => setShowTutorial(true), 3500);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [room?.status, room?.code]);
   // K: Floating chat
   const [chatOpen, setChatOpen] = useState(false);
   // Event popup & round recap
@@ -121,6 +133,40 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const prevStreakRef = useRef<Record<string, number>>({});
 
   const lastTurnIdRef = useRef<string | null>(null);
+
+  // Start countdown — 3-2-1 when the game transitions from LOBBY to ACTIVE (once)
+  const [startCountdown, setStartCountdown] = useState<number | null>(null);
+  const wasActiveRef = useRef(false);
+  useEffect(() => {
+    if (room?.status === 'ACTIVE' && !wasActiveRef.current) {
+      wasActiveRef.current = true;
+      let n = 3;
+      setStartCountdown(n);
+      const iv = setInterval(() => {
+        n -= 1;
+        if (n <= 0) { setStartCountdown(null); clearInterval(iv); }
+        else setStartCountdown(n);
+      }, 800);
+      return () => clearInterval(iv);
+    }
+  }, [room?.status, room?.code]);
+
+  // Turn elapsed timer — visual pacing cue (client-side, derived from turn createdAt)
+  const [turnElapsed, setTurnElapsed] = useState(0);
+  useEffect(() => {
+    const tick = () => {
+      const t = room?.turns?.[0];
+      if (t?.createdAt && room?.status === 'ACTIVE') {
+        const ms = Date.now() - new Date(t.createdAt).getTime();
+        setTurnElapsed(Math.max(0, Math.floor(ms / 1000)));
+      } else {
+        setTurnElapsed(0);
+      }
+    };
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [room?.turns?.[0]?.id, room?.turns?.[0]?.createdAt, room?.status]);
 
   // Rotate flavor messages during active play
   useEffect(() => {
@@ -451,6 +497,23 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   return (
     <main className="min-h-screen p-3 sm:p-5 bg-[#0a0a0f] text-[#f5f0e8] space-y-5 relative pb-24 bg-grid-pattern">
 
+      {/* Start countdown overlay */}
+      {startCountdown !== null && (
+        <div className="fixed inset-0 z-[90] flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm pointer-events-none">
+          <motion.div
+            key={startCountdown}
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1.4, opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-500 drop-shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+          >
+            {startCountdown}
+          </motion.div>
+          <p className="mt-4 text-amber-200 text-sm tracking-[0.3em] uppercase font-bold">Let the quest begin</p>
+        </div>
+      )}
+
       {/* Ambient top border */}
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/35 to-transparent z-50 pointer-events-none" />
 
@@ -479,6 +542,13 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           >
             <BookOpen className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => { sounds.playClick(); setShowTutorial(true); }}
+            className="p-2 bg-emerald-900/40 border border-emerald-800/50 rounded-xl text-emerald-400 hover:text-emerald-300 hover:bg-emerald-800/50 transition-colors"
+            title="How to Play (Tutorial)"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
           <div className="text-left">
             <span className="block text-[9px] text-stone-500 font-black uppercase tracking-[0.2em]">
               -- Round {room.round} - Hall {room.code}
@@ -492,14 +562,27 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                 </span>
               ) : isMyTurn ? (
                 <span className="text-amber-300 animate-pulse flex items-center gap-1.5">
-                  <Crown className="w-3.5 h-3.5 text-amber-400" /> Your Turn, Hero! -
+                  <Crown className="w-3.5 h-3.5 text-amber-400" /> Your Turn — Roll the Dice, Hero!
                 </span>
               ) : (
-                <span className="text-stone-300">
-                  {activePlayer?.user.username || '-'}&apos;s Turn
+                <span className="text-stone-300 flex items-center gap-1.5">
+                  {activePlayer?.user && (
+                    <span
+                      className="inline-flex items-center gap-1.5 bg-stone-800/60 border border-stone-700/60 rounded-lg px-2 py-0.5"
+                      style={{ color: activePlayer.user.nameColor }}
+                    >
+                      {getAvatarById(activePlayer.user.avatarId).render('w-4 h-4 rounded-full')}
+                      <span className="font-bold">{activePlayer.user.username}'s Turn</span>
+                    </span>
+                  )}
+                  {!activePlayer?.user && <span className="text-stone-400">Waiting…</span>}
                 </span>
               )}
             </h2>
+            <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-bold text-amber-300/90 bg-amber-900/20 border border-amber-800/40 rounded-md px-1.5 py-0.5 leading-none">
+              <Clock className="w-2.5 h-2.5" />
+              {String(Math.floor(turnElapsed / 60)).padStart(2, '0')}:{String(turnElapsed % 60).padStart(2, '0')} elapsed
+            </span>
           </div>
         </div>
 
@@ -516,10 +599,16 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                 key={p.id}
                 className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 text-xs font-bold transition-all shrink-0 ${
                   isActive
-                    ? 'border-amber-600/50 bg-amber-950/25 shadow-md shadow-amber-900/15'
+                    ? 'border-amber-500/80 bg-amber-500/15 ring-2 ring-amber-400/60 shadow-md shadow-amber-900/40 animate-hud-turn'
                     : 'border-stone-800/50 bg-stone-900/30 opacity-65'
                 }`}
               >
+                {isActive && (
+                  <span className="relative flex w-2 h-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full w-2 h-2 bg-amber-300" />
+                  </span>
+                )}
                 <span className="text-sm leading-none">{rankEmojis[rankIdx] ?? `#${rankIdx+1}`}</span>
                 <div className="relative w-6 h-6 rounded-full bg-stone-950 p-0.5 overflow-hidden border border-stone-800/40">
                   {getAvatarById(p.user.avatarId).render('w-full h-full')}
@@ -547,11 +636,17 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                   {(() => {
                     const hero = getHeroByAvatarId(p.user.avatarId);
                     return hero ? (
-                      <span className="block text-[7px] text-amber-700/60 leading-none mt-0.5 font-bold truncate max-w-[80px]" title={hero.passive.description}>
+                      <span className="block text-[7px] text-amber-700/60 leading-none mt-0.5 font-bold truncate max-w-[80px]" title={`${hero.name}: ${hero.passive.description}`}>
                         {hero.passive.icon} {hero.passive.name}
                       </span>
                     ) : null;
                   })()}
+                  <span className="block w-[76px] mt-1 h-1 rounded-full bg-stone-800/70 overflow-hidden">
+                    <span
+                      className="block h-full rounded-full transition-all duration-700"
+                      style={{ width: `${Math.min(100, (p.position / 45) * 100)}%`, background: `linear-gradient(90deg, #fbbf24, #f59e0b)` }}
+                    />
+                  </span>
                 </div>
               </div>
             );
@@ -1078,6 +1173,11 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <TutorialOverlay
+        open={showTutorial}
+        onClose={() => { localStorage.setItem('historia-tutorial-seen', '1'); setShowTutorial(false); }}
+      />
     </main>
   );
 }

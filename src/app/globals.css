@@ -448,6 +448,98 @@ body::before {
   will-change: transform;
 }
 
+/* ─── Enchanted Board Frame ─────────────────────────────────────────────────── */
+.board-frame {
+  position: relative;
+  display: inline-block;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #f6c96b, #b8860b 45%, #7a5a12 60%, #e6b54a);
+  box-shadow:
+    0 0 0 1px rgba(246, 201, 107, 0.35),
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 0 18px rgba(255, 225, 150, 0.25);
+}
+
+.board-frame::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 17px;
+  border: 1px solid rgba(255, 235, 180, 0.35);
+  pointer-events: none;
+}
+
+.board-frame::after {
+  content: '';
+  position: absolute;
+  inset: -22px;
+  border-radius: 34px;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(246, 201, 107, 0.22), rgba(0,0,0,0) 70%);
+  pointer-events: none;
+  z-index: -1;
+  animation: boardGlow 4s ease-in-out infinite;
+}
+
+@keyframes boardGlow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes framePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.35); }
+  50% { box-shadow: 0 0 22px rgba(251, 191, 36, 0.85); }
+}
+.animate-frame-pulse { animation: framePulse 2.4s ease-in-out infinite; }
+
+@keyframes bounceSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-bounce-slow { animation: bounceSlow 2s ease-in-out infinite; }
+
+@keyframes pathArrowR { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(2px); } }
+@keyframes pathArrowL { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-2px); } }
+.path-arrow-r { animation: pathArrowR 2s ease-in-out infinite; }
+.path-arrow-l { animation: pathArrowL 2s ease-in-out infinite; }
+
+@keyframes hudTurn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35); }
+  50% { box-shadow: 0 0 16px 2px rgba(251, 191, 36, 0.55); }
+}
+.animate-hud-turn { animation: hudTurn 1.8s ease-in-out infinite; }
+
+.board-frame-inner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 8px;
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(255, 225, 150, 0.08), rgba(0,0,0,0) 60%),
+    rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.45);
+}
+
+.board-frame-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(255, 235, 180, 0.8);
+  z-index: 30;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(246, 201, 107, 0.5));
+}
+.board-corner-tl { top: 5px; left: 5px; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+.board-corner-tr { top: 5px; right: 5px; border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+.board-corner-bl { bottom: 5px; left: 5px; border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+.board-corner-br { bottom: 5px; right: 5px; border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+
+@media (max-width: 640px) {
+  .board-frame { padding: 9px; border-radius: 16px; }
+  .board-frame::before { inset: 3px; border-radius: 12px; }
+  .board-frame-inner { padding: 5px; border-radius: 9px; }
+}
+
 .iso-tile {
   position: relative;
   transition: filter 0.25s ease, transform 0.25s ease;

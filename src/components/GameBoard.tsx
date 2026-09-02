@@ -324,6 +324,12 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             className="iso-board-container w-full max-w-5xl mx-auto py-4 overflow-x-auto"
             style={{ transform: 'none' }}
           >
+            <div className="board-frame">
+              <div className="board-frame-corner board-corner-tl" />
+              <div className="board-frame-corner board-corner-tr" />
+              <div className="board-frame-corner board-corner-bl" />
+              <div className="board-frame-corner board-corner-br" />
+              <div className="board-frame-inner">
             <div
               className="grid gap-1.5 sm:gap-2 select-none relative z-10 mx-auto"
               style={{
@@ -375,7 +381,11 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
                   'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                 }`} />
-                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 border-stone-800/80 group-hover:border-amber-400/70 ${
+                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 group-hover:border-amber-400/70 ${
+                  tile.type === 'START' || tile.type === 'FINISH'
+                    ? 'border-amber-400/80 shadow-[0_0_18px_rgba(251,191,36,0.65)] animate-frame-pulse'
+                    : 'border-stone-800/80'
+                } ${
                   visitedTiles.has(tile.index) && tile.type !== 'START' && tile.type !== 'FINISH'
                     ? 'opacity-55' : 'opacity-100'
                 } ${
@@ -403,6 +413,21 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   <span className="text-[7px] sm:text-[10px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10 drop-shadow-sm text-stone-100">
                     {tile.name}
                   </span>
+                  {tile.type === 'FINISH' && (
+                    <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
+                      <span className="text-sm sm:text-base drop-shadow-[0_0_8px_rgba(251,191,36,0.95)] animate-bounce-slow">👑</span>
+                    </div>
+                  )}
+                  {tile.type === 'START' && (
+                    <div className="absolute -top-1.5 -left-1.5 z-20 pointer-events-none">
+                      <span className="text-sm sm:text-base drop-shadow-[0_0_8px_rgba(52,211,153,0.95)] animate-pulse">🚩</span>
+                    </div>
+                  )}
+                  {tile.type !== 'FINISH' && tile.type !== 'START' && (
+                    <div className={`absolute bottom-0.5 ${tile.gridY % 2 === 0 ? 'right-1' : 'left-1'} z-10 pointer-events-none text-[8px] opacity-40 text-stone-200 ${tile.gridY % 2 === 0 ? 'path-arrow-r' : 'path-arrow-l'}`}>
+                      {tile.gridY % 2 === 0 ? '▶' : '◀'}
+                    </div>
+                  )}
                 </div>
                 {/* Dust rings */}
                 <AnimatePresence>
@@ -420,6 +445,8 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
               </div>
             ))}
             </div>
+              </div>
+              </div>
           </div>
         </div>
       </div>
