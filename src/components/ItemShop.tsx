@@ -148,7 +148,7 @@ export default function ItemShop({ playerCoins, playerAvatarId, onBuyItem, disab
                     : 'bg-stone-800 text-stone-500 border border-stone-800/30 cursor-not-allowed'
                 }`}
               >
-                {finalCost}g
+                {finalCost}🪙 Buy
               </motion.button>
             </motion.div>
           );

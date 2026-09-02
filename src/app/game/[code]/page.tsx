@@ -18,7 +18,8 @@ import HeroJournal from '@/components/HeroJournal';
 import EventPopup from '@/components/EventPopup';
 import RoundRecap from '@/components/RoundRecap';
 import LiveReactionFeed from '@/components/LiveReactionFeed';
-import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, WifiOff, Flag } from 'lucide-react';
+import MiniMapStrip from '@/components/MiniMapStrip';
+import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, WifiOff, Flag, HelpCircle } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { getTileByIndex } from '@/lib/boardConfig';
 import { sounds } from '@/lib/sounds';
@@ -104,6 +105,8 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const [achievements, setAchievements] = useState<{ id: string; title: string; icon: string; desc: string }[]>([]);
   // J: Mobile tab
   const [mobileTab, setMobileTab] = useState<'board' | 'controls'>('board');
+  // How-to-play helper panel (mobile)
+  const [showHelp, setShowHelp] = useState(false);
   // K: Floating chat
   const [chatOpen, setChatOpen] = useState(false);
   // Event popup & round recap
@@ -625,7 +628,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
       <div className="max-w-6xl mx-auto flex lg:hidden gap-2 px-1">
         <button
           onClick={() => setMobileTab('board')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileTab === 'board'
               ? 'bg-amber-600 text-stone-950 border-amber-500'
               : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
@@ -635,21 +638,63 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
         </button>
         <button
           onClick={() => setMobileTab('controls')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileTab === 'controls'
               ? 'bg-amber-600 text-stone-950 border-amber-500'
               : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
           }`}
         >
-          ⚔️ Controls
+          ⚔️ Your Turn
+        </button>
+        <button
+          onClick={() => setShowHelp(o => !o)}
+          aria-label="How to play"
+          className={`px-3 py-2.5 rounded-xl text-xs font-black border transition-all ${
+            showHelp
+              ? 'bg-emerald-600 text-stone-950 border-emerald-500'
+              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+          }`}
+        >
+          <HelpCircle className="w-4 h-4" />
         </button>
       </div>
+
+      {/* How-to-play helper (mobile) */}
+      {showHelp && (
+        <div className="max-w-6xl mx-auto lg:hidden px-1 pt-3">
+          <div className="p-4 rounded-2xl border border-emerald-800/40 bg-emerald-950/15 glass-panel">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-800/40">
+              <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400">📜 How to Play</h3>
+              <button onClick={() => setShowHelp(false)} className="text-stone-500 hover:text-stone-300 text-xs">✕</button>
+            </div>
+            <div className="space-y-2 text-[11px] leading-relaxed text-stone-300">
+              <p><span className="font-black text-amber-400">🎲 Roll</span> — Cast the dice to move. Your pawn moves that many tiles.</p>
+              <p><span className="font-black text-amber-400">📜 Answer</span> — Land on a tile? Face an ancient trial (trivia). Correct = advance; wrong = fall back.</p>
+              <p><span className="font-black text-amber-400">🏰 Tiles</span> — Each colored tile has an effect (gold, traps, teleports, mystery…).</p>
+              <p><span className="font-black text-amber-400">🛒 Shop</span> — Spend coins on items (shield, extra time, blessed dice).</p>
+              <p><span className="font-black text-amber-400">👑 Goal</span> — Be the first to reach tile 45, the Crown of Wisdom!</p>
+              <p className="text-[10px] text-stone-500">Use the <span className="text-amber-300 font-bold">🗺️ Map</span> at the top to see all players — tap a tile for details.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* -- Sacred Board of Historia ------------------------------------------- */}
       <div className={`max-w-6xl mx-auto ${mobileTab === 'controls' ? 'hidden lg:block' : ''}`}>
         {/* L: Pinch-to-zoom wrapper */}
         <div className="touch-manipulation" style={{ touchAction: 'pinch-zoom' }}>
           <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} activeEvent={room.activeEvent} />
+        </div>
+      </div>
+
+      {/* Compact always-visible map strip above the controls (mobile) */}
+      <div className="max-w-6xl mx-auto lg:hidden mt-3">
+        <div className={`${mobileTab === 'board' ? 'hidden' : ''}`}>
+          <MiniMapStrip
+            players={room.players}
+            activePlayerId={activePlayer?.userId || ''}
+            onExpand={() => setMobileTab('board')}
+          />
         </div>
       </div>
 
