@@ -333,7 +333,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
             <div
               className="grid gap-1.5 sm:gap-2 select-none relative z-10 mx-auto"
               style={{
-                gridTemplateColumns: 'repeat(10, 50px)',
+                gridTemplateColumns: 'repeat(10, 68px)',
                 gridTemplateRows: 'repeat(5, auto)',
                 minWidth: 'min-content',
                 width: 'fit-content',
@@ -381,10 +381,10 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                   tile.type === 'START' || tile.type === 'FINISH' ? 'bg-amber-900/80 shadow-[0_0_30px_rgba(251,191,36,0.5)]' :
                   'bg-stone-900 shadow-[0_0_20px_rgba(0,0,0,0.8)]'
                 }`} />
-                <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 group-hover:border-amber-400/70 ${
+                <div className={`iso-face iso-face-top flex flex-col items-center justify-between pt-1.5 pb-2 sm:pt-2 sm:pb-2.5 transition-all duration-300 bg-gradient-to-b from-[#232c38] to-[#151a22] border-2 group-hover:border-amber-400/70 ${
                   tile.type === 'START' || tile.type === 'FINISH'
                     ? 'border-amber-400/80 shadow-[0_0_18px_rgba(251,191,36,0.65)] animate-frame-pulse'
-                    : 'border-stone-800/80'
+                    : 'border-slate-700/70'
                 } ${
                   visitedTiles.has(tile.index) && tile.type !== 'START' && tile.type !== 'FINISH'
                     ? 'opacity-55' : 'opacity-100'
@@ -397,34 +397,43 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 }`}>
                   {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
                   <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-40 mix-blend-overlay" />
-                    {(tile.index % 3 === 0 && tile.type !== 'TRAP' && tile.type !== 'TELEPORT') && (
-                      <div className="absolute bottom-0 right-0 w-full h-full bg-gradient-to-tl from-emerald-900/40 to-transparent mix-blend-multiply" />
-                    )}
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30 mix-blend-overlay" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/25 to-transparent" />
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-transparent via-amber-500/10 to-amber-500/30 transition-opacity duration-300" />
                     {(tile.type === 'TELEPORT' || tile.type === 'MYSTERY' || tile.type === 'START') && (
                       <div className="absolute inset-0 bg-transparent sparkle-float" />
                     )}
                   </div>
-                  <div className="w-full flex justify-between items-center text-[8px] sm:text-[11px] opacity-90 font-black leading-none z-10 drop-shadow-sm text-stone-200">
-                    <span>{tile.index === 0 ? '▶' : tile.index === 45 ? '🏁' : tile.index}</span>
-                    <span className="shrink-0 text-[10px] sm:text-[14px]">{getTileIcon(tile.type)}</span>
+                  {/* Tile index badge (uniform position, top-left) */}
+                  <div className="absolute top-0.5 left-1.5 z-10 text-[9px] sm:text-[11px] font-black leading-none opacity-70 text-stone-400 drop-shadow-sm">
+                    {tile.index === 0 ? '▶' : tile.index === 45 ? '⛳' : tile.index}
                   </div>
-                  <span className="text-[7px] sm:text-[10px] font-black uppercase text-center tracking-tight leading-none px-0.5 select-none line-clamp-2 z-10 drop-shadow-sm text-stone-100">
+                  {/* Type icon — larger, colored, centered */}
+                  <div className="flex-1 flex items-center justify-center z-10 mt-1 pointer-events-none">
+                    <span className="text-xl sm:text-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]" style={{ filter: `drop-shadow(0 0 6px ${tile.color}55)` }}>
+                      {getTileIcon(tile.type)}
+                    </span>
+                  </div>
+                  <span className="text-[8px] sm:text-[11px] font-black uppercase text-center tracking-tight leading-tight px-1 select-none line-clamp-2 z-10 text-stone-100 drop-shadow-sm">
                     {tile.name}
                   </span>
+                  {/* Uniform bottom accent bar showing tile color */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 z-10 h-1 rounded-b-lg"
+                    style={{ background: `linear-gradient(90deg, ${tile.color}, ${tile.color}88)` }}
+                  />
                   {tile.type === 'FINISH' && (
-                    <div className="absolute -top-1.5 -right-1.5 z-20 pointer-events-none">
-                      <span className="text-sm sm:text-base drop-shadow-[0_0_8px_rgba(251,191,36,0.95)] animate-bounce-slow">👑</span>
+                    <div className="absolute -top-2 -right-2 z-20 pointer-events-none">
+                      <span className="text-base sm:text-lg drop-shadow-[0_0_8px_rgba(251,191,36,0.95)] animate-bounce-slow">👑</span>
                     </div>
                   )}
                   {tile.type === 'START' && (
-                    <div className="absolute -top-1.5 -left-1.5 z-20 pointer-events-none">
-                      <span className="text-sm sm:text-base drop-shadow-[0_0_8px_rgba(52,211,153,0.95)] animate-pulse">🚩</span>
+                    <div className="absolute -top-2 -left-2 z-20 pointer-events-none">
+                      <span className="text-base sm:text-lg drop-shadow-[0_0_8px_rgba(52,211,153,0.95)] animate-pulse">🚩</span>
                     </div>
                   )}
                   {tile.type !== 'FINISH' && tile.type !== 'START' && (
-                    <div className={`absolute bottom-0.5 ${tile.gridY % 2 === 0 ? 'right-1' : 'left-1'} z-10 pointer-events-none text-[8px] opacity-40 text-stone-200 ${tile.gridY % 2 === 0 ? 'path-arrow-r' : 'path-arrow-l'}`}>
+                    <div className={`absolute bottom-1.5 ${tile.gridY % 2 === 0 ? 'right-1' : 'left-1'} z-10 pointer-events-none text-[9px] opacity-50 text-stone-300 ${tile.gridY % 2 === 0 ? 'path-arrow-r' : 'path-arrow-l'}`}>
                       {tile.gridY % 2 === 0 ? '▶' : '◀'}
                     </div>
                   )}

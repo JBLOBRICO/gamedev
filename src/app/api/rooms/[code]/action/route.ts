@@ -76,9 +76,14 @@ async function advanceToNextTurn(
           }
         });
       }
-    } else if (newEventRoundsLeft > 0) {
-      newEventRoundsLeft -= 1;
-      if (newEventRoundsLeft === 0) newActiveEvent = null;
+    } else if (activeEvent !== null) {
+      // An event is active — always count it down. If rounds are already spent,
+      // clear it so a stale event never lingers on display.
+      newEventRoundsLeft = Math.max(0, newEventRoundsLeft - 1);
+      if (newEventRoundsLeft <= 0) {
+        newActiveEvent = null;
+        newEventRoundsLeft = 0;
+      }
     }
   }
 
