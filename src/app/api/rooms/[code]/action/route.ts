@@ -60,18 +60,22 @@ async function advanceToNextTurn(
   let newEventRoundsLeft = eventRoundsLeft;
 
   if (nextTurnIndex === 0) {
-    // 50% chance each full round to trigger a new global event; otherwise count down any active one
-    if (Math.random() < 0.5) {
-      newActiveEvent = GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)];
-      newEventRoundsLeft = 2;
-      await prisma.roomAction.create({
-        data: {
-          roomId,
-          playerUsername: 'System',
-          actionType: 'EVENT',
-          details: JSON.stringify({ message: `-- GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
-        }
-      });
+    // If no event is active, 50% chance to trigger a new one this round.
+    // If an event is already active, never refresh it — just count it down
+    // so it always expires after its allotted rounds.
+    if (activeEvent === null) {
+      if (Math.random() < 0.5) {
+        newActiveEvent = GLOBAL_EVENTS[Math.floor(Math.random() * GLOBAL_EVENTS.length)];
+        newEventRoundsLeft = 2;
+        await prisma.roomAction.create({
+          data: {
+            roomId,
+            playerUsername: 'System',
+            actionType: 'EVENT',
+            details: JSON.stringify({ message: `-- GLOBAL EVENT: ${newActiveEvent}! Lasts 2 rounds.` })
+          }
+        });
+      }
     } else if (newEventRoundsLeft > 0) {
       newEventRoundsLeft -= 1;
       if (newEventRoundsLeft === 0) newActiveEvent = null;
