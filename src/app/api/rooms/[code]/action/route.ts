@@ -349,6 +349,10 @@ export async function POST(
       if (player.luckyDiceActive) {
         roll = Math.random() > 0.5 ? 6 : 5;
       }
+      // Chaos Mode — randomise dice value unpredictably
+      if (room.activeEvent === 'Chaos Mode') {
+        roll = Math.floor(1 + Math.random() * 6);
+      }
 
       let category = details?.category;
       if (!category || category === 'Random') {
@@ -360,12 +364,31 @@ export async function POST(
         ];
         category = cats[Math.floor(Math.random() * cats.length)];
       }
-      const difficulty = details?.difficulty || 'MEDIUM';
-      if (typeof category !== 'string' || typeof difficulty !== 'string') {
-        return NextResponse.json({ error: 'Invalid category or difficulty' }, { status: 400 });
+
+      // ── Option D: Difficulty based on position + dice roll ──────────────────
+      // Base difficulty from board position (progression feel):
+      //   Tiles 0–15  → EASY base
+      //   Tiles 16–30 → MEDIUM base
+      //   Tiles 31–45 → HARD base
+      // Dice roll can bump difficulty up:
+      //   Roll 5–6 bumps base up one level (EASY→MEDIUM, MEDIUM→HARD)
+      const pos = player.position;
+      let baseDiff: 'EASY' | 'MEDIUM' | 'HARD' =
+        pos <= 15 ? 'EASY' : pos <= 30 ? 'MEDIUM' : 'HARD';
+      if (roll >= 5) {
+        if (baseDiff === 'EASY') baseDiff = 'MEDIUM';
+        else if (baseDiff === 'MEDIUM') baseDiff = 'HARD';
       }
-      if (!['EASY', 'MEDIUM', 'HARD'].includes(difficulty)) {
-        return NextResponse.json({ error: 'Difficulty must be EASY, MEDIUM, or HARD' }, { status: 400 });
+      // Challenge tiles always force HARD
+      const currentTile = getTileByIndex(pos);
+      if (currentTile.type === 'CHALLENGE') baseDiff = 'HARD';
+      // Lucky Hour event makes everything EASY
+      if (room.activeEvent === 'Lucky Hour') baseDiff = 'EASY';
+
+      const difficulty = baseDiff;
+
+      if (typeof category !== 'string') {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
       }
 
       // Parse already-asked questions for this session (avoids repeats)
@@ -402,7 +425,7 @@ export async function POST(
           questionDifficulty: question.difficulty, questionText: question.question,
           questionOptions: question.options, questionCorrectAnswer: question.correctAnswer,
           questionFunFact: question.funFact || null,
-          timeRemaining: player.extraTimeActive ? 30 : (hData?.avatarId === 'avatar_2' && difficulty === 'HARD' ? 18 : 15),
+          timeRemaining: player.extraTimeActive ? 30 : (hData?.avatarId === 'avatar_2' && difficulty === 'HARD' ? 18 : difficulty === 'EASY' ? 20 : difficulty === 'HARD' ? 12 : 15),
         }
       });
 
@@ -441,6 +464,21 @@ export async function POST(
         if (difficulty === 'MEDIUM') { moveDistance = roll + 1; coinsReward = 10; xpReward = 40; }
         if (difficulty === 'HARD')   { moveDistance = roll + 2; coinsReward = 20; xpReward = 80; }
         
+        // ── Reverse Movement event: negate movement (move backwards) ──
+        if (room.activeEvent === 'Reverse Movement') {
+          moveDistance = -Math.abs(moveDistance);
+        }
+
+        // ── Lucky Hour event: +1 bonus movement on correct answers ──
+        if (room.activeEvent === 'Lucky Hour') {
+          moveDistance += 1;
+        }
+
+        // ── Coin Frenzy event: 3x coin rewards ──
+        if (room.activeEvent === 'Coin Frenzy') {
+          coinsReward *= 3;
+        }
+        
         if (player.doubleCoinsActive) {
           coinsReward *= 2;
           await prisma.player.update({ where: { id: player.id }, data: { doubleCoinsActive: false } });
@@ -466,6 +504,14 @@ export async function POST(
       });
 
       if (!isCorrect) {
+        // ── Sudden Death event: wrong answer = reset to tile 0 ──
+        if (room.activeEvent === 'Sudden Death') {
+          await prisma.player.update({ where: { id: player.id }, data: { position: 0 } });
+          await prisma.roomAction.create({
+            data: { roomId: room.id, playerUsername: 'System', actionType: 'EVENT',
+              details: JSON.stringify({ message: `☠️ Sudden Death! ${player.user.username} answered wrong and was sent back to tile 0!` }) }
+          });
+        }
         await prisma.turn.update({
           where: { id: currentTurnRecord.id },
           data: { status: 'COMPLETED', selectedAnswer: answer || '', isAnswerCorrect: false }

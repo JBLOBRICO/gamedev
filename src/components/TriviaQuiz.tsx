@@ -79,9 +79,12 @@ export default function TriviaQuiz({
       setSecondsLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit(""); // Auto submit empty on timeout
+          handleSubmit("");
           return 0;
         }
+        // Play tick sound — faster ticking on last 3 seconds
+        if (prev <= 3) sounds.playSiren();
+        else if (prev <= 5) sounds.playClick();
         return prev - 1;
       });
     }, 1000);
@@ -101,14 +104,78 @@ export default function TriviaQuiz({
 
   const timePercentage = (secondsLeft / timeLimit) * 100;
   const barColor = timePercentage > 50 ? 'bg-amber-400' : timePercentage > 25 ? 'bg-orange-500' : 'bg-rose-500';
+  const isCritical = secondsLeft <= 5 && !submitted;
+  const isUrgent = secondsLeft <= 3 && !submitted;
 
   return (
     <motion.div 
       initial={{ opacity: 0, y: -20, scale: 0.95 }}
       animate={isShake ? { x: [-10, 10, -10, 10, -5, 5, 0] } : { opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: isShake ? 0.4 : 0.5, type: 'spring' }}
-      className={`w-full max-w-xl mx-auto p-6 border ${isShake ? 'border-rose-600 shadow-[0_0_30px_rgba(225,29,72,0.4)]' : 'border-amber-900/30'} glass-panel rounded-3xl space-y-5 relative overflow-hidden transition-colors duration-300`}
+      className={`w-full max-w-xl mx-auto p-6 border ${
+        isShake ? 'border-rose-600 shadow-[0_0_30px_rgba(225,29,72,0.4)]' :
+        isUrgent ? 'border-rose-500 shadow-[0_0_40px_rgba(239,68,68,0.5)]' :
+        isCritical ? 'border-rose-500/80 shadow-[0_0_25px_rgba(239,68,68,0.35)]' :
+        'border-amber-900/30'
+      } glass-panel rounded-3xl space-y-5 relative overflow-hidden transition-colors duration-300`}
     >
+      {/* Countdown pressure — flashing red vignette at <=5s */}
+      {isCritical && (
+        <motion.div
+          animate={isUrgent
+            ? { opacity: [0.3, 0.8, 0.3, 0.8, 0.3] }
+            : { opacity: [0.2, 0.5, 0.2] }
+          }
+          transition={isUrgent
+            ? { duration: 0.4, repeat: Infinity }
+            : { duration: 0.8, repeat: Infinity }
+          }
+          className="absolute inset-0 pointer-events-none rounded-3xl z-10"
+          style={{ boxShadow: 'inset 0 0 60px rgba(239,68,68,0.5)' }}
+        />
+      )}
+
+      {/* Urgent: Screen-edge red flash overlay */}
+      {isUrgent && (
+        <motion.div
+          animate={{ opacity: [0, 0.15, 0] }}
+          transition={{ duration: 0.3, repeat: Infinity }}
+          className="absolute inset-0 pointer-events-none rounded-3xl bg-red-500 z-[5]"
+        />
+      )}
+
+      {/* Combo banner — dramatic full-width */}
+      {streak >= 3 && !submitted && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: -20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+          className="absolute top-0 left-0 right-0 flex items-center justify-center gap-3 py-2 bg-gradient-to-r from-orange-600/90 via-red-500/90 to-orange-600/90 backdrop-blur-sm z-20 border-b border-red-400/40"
+        >
+          <motion.span
+            animate={{ scale: [1, 1.3, 1], rotate: [0, -10, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 0.6 }}
+            className="text-xl"
+          >🔥</motion.span>
+          <div className="text-center">
+            <motion.span
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+              className="text-lg font-black text-white uppercase tracking-widest drop-shadow-lg"
+            >
+              COMBO x{streak}!
+            </motion.span>
+            {streak >= 5 && (
+              <span className="block text-[9px] text-amber-200 font-bold tracking-wider">LEGENDARY STREAK</span>
+            )}
+          </div>
+          <motion.span
+            animate={{ scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 0.6, delay: 0.3 }}
+            className="text-xl"
+          >🔥</motion.span>
+        </motion.div>
+      )}
 
       {/* Atmospheric top line */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-600/50 to-transparent" />

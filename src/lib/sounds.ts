@@ -173,6 +173,42 @@ class SoundSystem {
       }, delays[index]);
     });
   }
+
+  public playCombo() {
+    // Rising two-tone horn — signals a multi-kill streak
+    this.playTone(523.25, 'square', 0.15, [0.12, 0], [0.03, 0.12]);
+    setTimeout(() => this.playTone(783.99, 'square', 0.2, [0.14, 0], [0.03, 0.17]), 130);
+    setTimeout(() => this.playTone(1046.50, 'square', 0.25, [0.12, 0], [0.03, 0.22]), 260);
+  }
+
+  public playSuddenDeath() {
+    // Heavy ominous gong — signals a sudden death
+    this.playTone(95, 'sine', 0.9, [0.28, 0.2, 0.05, 0], [0.02, 0.2, 0.5, 0.35]);
+    setTimeout(() => {
+      const notes = [180, 150, 120, 90];
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          this.playTone(freq, 'sawtooth', 0.3, [0.15, 0.02, 0], [0.04, 0.2, 0.06]);
+        }, i * 120);
+      });
+    }, 300);
+  }
+
+  public playShift() {
+    // Quick reverse slide — for reverse movement / swap events
+    this.playTone(600, 'triangle', 0.2, [0.12, 0.08, 0], [0.03, 0.12, 0.06]);
+    setTimeout(() => this.playTone(300, 'triangle', 0.25, [0.12, 0], [0.03, 0.2]), 160);
+  }
+
+  public playCoinsTriple() {
+    // Faster, brighter coin cascade — 3x coin reward
+    const notes = [987.77, 1318.51, 1567.98, 1975.53];
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playTone(freq, 'sine', 0.12, [0.15, 0], [0.02, 0.1]);
+      }, i * 60);
+    });
+  }
 }
 
 export const sounds = new SoundSystem();

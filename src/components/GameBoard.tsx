@@ -24,7 +24,8 @@ interface GameBoardProps {
   activePlayerId: string;
   round: number;
   actions?: any[];
-  lastLandedTileType?: string | null; // for vignette (C)
+  lastLandedTileType?: string | null;
+  activeEvent?: string | null; // for board glow effects
 }
 
 // ── Weather config (A) ───────────────────────────────────────────────────────
@@ -39,7 +40,7 @@ function getWeather(cycle: number): Weather {
 // ── Emote config (D) ─────────────────────────────────────────────────────────
 const EMOTES = ['👍','😂','😤','🔥','💀','👑','🎲','😱'];
 
-export default function GameBoard({ players, activePlayerId, round, actions = [], lastLandedTileType }: GameBoardProps) {
+export default function GameBoard({ players, activePlayerId, round, actions = [], lastLandedTileType, activeEvent }: GameBoardProps) {
   const [animatedPositions, setAnimatedPositions] = useState<Record<string, number>>({});
   const [cameraShake, setCameraShake] = useState(false);
   const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
@@ -285,6 +286,24 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
           />
         )}
       </AnimatePresence>
+
+      {/* ── Active Event board glow ── */}
+      {activeEvent && (
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className={`absolute inset-0 pointer-events-none z-[5] rounded-3xl transition-all duration-1000 ${
+            activeEvent === 'Treasure Rush'    ? 'shadow-[inset_0_0_60px_rgba(251,191,36,0.35)]' :
+            activeEvent === 'Reverse Movement' ? 'shadow-[inset_0_0_60px_rgba(244,63,94,0.35)]' :
+            activeEvent === 'Lucky Hour'       ? 'shadow-[inset_0_0_60px_rgba(234,179,8,0.35)]' :
+            activeEvent === 'Chaos Mode'       ? 'shadow-[inset_0_0_60px_rgba(168,85,247,0.35)]' :
+            activeEvent === 'Coin Frenzy'      ? 'shadow-[inset_0_0_60px_rgba(52,211,153,0.35)]' :
+            activeEvent === 'Sudden Death'     ? 'shadow-[inset_0_0_60px_rgba(239,68,68,0.4)]' : ''
+          }`} />
+      )}
+
+      {/* ── Coin tile glow during Treasure Rush ── */}
+      {/* (handled per-tile via visitedTiles opacity + tile bgClass) */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
       <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20 pointer-events-none">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
@@ -334,6 +353,12 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 <div className={`iso-face iso-face-top flex flex-col items-center justify-between p-1 sm:p-1.5 transition-all duration-300 ${tile.bgClass} border-2 border-stone-800/80 group-hover:border-amber-400/70 ${
                   visitedTiles.has(tile.index) && tile.type !== 'START' && tile.type !== 'FINISH'
                     ? 'opacity-55' : 'opacity-100'
+                } ${
+                  activeEvent === 'Treasure Rush' && (tile.type === 'COIN_BONUS' || tile.type === 'TREASURE' || tile.type === 'BONUS')
+                    ? 'ring-2 ring-amber-400/70 shadow-[0_0_16px_rgba(251,191,36,0.7)] animate-pulse' : ''
+                } ${
+                  activeEvent === 'Sudden Death' && tile.type === 'TRAP'
+                    ? 'ring-2 ring-rose-400/70 shadow-[0_0_16px_rgba(239,68,68,0.7)] animate-pulse' : ''
                 }`}>
                   {isNight && <div className="absolute inset-0 bg-black/30 rounded-lg pointer-events-none z-0" />}
                   <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">

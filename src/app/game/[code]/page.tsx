@@ -15,6 +15,9 @@ import MatchSummary from '@/components/MatchSummary';
 import LobbyScreen from '@/components/LobbyScreen';
 import SoundSettings from '@/components/SoundSettings';
 import HeroJournal from '@/components/HeroJournal';
+import EventPopup from '@/components/EventPopup';
+import RoundRecap from '@/components/RoundRecap';
+import LiveReactionFeed from '@/components/LiveReactionFeed';
 import { Home, Send, RefreshCw, AlertTriangle, Zap, Clock, Crown, Scroll, BookOpen, Flame, WifiOff, Flag } from 'lucide-react';
 import { getAvatarById } from '@/lib/avatars';
 import { getTileByIndex } from '@/lib/boardConfig';
@@ -103,6 +106,16 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
   const [mobileTab, setMobileTab] = useState<'board' | 'controls'>('board');
   // K: Floating chat
   const [chatOpen, setChatOpen] = useState(false);
+  // Event popup & round recap
+  const [eventPopup, setEventPopup] = useState<string | null>(null);
+  const prevEventRef = useRef<string | null>(null);
+  const [roundRecap, setRoundRecap] = useState<{ round: number; players: any[] } | null>(null);
+  const prevRoundRef = useRef<number>(1);
+  const prevPositionsRef = useRef<Record<string, number>>({});
+  const prevCoinsRef2 = useRef<Record<string, number>>({});
+  // Combo banner overlay
+  const [comboBanner, setComboBanner] = useState<{ count: number; username: string } | null>(null);
+  const prevStreakRef = useRef<Record<string, number>>({});
 
   const lastTurnIdRef = useRef<string | null>(null);
 
@@ -146,6 +159,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           // H: streak achievements
           const me = data.players?.find((p: any) => p.userId === profile?.id);
           if (me?.currentStreak >= 3) {
+            if (me?.currentStreak >= 5) sounds.playCombo();
             setAchievements(prev => {
               const id = 'streak_3';
               if (prev.find(a => a.id === id)) return prev;
@@ -154,6 +168,24 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               return [...prev, a];
             });
           }
+          // Combo banner — full-screen when crossing streak thresholds
+          data.players?.forEach((p: any) => {
+            const prevStreak = prevStreakRef.current[p.userId];
+            const curStreak = p.currentStreak || 0;
+            const crossed3 = (prevStreak !== undefined && prevStreak < 3 && curStreak >= 3);
+            const crossed5 = (prevStreak !== undefined && prevStreak < 5 && curStreak >= 5);
+            if ((crossed3 && curStreak < 5) || crossed5) {
+              setComboBanner({ count: curStreak, username: p.user.username });
+              if (crossed5) sounds.playCombo();
+              setTimeout(() => setComboBanner(null), 2600);
+            }
+            if (curStreak === 0) {
+              // reset tracking so a later build-up re-triggers
+              delete prevStreakRef.current[p.userId];
+            } else {
+              prevStreakRef.current[p.userId] = curStreak;
+            }
+          });
         }
         // Tile landing sounds — fire when a player's position changes
         if (data.status === 'ACTIVE') {
@@ -187,6 +219,35 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             prevTileRef.current[p.userId] = p.position;
           });
         }
+        // Detect new global event (E: Event Popup)
+        if (data.activeEvent && data.activeEvent !== prevEventRef.current) {
+          setEventPopup(data.activeEvent);
+          prevEventRef.current = data.activeEvent;
+        }
+        if (!data.activeEvent) prevEventRef.current = null;
+
+        // Detect round change for recap
+        if (data.round > prevRoundRef.current && data.status === 'ACTIVE' && prevRoundRef.current > 1) {
+          const recapPlayers = data.players?.map((p: any) => ({
+            userId: p.userId,
+            username: p.user.username,
+            avatarId: p.user.avatarId,
+            nameColor: p.user.nameColor,
+            position: p.position,
+            coins: p.coins,
+            positionDelta: p.position - (prevPositionsRef.current[p.userId] ?? p.position),
+            coinsDelta: p.coins - (prevCoinsRef2.current[p.userId] ?? p.coins),
+          }));
+          setRoundRecap({ round: prevRoundRef.current, players: recapPlayers });
+        }
+        if (data.status === 'ACTIVE') {
+          data.players?.forEach((p: any) => {
+            prevPositionsRef.current[p.userId] = p.position;
+            prevCoinsRef2.current[p.userId] = p.coins;
+          });
+          prevRoundRef.current = data.round;
+        }
+
         return data;
       });
       setError(null);
@@ -578,7 +639,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
       <div className={`max-w-6xl mx-auto ${mobileTab === 'controls' ? 'hidden lg:block' : ''}`}>
         {/* L: Pinch-to-zoom wrapper */}
         <div className="touch-manipulation" style={{ touchAction: 'pinch-zoom' }}>
-          <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} />
+          <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} activeEvent={room.activeEvent} />
         </div>
       </div>
 
@@ -650,6 +711,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                     funFact={currentTurnRecord.questionFunFact}
                     timeLimit={currentTurnRecord.timeRemaining || 15}
                     rollValue={currentTurnRecord.rollValue || 1}
+                    streak={localPlayer?.user?.streak || 0}
                     onSubmitAnswer={submitAnswer}
                   />
                   {!isMyTurn && activePlayer && (
@@ -776,6 +838,85 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
 
       <HeroJournal isOpen={journalOpen} onClose={() => setJournalOpen(false)} />
       <SoundSettings />
+
+      {/* ── Event Popup ── */}
+      <EventPopup
+        eventName={eventPopup}
+        onDismiss={() => setEventPopup(null)}
+      />
+
+      {/* ── Round Recap ── */}
+      {roundRecap && (
+        <RoundRecap
+          round={roundRecap.round}
+          players={roundRecap.players}
+          onDismiss={() => setRoundRecap(null)}
+        />
+      )}
+
+      {/* ── Live Reaction Feed ── */}
+      <LiveReactionFeed actions={room.actions || []} />
+
+      {/* ── Full-Screen Combo Multiplier Banner ── */}
+      <AnimatePresence>
+        {comboBanner && (
+          <motion.div
+            key={`combo-${comboBanner.count}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[145] flex items-center justify-center pointer-events-none"
+          >
+            {/* Flash backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.25, 0] }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-gradient-to-b from-orange-600/30 via-red-500/20 to-orange-600/30"
+            />
+            <motion.div
+              initial={{ scale: 0.2, rotate: -6, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              exit={{ scale: 1.3, opacity: 0 }}
+              transition={{ type: 'spring', damping: 11, stiffness: 200 }}
+              className="relative z-10 flex flex-col items-center gap-2 px-12 py-8 rounded-3xl bg-stone-950/90 border-2 border-orange-500/70 shadow-[0_0_80px_rgba(249,115,22,0.5)]"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.4, 1], rotate: [0, -12, 12, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                className="text-6xl"
+              >
+                🔥
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-center"
+              >
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-400">Combo Multiplier</span>
+                <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 mt-1">
+                  COMBO x{comboBanner.count}!
+                </h2>
+                <p className="text-sm font-bold text-stone-300 mt-1">
+                  <span style={{ display: 'inline-block' }}>{comboBanner.username}</span>&apos;s streak is on fire!
+                </p>
+                {comboBanner.count >= 5 && (
+                  <motion.p
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.3, 1] }}
+                    transition={{ delay: 0.3, type: 'spring', damping: 10 }}
+                    className="text-xs font-black uppercase tracking-widest text-amber-300 mt-1"
+                  >
+                    ⚡ LEGENDARY STREAK ⚡
+                  </motion.p>
+                )}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── H: Achievement Popups ── */}
       <div className="fixed bottom-24 right-4 z-[120] flex flex-col gap-2 pointer-events-none">
