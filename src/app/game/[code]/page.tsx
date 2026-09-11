@@ -50,7 +50,7 @@ class GameErrorBoundary extends Component<{ children: React.ReactNode }, { hasEr
           <div className="w-full max-w-md p-8 rounded-2xl border border-rose-900/40 glass-panel space-y-4 text-center">
             <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto" />
             <p className="text-rose-400 font-black text-base">A Dark Spell Has Disrupted the Board</p>
-            <p className="text-stone-500 text-xs">{this.state.errorMsg}</p>
+            <p className="text-stone-300 text-xs">{this.state.errorMsg}</p>
             <button onClick={() => window.location.reload()} className="px-6 py-2.5 rounded-xl bg-amber-600 text-stone-950 font-black text-xs uppercase">
               Reload the Realm
             </button>
@@ -422,7 +422,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto" />
           <div>
             <p className="text-rose-400 font-black text-base">The Hall Cannot Be Found</p>
-            <p className="text-stone-500 text-xs mt-1">{error || 'This great hall does not exist or has been sealed.'}</p>
+            <p className="text-stone-300 text-xs mt-1">{error || 'This great hall does not exist or has been sealed.'}</p>
           </div>
           <button
             onClick={leaveRoom}
@@ -557,12 +557,12 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             <HelpCircle className="w-4 h-4" />
           </button>
           <div className="text-left">
-            <span className="block text-[9px] text-stone-500 font-black uppercase tracking-[0.2em]">
+            <span className="block text-[9px] text-stone-300 font-black uppercase tracking-[0.2em]">
               -- Round {room.round} - Hall {room.code}
             </span>
             <h2 className="text-sm font-black text-[#f5f0e8] flex items-center gap-2 mt-0.5">
               {!currentTurnRecord ? (
-                <span className="text-stone-500">Awaiting the first roll-</span>
+                <span className="text-stone-200">Awaiting the first roll-</span>
               ) : isTurnStalled ? (
                 <span className="text-amber-400 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" /> Advancing the quest-
@@ -582,7 +582,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                       <span className="font-bold">{activePlayer.user.username}'s Turn</span>
                     </span>
                   )}
-                  {!activePlayer?.user && <span className="text-stone-400">Waiting…</span>}
+                  {!activePlayer?.user && <span className="text-stone-200">Waiting…</span>}
                 </span>
               )}
             </h2>
@@ -632,7 +632,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                     {p.isHost ? ' 👑' : ''}
                     {!p.isConnected ? ' (away)' : ''}
                   </span>
-                  <span className="block text-[8px] text-stone-500 leading-none mt-0.5 flex items-center gap-1">
+                  <span className="block text-[8px] text-stone-300 leading-none mt-0.5 flex items-center gap-1">
                     Tile {p.position} · {p.coins}g
                     {streak >= 3 && (
                       <span className="text-orange-400 font-black flex items-center gap-0.5">
@@ -643,7 +643,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                   {(() => {
                     const hero = getHeroByAvatarId(p.user.avatarId);
                     return hero ? (
-                      <span className="block text-[7px] text-amber-700/60 leading-none mt-0.5 font-bold truncate max-w-[80px]" title={`${hero.name}: ${hero.passive.description}`}>
+                      <span className="block text-[7px] text-amber-500/90 leading-none mt-0.5 font-bold truncate max-w-[80px]" title={`${hero.name}: ${hero.passive.description}`}>
                         {hero.passive.icon} {hero.passive.name}
                       </span>
                     ) : null;
@@ -710,7 +710,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               transition={{ duration: 0.6, ease: 'easeOut' }}
             />
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-400 shrink-0">
+          <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-200 shrink-0">
             <Flag className="w-3 h-3 text-amber-500" />
             <span className={localPlayer.position >= BOARD_SIZE - 6 ? 'text-amber-400 animate-pulse' : ''}>
               {Math.max(0, BOARD_SIZE - 1 - localPlayer.position)} tiles to finish
@@ -733,7 +733,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileTab === 'board'
               ? 'bg-amber-600 text-stone-950 border-amber-500'
-              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+              : 'bg-stone-900/40 text-stone-300 border-stone-800/50'
           }`}
         >
           🗺️ Board
@@ -743,7 +743,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileTab === 'controls'
               ? 'bg-amber-600 text-stone-950 border-amber-500'
-              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+              : 'bg-stone-900/40 text-stone-300 border-stone-800/50'
           }`}
         >
           ⚔️ Your Turn
@@ -754,7 +754,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           className={`px-3 py-2.5 rounded-xl text-xs font-black border transition-all ${
             showHelp
               ? 'bg-emerald-600 text-stone-950 border-emerald-500'
-              : 'bg-stone-900/40 text-stone-400 border-stone-800/50'
+              : 'bg-stone-900/40 text-stone-300 border-stone-800/50'
           }`}
         >
           <HelpCircle className="w-4 h-4" />
@@ -775,7 +775,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               <p><span className="font-black text-amber-400">🏰 Tiles</span> — Each colored tile has an effect (gold, traps, teleports, mystery…).</p>
               <p><span className="font-black text-amber-400">🛒 Shop</span> — Spend coins on items (shield, extra time, blessed dice).</p>
               <p><span className="font-black text-amber-400">👑 Goal</span> — Be the first to reach tile {BOARD_SIZE - 1}, the Crown of Wisdom!</p>
-              <p className="text-[10px] text-stone-500">Use the <span className="text-amber-300 font-bold">🗺️ Map</span> at the top to see all players — tap a tile for details.</p>
+              <p className="text-[10px] text-stone-300">Use the <span className="text-amber-300 font-bold">🗺️ Map</span> at the top to see all players — tap a tile for details.</p>
             </div>
           </div>
         </div>
@@ -810,7 +810,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           {!currentTurnRecord && (
             <div className="p-6 border border-stone-800/50 glass-panel rounded-2xl text-center space-y-3">
               <RefreshCw className="w-6 h-6 text-stone-600 animate-spin mx-auto" />
-              <p className="text-sm text-stone-400 font-bold italic">Awaiting the first roll of the ancient dice-</p>
+              <p className="text-sm text-stone-200 font-bold italic">Awaiting the first roll of the ancient dice-</p>
               {isHost && (
                 <button
                   onClick={forceAdvance}
@@ -828,9 +828,9 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             <div className="p-6 border border-amber-900/25 bg-amber-950/10 glass-panel rounded-2xl text-center space-y-2">
               <Clock className="w-6 h-6 text-amber-500/60 animate-spin mx-auto" />
               <p className="text-sm text-amber-400 font-bold">The herald advances the quest-</p>
-              <p className="text-[10px] text-stone-600 italic">
-                "This advances automatically. If stuck, the host may use Force Advance."
-              </p>
+<p className="text-[10px] text-stone-400 italic">
+                    "This advances automatically. If stuck, the host may use Force Advance."
+                  </p>
             </div>
           )}
 
@@ -848,7 +848,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                   />
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-stone-800/40 glass-panel">
-                      <p className="text-sm text-stone-400 italic">
+                      <p className="text-sm text-stone-200 italic">
                         Awaiting <span className="font-black text-amber-300">{activePlayer.user.username}</span> to cast the dice-
                       </p>
                     </div>
@@ -931,7 +931,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           <div className="hidden sm:flex p-4 border border-stone-800/40 glass-panel rounded-2xl flex-col h-64">
             <div className="flex items-center gap-1.5 pb-2 border-b border-stone-800/40 mb-1">
               <Scroll className="w-3.5 h-3.5 text-amber-700/50" />
-              <h3 className="text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">
+              <h3 className="text-[9px] font-black text-stone-300 uppercase tracking-[0.2em]">
                 Chronicles - Quest Log
               </h3>
             </div>
@@ -962,7 +962,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                       {!isSystem && (
                         <span className="font-black text-amber-500/80 mr-1">{act.playerUsername}:</span>
                       )}
-                      <span className={isSystem ? 'text-stone-400 italic' : 'text-[#f5f0e8]'}>
+<span className={isSystem ? 'text-stone-300 italic' : 'text-[#f5f0e8]'}>
                         {det.message}
                       </span>
                     </motion.div>
@@ -1091,7 +1091,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
               <div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-amber-500">Achievement Unlocked!</p>
                 <p className="text-sm font-black text-[#f5f0e8]">{ach.title}</p>
-                <p className="text-[9px] text-stone-400">{ach.desc}</p>
+                <p className="text-[9px] text-stone-300">{ach.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -1111,7 +1111,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             >
               <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-stone-800/50">
                 <Scroll className="w-3.5 h-3.5 text-amber-700/50" />
-                <span className="text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Chronicles · Quest Log</span>
+                <span className="text-[9px] font-black text-stone-300 uppercase tracking-[0.2em]">Chronicles · Quest Log</span>
                 <button onClick={() => setChatOpen(false)} className="ml-auto text-stone-600 hover:text-stone-300 text-xs">✕</button>
               </div>
               <div className="h-44 overflow-y-auto p-3 space-y-1.5 flex flex-col-reverse">
@@ -1123,7 +1123,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                       <motion.div key={act.id || idx} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
                         className={`text-[9px] leading-snug p-1.5 rounded-lg border ${isSystem ? 'bg-stone-900/40 border-stone-800/50' : 'bg-amber-950/20 border-amber-900/30'}`}>
                         {!isSystem && <span className="font-black text-amber-500/80 mr-1">{act.playerUsername}:</span>}
-                        <span className={isSystem ? 'text-stone-400 italic' : 'text-[#f5f0e8]'}>{det.message}</span>
+                        <span className={isSystem ? 'text-stone-300 italic' : 'text-[#f5f0e8]'}>{det.message}</span>
                       </motion.div>
                     );
                   })}
@@ -1175,7 +1175,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             >
               <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-600/70 mb-1">⚔️ Next Turn</p>
               <p className="text-2xl font-black text-amber-300">{turnTransition}</p>
-              <p className="text-[10px] text-stone-500 mt-1 italic">prepares to roll the dice…</p>
+              <p className="text-[10px] text-stone-300 mt-1 italic">prepares to roll the dice…</p>
             </motion.div>
           </motion.div>
         )}

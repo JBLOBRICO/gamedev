@@ -477,8 +477,8 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 {getTileIcon(hoveredTileData.type)}
                 <span className="text-[10px] font-black text-amber-300 uppercase tracking-wide">{hoveredTileData.name}</span>
               </div>
-              <p className="text-[9px] text-stone-400 leading-snug">{hoveredTileData.description}</p>
-              <div className="mt-1 text-[8px] text-stone-600 font-bold uppercase tracking-widest">Tile #{hoveredTileData.index}</div>
+              <p className="text-[9px] text-stone-200 leading-snug">{hoveredTileData.description}</p>
+              <div className="mt-1 text-[8px] text-stone-400 font-bold uppercase tracking-widest">Tile #{hoveredTileData.index}</div>
             </div>
           </motion.div>
         )}
