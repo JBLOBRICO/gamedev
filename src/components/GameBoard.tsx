@@ -405,7 +405,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                     )}
                   </div>
                   {/* Tile index badge (uniform position, top-left) */}
-                  <div className="absolute top-0.5 left-1.5 z-10 text-[9px] sm:text-[11px] font-black leading-none opacity-70 text-stone-400 drop-shadow-sm">
+                  <div className="absolute top-0.5 left-1.5 z-10 text-[9px] sm:text-[11px] font-black leading-none text-amber-200 bg-black/55 rounded px-1 py-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                     {tile.index === 0 ? '▶' : tile.type === 'FINISH' ? '⛳' : tile.index}
                   </div>
                   {/* Type icon — larger, centered */}
@@ -414,7 +414,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                       {getTileIcon(tile.type)}
                     </span>
                   </div>
-                  <span className="text-[8px] sm:text-[11px] font-black uppercase text-center tracking-tight leading-tight px-1 select-none line-clamp-2 z-10 text-stone-100 drop-shadow-sm">
+                  <span className="text-[8px] sm:text-[11px] font-black uppercase text-center tracking-tight leading-tight px-1.5 py-0.5 select-none line-clamp-2 z-10 text-white bg-black/60 rounded-md drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                     {tile.name}
                   </span>
                   {/* Uniform bottom accent bar (same for every tile) */}
