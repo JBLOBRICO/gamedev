@@ -869,12 +869,13 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
                     timeLimit={currentTurnRecord.timeRemaining || 15}
                     rollValue={currentTurnRecord.rollValue || 1}
                     streak={localPlayer?.user?.streak || 0}
+                    isActivePlayer={isMyTurn}
                     onSubmitAnswer={submitAnswer}
                   />
                   {!isMyTurn && activePlayer && (
                     <div className="text-center p-4 rounded-2xl border border-amber-900/25 bg-amber-950/10">
                       <p className="text-sm text-amber-300 font-bold animate-pulse">
-                        -- {activePlayer.user.username} faces the ancient trial-
+                        -- {activePlayer.user.username} faces the ancient trial · answer to earn bonus gold! -
                       </p>
                     </div>
                   )}

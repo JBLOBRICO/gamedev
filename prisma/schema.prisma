@@ -114,6 +114,7 @@ model Turn {
   isAnswerCorrect       Boolean?
   tileType              String?
   tileEffectTriggered   Boolean  @default(false)
+  bonusAnswerers        String   @default("[]") // JSON array of userIds who claimed bonus coins
   createdAt             DateTime @default(now())
 }
 

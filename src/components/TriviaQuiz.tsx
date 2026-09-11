@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Brain, CheckCircle2, XCircle, Star, Sparkles, Clock } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, Star, Sparkles, Clock, Coins } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { sounds } from '@/lib/sounds';
@@ -16,6 +16,7 @@ interface TriviaQuizProps {
   timeLimit: number;
   rollValue: number;
   streak?: number;
+  isActivePlayer?: boolean;
   onSubmitAnswer: (answer: string) => void;
 }
 
@@ -29,12 +30,14 @@ export default function TriviaQuiz({
   timeLimit,
   rollValue,
   streak = 0,
+  isActivePlayer = true,
   onSubmitAnswer,
 }: TriviaQuizProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(timeLimit);
   const [submitted, setSubmitted] = useState(false);
   const [isShake, setIsShake] = useState(false);
+  const [claimSent, setClaimSent] = useState(false);
 
   const handleSubmit = useCallback((answer: string) => {
     if (submitted) return;
@@ -59,7 +62,7 @@ export default function TriviaQuiz({
 
   // Trigger confetti if the player rolled a perfect 6
   useEffect(() => {
-    if (rollValue === 6 && !submitted) {
+    if (isActivePlayer && rollValue === 6 && !submitted) {
       setTimeout(() => {
         confetti({
           particleCount: 100,
@@ -79,18 +82,25 @@ export default function TriviaQuiz({
       setSecondsLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit("");
+          if (isActivePlayer) {
+            handleSubmit("");
+            return 0;
+          }
+          // Spectator: freeze the clock without submitting — nobody to penalize.
           return 0;
         }
         // Play tick sound — faster ticking on last 3 seconds
-        if (prev <= 3) sounds.playSiren();
-        else if (prev <= 5) sounds.playClick();
+        if (prev <= 3) {
+          if (isActivePlayer) sounds.playSiren();
+        } else if (prev <= 5) {
+          if (isActivePlayer) sounds.playClick();
+        }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [submitted, handleSubmit]);
+  }, [submitted, handleSubmit, isActivePlayer]);
 
 
   const getDifficultyColor = (diff: string) => {
@@ -145,7 +155,7 @@ export default function TriviaQuiz({
       )}
 
       {/* Combo banner — dramatic full-width */}
-      {streak >= 3 && !submitted && (
+      {isActivePlayer && streak >= 3 && !submitted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: -20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -192,7 +202,7 @@ export default function TriviaQuiz({
           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/35 border border-emerald-800/40 px-2.5 py-0.5 rounded-full">
             🎲 Rolled: {rollValue}
           </span>
-          {streak >= 2 && (
+          {isActivePlayer && streak >= 2 && (
             <motion.span
               initial={{ scale: 0.7 }}
               animate={{ scale: [1, 1.15, 1] }}
@@ -226,7 +236,7 @@ export default function TriviaQuiz({
         <Brain className="w-10 h-10 text-amber-500/50 mx-auto animate-pulse" />
         <div>
           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-600/60 mb-2">
-            ⚜ Ancient Trial of the Royal Librarians ⚜
+            {isActivePlayer ? '⚜ Ancient Trial of the Royal Librarians ⚜' : '⚜ Bonus Trial — answer to earn royal gold ⚜'}
           </p>
           <h2 className="text-lg sm:text-xl font-bold leading-snug text-[#f5f0e8] px-2">
             {questionText}
@@ -289,12 +299,16 @@ export default function TriviaQuiz({
             {selected === correctAnswer ? (
               <>
                 <CheckCircle2 className="w-5 h-5 shrink-0" />
-                <span>Correct! {streak + 1 >= 3 ? `🔥 ${streak + 1} streak!` : 'Well done, Scholar!'}</span>
+                {isActivePlayer
+                  ? <span>Correct! {streak + 1 >= 3 ? `🔥 ${streak + 1} streak!` : 'Well done, Scholar!'}</span>
+                  : <span>Correct! +{difficulty === 'EASY' ? '3' : difficulty === 'MEDIUM' ? '6' : '10'} bonus gold claimed!</span>}
               </>
             ) : (
               <>
                 <XCircle className="w-5 h-5 shrink-0" />
-                <span>Wrong — the correct answer was: <span className="text-emerald-300">{correctAnswer}</span></span>
+                {isActivePlayer
+                  ? <span>Wrong — the correct answer was: <span className="text-emerald-300">{correctAnswer}</span></span>
+                  : <span>No penalty — the correct answer was: <span className="text-emerald-300">{correctAnswer}</span></span>}
               </>
             )}
           </motion.div>
@@ -312,26 +326,40 @@ export default function TriviaQuiz({
       {submitted && (
         <div className="pt-3">
           <button
-            onClick={() => onSubmitAnswer(selected || "")}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-widest text-sm transition-all active:scale-95 shadow-lg shadow-amber-900/25"
+            onClick={() => {
+              if (!isActivePlayer && claimSent) return;
+              setClaimSent(true);
+              onSubmitAnswer(selected || "");
+            }}
+            disabled={!isActivePlayer && claimSent}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-stone-950 font-black uppercase tracking-widest text-sm transition-all active:scale-95 shadow-lg shadow-amber-900/25 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Continue the Quest →
+            {isActivePlayer ? 'Continue the Quest →' : claimSent ? 'Bonus Claimed ✓' : 'Claim Bonus →'}
           </button>
         </div>
       )}
 
       {/* Reward preview */}
       {!submitted && (
-        <div className="flex items-center justify-center gap-4 text-[10px] font-bold text-stone-500 pt-1 border-t border-stone-800/40">
-          <span className="flex items-center gap-1">
-            <Star className="w-3.5 h-3.5 text-amber-600/50" />
-            +{difficulty === 'EASY' ? '5' : difficulty === 'MEDIUM' ? '10' : '20'} Royal Gold
-          </span>
-          <span className="w-1 h-1 rounded-full bg-stone-800" />
-          <span className="flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400/50" />
-            +{difficulty === 'EASY' ? '20' : difficulty === 'MEDIUM' ? '40' : '80'} XP
-          </span>
+        <div className="flex items-center justify-center gap-4 text-[10px] font-bold text-stone-300 pt-1 border-t border-stone-800/40">
+          {isActivePlayer ? (
+            <>
+              <span className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 text-amber-600/50" />
+                +{difficulty === 'EASY' ? '5' : difficulty === 'MEDIUM' ? '10' : '20'} Royal Gold
+              </span>
+              <span className="w-1 h-1 rounded-full bg-stone-800" />
+              <span className="flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400/50" />
+                +{difficulty === 'EASY' ? '20' : difficulty === 'MEDIUM' ? '40' : '80'} XP
+              </span>
+            </>
+          ) : (
+            <span className="flex items-center gap-1 text-amber-300">
+              <Coins className="w-3.5 h-3.5 text-amber-400" />
+              Correct = +{difficulty === 'EASY' ? '3' : difficulty === 'MEDIUM' ? '6' : '10'} bonus gold · Wrong = no penalty
+            </span>
+          )}
         </div>
       )}
     </motion.div>

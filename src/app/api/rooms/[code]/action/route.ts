@@ -354,7 +354,10 @@ export async function POST(
     if (!currentTurnRecord || currentTurnRecord.status === 'COMPLETED') {
       return NextResponse.json({ error: 'No active turn. Waiting for the next turn to begin.' }, { status: 400 });
     }
-    if (currentTurnRecord.activePlayerId !== userId) {
+    // Non-active players may also answer trivia during the TRIVIA phase to earn
+    // bonus coins (handled inside ANSWER_TRIVIA below).
+    const canAnswerTriviaBonus = action === 'ANSWER_TRIVIA' && currentTurnRecord.status === 'TRIVIA';
+    if (currentTurnRecord.activePlayerId !== userId && !canAnswerTriviaBonus) {
       const ap = room.players.find(p => p.userId === currentTurnRecord.activePlayerId);
       return NextResponse.json({ error: `It is not your turn. Waiting for ${ap?.user.username || 'the active player'}.` }, { status: 400 });
     }
@@ -477,6 +480,36 @@ export async function POST(
 
       const roll = currentTurnRecord.rollValue || 1;
       const difficulty = currentTurnRecord.questionDifficulty || 'MEDIUM';
+
+      // ---- Bonus answer (non-active player watching the turn) ----------------
+      if (currentTurnRecord.activePlayerId !== userId) {
+        let bonusAnswerers: string[] = [];
+        try { bonusAnswerers = JSON.parse(currentTurnRecord.bonusAnswerers || '[]'); } catch { bonusAnswerers = []; }
+        if (bonusAnswerers.includes(userId)) {
+          return NextResponse.json({ error: 'You already claimed your bonus for this question.' }, { status: 400 });
+        }
+        bonusAnswerers.push(userId);
+        await prisma.turn.update({
+          where: { id: currentTurnRecord.id },
+          data: { bonusAnswerers: JSON.stringify(bonusAnswerers) }
+        });
+
+        if (isCorrect) {
+          const bonusCoins = difficulty === 'EASY' ? 3 : difficulty === 'HARD' ? 10 : 6;
+          await prisma.user.update({
+            where: { id: userId },
+            data: { coins: { increment: bonusCoins }, correctAnswers: { increment: 1 } }
+          });
+          await prisma.player.update({ where: { id: player.id }, data: { coins: { increment: bonusCoins } } });
+          await prisma.roomAction.create({
+            data: { roomId: room.id, playerUsername: player.user.username, actionType: 'ANSWER',
+              details: JSON.stringify({ message: `${player.user.username} answered a bonus question correctly and earned ${bonusCoins} coins! --` }) }
+          });
+          return NextResponse.json({ success: true, isCorrect: true, bonus: true, bonusCoins });
+        }
+        // Wrong bonus answer: no penalty, no coins — just consume the attempt.
+        return NextResponse.json({ success: true, isCorrect: false, bonus: true });
+      }
 
       let moveDistance = 0;
       let coinsReward = 0;
