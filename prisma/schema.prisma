@@ -50,6 +50,7 @@ model Room {
   eventRoundsLeft Int          @default(0)
   winnerId        String?
   askedQuestions  String       @default("[]")
+  categories      String       @default("[]") // JSON array of host-selected trivia categories
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   players         Player[]

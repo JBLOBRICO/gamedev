@@ -257,9 +257,13 @@ export async function POST(
           } 
         });
       }
+      const validCategories = details?.categories;
+      const categoriesToStore = Array.isArray(validCategories) && validCategories.length > 0
+        ? JSON.stringify(validCategories)
+        : '[]';
       await prisma.room.update({
         where: { id: room.id },
-        data: { status: 'ACTIVE', currentTurn: 0, round: 1, askedQuestions: '[]' }
+        data: { status: 'ACTIVE', currentTurn: 0, round: 1, askedQuestions: '[]', categories: categoriesToStore }
       });
       await prisma.turn.updateMany({ where: { roomId: room.id, status: { not: 'COMPLETED' } }, data: { status: 'COMPLETED' } });
       const first = shuffled[0];
@@ -372,12 +376,17 @@ export async function POST(
 
       let category = details?.category;
       if (!category || category === 'Random') {
-        const cats = [
-          'General Knowledge', 'Science', 'History', 'Movies', 'Music',
-          'Sports', 'Geography', 'Technology', 'Gaming', 'Pop Culture',
-          'Philippines', 'Food & Drinks', 'TV Shows & Anime', 'Animals',
-          'Logic', 'World Wonders'
-        ];
+        // Respect the host's selected categories (from START_GAME), fall back to all
+        let cats: string[] = [];
+        try { cats = JSON.parse(room.categories || '[]'); } catch (e) { cats = []; }
+        if (cats.length === 0) {
+          cats = [
+            'General Knowledge', 'Science', 'History', 'Movies', 'Music',
+            'Sports', 'Geography', 'Technology', 'Gaming', 'Pop Culture',
+            'Philippines', 'Food & Drinks', 'TV Shows & Anime', 'Animals',
+            'Logic', 'World Wonders'
+          ];
+        }
         category = cats[Math.floor(Math.random() * cats.length)];
       }
 
