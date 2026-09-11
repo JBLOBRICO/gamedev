@@ -6,7 +6,7 @@ import {
   AlertTriangle, Gift, Sparkles, Zap, Flame, Compass, HelpCircle,
   RotateCw, Shuffle, ArrowUp, ArrowDown, Clock, Package, Coins
 } from 'lucide-react';
-import { BOARD_TILES } from '@/lib/boardConfig';
+import { BOARD_TILES, BOARD_SIZE } from '@/lib/boardConfig';
 import { getAvatarById } from '@/lib/avatars';
 import { getHeroByAvatarId } from '@/lib/heroes';
 
@@ -26,6 +26,7 @@ interface GameBoardProps {
   actions?: any[];
   lastLandedTileType?: string | null;
   activeEvent?: string | null; // for board glow effects
+  finishIndex?: number; // when set, board is truncated at this tile (DUEL ends at 34)
 }
 
 // ── Weather config (A) ───────────────────────────────────────────────────────
@@ -40,7 +41,15 @@ function getWeather(cycle: number): Weather {
 // ── Emote config (D) ─────────────────────────────────────────────────────────
 const EMOTES = ['👍','😂','😤','🔥','💀','👑','🎲','😱'];
 
-export default function GameBoard({ players, activePlayerId, round, actions = [], lastLandedTileType, activeEvent }: GameBoardProps) {
+export default function GameBoard({ players, activePlayerId, round, actions = [], lastLandedTileType, activeEvent, finishIndex }: GameBoardProps) {
+  const visibleTiles = React.useMemo(() => {
+    const maxIdx = (finishIndex ?? BOARD_SIZE - 1) ?? 0;
+    return BOARD_TILES.slice(0, maxIdx + 1).map(t =>
+      t.index === maxIdx && t.type !== 'FINISH'
+        ? { ...t, type: 'FINISH', name: 'Finish Line', description: 'Reach here to claim ultimate victory!', color: '#ef4444', bgClass: 'bg-red-600/30 border-red-500 text-red-300 font-bold' }
+        : t
+    );
+  }, [finishIndex]);
   const [animatedPositions, setAnimatedPositions] = useState<Record<string, number>>({});
   const [cameraShake, setCameraShake] = useState(false);
   const [floaters, setFloaters] = useState<{ id: string; playerId: string; text: string; color: string }[]>([]);
@@ -339,7 +348,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
                 width: 'fit-content',
               }}
             >
-            {BOARD_TILES.map((tile) => (
+            {visibleTiles.map((tile) => (
               <div
                 key={tile.index}
                 ref={el => { tileRefs.current[tile.index] = el; }}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getTileByIndex, BOARD_SIZE } from '@/lib/boardConfig';
+import { getTileByIndex, getFinishIndex } from '@/lib/boardConfig';
 import { getHeroByAvatarId } from '@/lib/heroes';
 
 // --- Helpers ------------------------------------------------------------------
@@ -586,7 +586,7 @@ export async function POST(
       }
 
       let newPosition = player.position + moveDistance;
-      const FINISH = room.mode === 'DUEL' ? 35 : BOARD_SIZE - 1;
+      const FINISH = getFinishIndex(room.mode);
       if (newPosition >= FINISH) newPosition = FINISH;
 
       if (room.mode === 'TEAM' && player.teamId) {
@@ -622,7 +622,7 @@ export async function POST(
 
       const tile = getTileByIndex(player.position);
       const { choice } = details || {};
-      const FINISH = room.mode === 'DUEL' ? 35 : BOARD_SIZE - 1;
+      const FINISH = getFinishIndex(room.mode);
 
       let coinsChange = 0;
       let posChange = 0;

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useProfile } from '@/hooks/useProfile';
 import GameBoard from '@/components/GameBoard';
+import { getFinishIndex } from '@/lib/boardConfig';
 import DiceRoller from '@/components/DiceRoller';
 import TriviaQuiz from '@/components/TriviaQuiz';
 import ItemShop from '@/components/ItemShop';
@@ -785,7 +786,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
       <div className={`max-w-6xl mx-auto ${mobileTab === 'controls' ? 'hidden lg:block' : ''}`}>
         {/* L: Pinch-to-zoom wrapper */}
         <div className="touch-manipulation" style={{ touchAction: 'pinch-zoom' }}>
-          <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} activeEvent={room.activeEvent} />
+          <GameBoard players={room.players} activePlayerId={activePlayer?.userId || ''} round={room.round} actions={room.actions} lastLandedTileType={lastLandedTileType} activeEvent={room.activeEvent} finishIndex={getFinishIndex(room.mode)} />
         </div>
       </div>
 

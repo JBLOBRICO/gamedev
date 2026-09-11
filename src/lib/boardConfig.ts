@@ -81,7 +81,7 @@ export const BOARD_TILES: BoardTile[] = [
   { index: 31, type: 'COIN_BONUS',  name: 'Star Chest',      description: 'A glittering star chest — grab +20 coins!',           color: '#eab308', bgClass: 'bg-yellow-500/20 border-yellow-500 text-yellow-400', gridX: 8, gridY: 3 },
   { index: 32, type: 'SKIP_TURN',   name: 'Time Warp',       description: 'Time loops on you — skip the next 2 turns.',          color: '#38bdf8', bgClass: 'bg-sky-500/20 border-sky-500 text-sky-300',           gridX: 7, gridY: 3 },
   { index: 33, type: 'ITEM_REWARD', name: 'Enchanted Crate', description: 'An enchanted crate drops a free item for you!',       color: '#a3e635', bgClass: 'bg-lime-500/20 border-lime-500 text-lime-400',       gridX: 6, gridY: 3 },
-  { index: 34, type: 'TELEPORT',    name: 'Nexus Portal',    description: 'Step into the nexus — teleport to a random tile!',    color: '#8b5cf6', bgClass: 'bg-violet-500/20 border-violet-500 text-violet-400', gridX: 5, gridY: 3 },
+{ index: 34, type: 'TELEPORT',    name: 'Nexus Portal',    description: 'Step into the nexus — teleport to a random tile!',    color: '#8b5cf6', bgClass: 'bg-violet-500/20 border-violet-500 text-violet-400', gridX: 5, gridY: 3 },
   { index: 35, type: 'EVENT',       name: 'Supernova',       description: 'A supernova triggers a powerful global event!',       color: '#ec4899', bgClass: 'bg-pink-500/20 border-pink-500 text-pink-400',         gridX: 4, gridY: 3 },
   { index: 36, type: 'CHALLENGE',   name: 'Final Quiz Duel', description: 'Hard question — double or nothing on coin rewards!',  color: '#3b82f6', bgClass: 'bg-blue-500/20 border-blue-500 text-blue-400',         gridX: 3, gridY: 3 },
   { index: 37, type: 'RISK',        name: 'Dangerous Gamble',description: 'High-stakes gamble: all or nothing on a coin flip!',  color: '#f97316', bgClass: 'bg-orange-500/20 border-orange-500 text-orange-400',  gridX: 2, gridY: 3 },
@@ -90,7 +90,7 @@ export const BOARD_TILES: BoardTile[] = [
 
   // ── Row 4: left to right (col 0 → 9), full row, FINISH at 49 ──────────────
   { index: 40, type: 'WILD',        name: 'Grand Nexus',     description: 'Final stretch — choose your trivia category!',        color: '#14b8a6', bgClass: 'bg-teal-500/20 border-teal-500 text-teal-400',         gridX: 0, gridY: 4 },
-  { index: 41, type: 'TREASURE',    name: 'Vault of Legends',description: 'The legendary vault — spend 10g for a huge reward!',  color: '#eab308', bgClass: 'bg-amber-500/20 border-amber-500 text-amber-400',     gridX: 1, gridY: 4 },
+  { index: 41, type: 'TREASURE',    name: 'Vault of Legends',description: 'The legendary vault — spend 10g for a huge reward!',  color: '#eab308', bgClass: 'bg-amber-500/20 border-amber-500 text-yellow-400',     gridX: 1, gridY: 4 },
   { index: 42, type: 'SWAP',        name: 'Mirror World',    description: 'Dimensions collide — swap with the closest opponent!',color: '#f43f5e', bgClass: 'bg-rose-500/20 border-rose-500 text-rose-400',       gridX: 2, gridY: 4 },
   { index: 43, type: 'MYSTERY',     name: 'Final Mystery',   description: 'A last wild card — anything could happen!',           color: '#a855f7', bgClass: 'bg-purple-500/20 border-purple-500 text-purple-400', gridX: 3, gridY: 4 },
   { index: 44, type: 'COIN_BONUS',  name: 'Victory Cache',   description: 'So close to victory — grab +25 free coins!',         color: '#eab308', bgClass: 'bg-yellow-500/20 border-yellow-500 text-yellow-400', gridX: 4, gridY: 4 },
@@ -103,6 +103,14 @@ export const BOARD_TILES: BoardTile[] = [
 
 /** How many tiles on the board (0..BOARD_SIZE-1 is valid, BOARD_SIZE = finish) */
 export const BOARD_SIZE = BOARD_TILES.length; // 50
+
+/** Finish tile index per mode: DUEL (1v1) finishes early at tile 34 (35-tile track) */
+export const FINISH_INDEX_DUEL = 34;
+export const FINISH_INDEX_FULL = BOARD_SIZE - 1; // 49
+
+export function getFinishIndex(mode: string): number {
+  return mode === 'DUEL' ? FINISH_INDEX_DUEL : FINISH_INDEX_FULL;
+}
 
 export function getTileByIndex(index: number): BoardTile {
   if (index >= BOARD_TILES.length) return BOARD_TILES[BOARD_TILES.length - 1];
