@@ -586,7 +586,7 @@ export async function POST(
       }
 
       let newPosition = player.position + moveDistance;
-      const FINISH = BOARD_SIZE - 1; // tile index 45
+      const FINISH = room.mode === 'DUEL' ? 35 : BOARD_SIZE - 1;
       if (newPosition >= FINISH) newPosition = FINISH;
 
       if (room.mode === 'TEAM' && player.teamId) {
@@ -622,7 +622,7 @@ export async function POST(
 
       const tile = getTileByIndex(player.position);
       const { choice } = details || {};
-      const FINISH = BOARD_SIZE - 1;
+      const FINISH = room.mode === 'DUEL' ? 35 : BOARD_SIZE - 1;
 
       let coinsChange = 0;
       let posChange = 0;
