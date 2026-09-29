@@ -57,7 +57,7 @@ export default function DynamicEventPanel({ eventName, roundsLeft, onDismiss }: 
         };
       case 'Coin Frenzy':
         return {
-          desc: 'The Vault of Historia overflows — 3x coin rewards for correct answers!',
+          desc: 'The Vault of Questoria overflows — 3x coin rewards for correct answers!',
           icon: <Coins className="w-5 h-5 text-emerald-400 animate-pulse" />,
           border: 'border-emerald-800/40 bg-emerald-950/20 text-emerald-300',
           emoji: '👑',
@@ -75,7 +75,7 @@ export default function DynamicEventPanel({ eventName, roundsLeft, onDismiss }: 
         };
       default:
         return {
-          desc: 'A mysterious royal decree alters the board of Historia.',
+          desc: 'A mysterious royal decree alters the board of Questoria.',
           icon: <AlertCircle className="w-5 h-5 text-amber-400" />,
           border: 'border-amber-800/40 bg-amber-950/15 text-amber-300',
           emoji: '📜',

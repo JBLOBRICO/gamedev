@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Historia Legends — Crown of Wisdom",
-  description: "A multiplayer trivia board game set in the Kingdom of Historia. Roll the dice, answer ancient trials, and race to claim the legendary Crown of Wisdom.",
+  title: "Questoria Legends — Crown of Wisdom",
+  description: "A multiplayer trivia board game set in the Kingdom of Questoria. Roll the dice, answer ancient trials, and race to claim the legendary Crown of Wisdom.",
 };
 
 export const viewport = {

@@ -303,7 +303,7 @@ export default function MatchSummary({ winnerUsername, roundCount, players, onPl
         </AnimatePresence>
 
         <p className="relative z-10 text-[10px] text-amber-700/60 italic">
-          &quot;May your name be forever written in the Chronicles of Historia.&quot;
+          &quot;May your name be forever written in the Chronicles of Questoria.&quot;
         </p>
 
         {/* Actions */}

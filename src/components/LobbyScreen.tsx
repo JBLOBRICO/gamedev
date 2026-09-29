@@ -168,7 +168,7 @@ export default function LobbyScreen({
 
           {/* Ornamental divider */}
           <div className="ornament-divider mb-4">
-            <span>⚜ Heroes of Historia ⚜</span>
+            <span>⚜ Heroes of Questoria ⚜</span>
           </div>
 
           {/* Players */}

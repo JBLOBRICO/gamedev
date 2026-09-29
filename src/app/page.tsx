@@ -231,7 +231,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none">
-                    <span className="text-[var(--foreground)]">HISTORIA</span>
+                    <span className="text-[var(--foreground)]">QUESTORIA</span>
                     <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500">
                       LEGENDS
@@ -318,7 +318,7 @@ export default function Home() {
 
             {/* Bottom bar */}
             <div className="relative z-10 border-t border-amber-900/20 bg-[var(--panel-bg)] backdrop-blur-sm py-3 px-6 flex items-center justify-between theme-muted text-[9px]">
-              <span>© 2026 Historia Legends</span>
+              <span>© 2026 Questoria Legends</span>
               <span className="hidden sm:flex items-center gap-3">
                 <span>⚔️ Duels</span><span>🛡️ Teams</span><span>👑 Melee</span>
               </span>
@@ -414,7 +414,7 @@ export default function Home() {
         ════════════════════════════════════════════════════════════════ */}
         {screen === 'gameplay' && (
           <motion.div key="gameplay" {...slideIn} className="relative z-10 min-h-screen flex flex-col">
-            <ScreenHeader title="How to Play" subtitle="Master the ancient trials of Historia" onBack={back} />
+            <ScreenHeader title="How to Play" subtitle="Master the ancient trials of Questoria" onBack={back} />
 
             <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 space-y-4 overflow-y-auto">
               {GAMEPLAY_SECTIONS.map((sec, i) => (
@@ -540,14 +540,14 @@ export default function Home() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400">
-                    Historia Legends
+                    Questoria Legends
                   </h2>
                   <p className="text-[10px] text-amber-700/60 font-bold uppercase tracking-widest mt-1">
                     Crown of Wisdom · Kingdom Quest
                   </p>
                 </div>
                 <p className="theme-soft text-xs leading-relaxed max-w-md mx-auto">
-                  A real-time multiplayer trivia board game set in the medieval fantasy Kingdom of Historia.
+                  A real-time multiplayer trivia board game set in the medieval fantasy Kingdom of Questoria.
                   Heroes compete across an isometric 3D board, answering ancient trivia trials to advance,
                   collect Royal Gold, and claim the legendary Crown of Wisdom.
                 </p>
@@ -555,7 +555,7 @@ export default function Home() {
 
               {/* Info cards */}
               {[
-                { icon: '🎯', title: 'Purpose', body: 'Historia Legends is an educational-entertainment trivia game designed to make learning fun through competitive multiplayer gameplay, fantasy storytelling, and strategic board mechanics.' },
+                { icon: '🎯', title: 'Purpose', body: 'Questoria Legends is an educational-entertainment trivia game designed to make learning fun through competitive multiplayer gameplay, fantasy storytelling, and strategic board mechanics.' },
                 { icon: '⚙️', title: 'Technology', body: 'Built with Next.js 15 (App Router) · TypeScript · Tailwind CSS · Framer Motion · Prisma ORM · PostgreSQL · Lucide Icons · canvas-confetti' },
                 { icon: '👥', title: 'Credits', body: 'Designed & developed as a full-stack multiplayer game. Game design, UI/UX, backend logic, trivia system, and all visual elements crafted from scratch.' },
                 { icon: '🎮', title: 'Game Modes', body: 'Royal Duel (1v1) · Band of Heroes (2v2 Teams) · Grand Melee (Free-for-All, up to 4 players). All modes share the same 50-tile isometric board and trivia trial system.' },
@@ -577,7 +577,7 @@ export default function Home() {
               {/* Version */}
               <div className="text-center pt-2 pb-4 space-y-1">
                 <p className="theme-muted text-[10px] font-bold uppercase tracking-widest">Version 1.0.0</p>
-                <p className="theme-muted text-[9px]">© 2026 Historia Legends · All rights reserved</p>
+                <p className="theme-muted text-[9px]">© 2026 Questoria Legends · All rights reserved</p>
               </div>
             </div>
           </motion.div>
@@ -651,7 +651,7 @@ const GAMEPLAY_SECTIONS = [
   {
     icon: '🗺️',
     title: 'The Sacred Board',
-    body: 'Historia Legends is played on a 50-tile isometric 3D board arranged in a serpentine 10×5 grid. Players start at Tile 0 and race to Tile 49 (the Finish Line) to claim the Crown of Wisdom and win the match.',
+    body: 'Questoria Legends is played on a 50-tile isometric 3D board arranged in a serpentine 10×5 grid. Players start at Tile 0 and race to Tile 49 (the Finish Line) to claim the Crown of Wisdom and win the match.',
   },
   {
     icon: '🎲',
@@ -712,12 +712,12 @@ const GAMEPLAY_SECTIONS = [
   {
     icon: '🏆',
     title: 'How to Win',
-    body: 'The first player to reach or pass Tile 45 (the Finish Line) wins the match, earns XP, Royal Gold, and is declared the Crowned Champion of Historia.',
+    body: 'The first player to reach or pass Tile 45 (the Finish Line) wins the match, earns XP, Royal Gold, and is declared the Crowned Champion of Questoria.',
   },
   {
     icon: '👥',
     title: 'Multiplayer Modes',
-    body: 'Historia Legends supports three battle modes, all using real-time polling for synchronised gameplay.',
+    body: 'Questoria Legends supports three battle modes, all using real-time polling for synchronised gameplay.',
     bullets: [
       '⚔️ Royal Duel — 1v1 head-to-head battle',
       '🛡️ Band of Heroes — 2v2 team mode (shared banner)',

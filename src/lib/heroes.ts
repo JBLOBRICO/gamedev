@@ -1,4 +1,4 @@
-// ─── Kingdom of Historia — Hero Roster ───────────────────────────────────────
+// ─── Kingdom of Questoria — Hero Roster ───────────────────────────────────────
 // Each hero has a fantasy identity, passive ability, lore, and visual style.
 // Passives are cosmetic/flavor — they map to existing avatar IDs so no DB changes needed.
 
@@ -48,7 +48,7 @@ export const HEROES: HeroData[] = [
     rarityClass: 'rarity-epic',
     crest: '📚',
     symbol: '📜',
-    lore: 'Seraphel memorised the 10,000-volume Library of Historia by age twelve. She now advises the Crown on ancient prophecies.',
+    lore: 'Seraphel memorised the 10,000-volume Library of Questoria by age twelve. She now advises the Crown on ancient prophecies.',
     biography: 'Born in the floating spires of the Arcane Academy, Seraphel was a child prodigy who decoded the lost language of the First Scholars. She carries a magical tome that records every event in the kingdom in real-time, making her the ultimate authority on trivia.',
     personality: 'Highly intelligent, slightly arrogant, and obsessively curious.',
     strengths: 'Flawless memory, rapid problem-solving, vast magical knowledge.',
@@ -79,7 +79,7 @@ export const HEROES: HeroData[] = [
     rarityClass: 'rarity-rare',
     crest: '🌿',
     symbol: '🏹',
-    lore: 'Raised by the Guardians of the Enchanted Forest, Thorn can read the land like a map and knows all of Historia\'s Secret Passages.',
+    lore: 'Raised by the Guardians of the Enchanted Forest, Thorn can read the land like a map and knows all of Questoria\'s Secret Passages.',
     biography: 'Found abandoned in the Whispering Forest, Thorn was raised by the ancient treants. He serves as the silent protector of the borders, armed with a bow carved from the World Tree. He ventures into the civilised kingdom only to track down corrupted relics.',
     personality: 'Quiet, observant, and deeply connected to nature.',
     strengths: 'Incredible tracking skills, camouflage, unmatched agility.',
@@ -189,7 +189,7 @@ export const FANTASY_LABELS = {
   wildTile: 'Fate Scroll',
   // Flavor messages
   flavorMessages: [
-    'The castle bells echo across Historia…',
+    'The castle bells echo across Questoria…',
     'A forgotten relic awakens.',
     "The King's blessing smiles upon you.",
     'The Royal Librarians present another trial.',
@@ -197,11 +197,11 @@ export const FANTASY_LABELS = {
     'The ancient spirits guide your journey.',
     'Wisdom lights your path.',
     'The royal vault reveals its treasures.',
-    'Brave heroes never falter in Historia.',
+    'Brave heroes never falter in Questoria.',
     'The Crown of Wisdom awaits the worthy.',
     'Scholars of old watch from the library walls.',
-    'The grand banners of Historia wave in your honour.',
-    'A legend is born in the Kingdom of Historia.',
+    'The grand banners of Questoria wave in your honour.',
+    'A legend is born in the Kingdom of Questoria.',
     'The ancient trials demand your best answers.',
     'Your name shall be written in the Chronicles.',
   ],

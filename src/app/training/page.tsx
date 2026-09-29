@@ -23,7 +23,7 @@ interface Chapter {
 
 // ─── Chapter Definitions ─────────────────────────────────────────────────────
 const CHAPTERS: Chapter[] = [
-  { id: 0, title: 'The Kingdom', subtitle: 'Historia overview', icon: <BookOpen className="w-5 h-5" />, color: 'text-amber-400' },
+  { id: 0, title: 'The Kingdom', subtitle: 'Questoria overview', icon: <BookOpen className="w-5 h-5" />, color: 'text-amber-400' },
   { id: 1, title: 'Sacred Board', subtitle: 'Tiles & movement', icon: <Sparkles className="w-5 h-5" />, color: 'text-indigo-400' },
   { id: 2, title: 'Cast the Dice', subtitle: 'Your turn begins', icon: <Dices className="w-5 h-5" />, color: 'text-amber-400' },
   { id: 3, title: 'Ancient Trials', subtitle: 'Answer to advance', icon: <Brain className="w-5 h-5" />, color: 'text-emerald-400' },
@@ -78,7 +78,7 @@ const MOCK_QUESTIONS = [
   },
 ];
 
-// ─── Chapter 0: Welcome to Historia ──────────────────────────────────────────
+// ─── Chapter 0: Welcome to Questoria ──────────────────────────────────────────
 function ChapterWelcome() {
   return (
     <div className="space-y-8 text-center">
@@ -96,11 +96,11 @@ function ChapterWelcome() {
         <h2 className="text-3xl font-black text-[#f5f0e8]">
           Welcome to<br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500">
-            Historia Legends
+            Questoria Legends
           </span>
         </h2>
         <p className="text-stone-400 max-w-lg mx-auto leading-relaxed text-sm">
-          In the Kingdom of Historia, brave heroes compete across ancient castles, enchanted forests, and forgotten ruins.
+          In the Kingdom of Questoria, brave heroes compete across ancient castles, enchanted forests, and forgotten ruins.
           Roll the dice, answer the ancient trials, and race to claim the legendary Crown of Wisdom!
         </p>
         <p className="text-amber-700/50 italic text-xs">"The realm's greatest scholars left these trials — only the wisest shall prevail."</p>
@@ -141,7 +141,7 @@ function ChapterBoard() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black text-[#f5f0e8]">The <span className="text-indigo-400">Sacred Board</span></h2>
-        <p className="text-stone-400 text-sm">The board has 50 tiles (0–49) across the Kingdom of Historia. Tap each tile type to learn what it does.</p>
+        <p className="text-stone-400 text-sm">The board has 50 tiles (0–49) across the Kingdom of Questoria. Tap each tile type to learn what it does.</p>
       </div>
 
       {/* Tile selector grid */}
@@ -376,7 +376,7 @@ function ChapterTrivia() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black text-[#f5f0e8]">Face the <span className="text-emerald-400">Ancient Trials</span></h2>
-        <p className="text-stone-400 text-sm">Try these practice trials. Answer correctly to advance your hero across the Kingdom of Historia!</p>
+        <p className="text-stone-400 text-sm">Try these practice trials. Answer correctly to advance your hero across the Kingdom of Questoria!</p>
       </div>
 
       {/* Progress */}
@@ -530,7 +530,7 @@ function ChapterTileEffects() {
     <div className="space-y-5">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-black text-[#f5f0e8]">Tile <span className="text-rose-400">Fates</span></h2>
-        <p className="text-stone-400 text-sm">Tap a tile to simulate landing on it within the Kingdom of Historia and see its effect.</p>
+        <p className="text-stone-400 text-sm">Tap a tile to simulate landing on it within the Kingdom of Questoria and see its effect.</p>
       </div>
 
       {/* Coin counter */}
@@ -610,7 +610,7 @@ function ChapterTileEffects() {
 
       {!activeTile && (
         <div className="text-center py-8 text-stone-600 text-sm italic">
-          ☝️ Select a tile above to witness its fate in Historia
+          ☝️ Select a tile above to witness its fate in Questoria
         </div>
       )}
     </div>
@@ -732,7 +732,7 @@ function ChapterComplete() {
           Ready for the Quest!
         </h2>
         <p className="text-stone-400 max-w-md mx-auto text-sm">
-          You have mastered the ways of Historia. Here are final strategies from the Royal Librarians before you enter the realm:
+          You have mastered the ways of Questoria. Here are final strategies from the Royal Librarians before you enter the realm:
         </p>
       </div>
 

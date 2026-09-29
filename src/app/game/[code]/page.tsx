@@ -65,10 +65,10 @@ class GameErrorBoundary extends Component<{ children: React.ReactNode }, { hasEr
 
 // Loading lore tips
 const LOADING_LORE = [
-  'The ancient gates of Historia creak open-',
+  'The ancient gates of Questoria creak open-',
   'The Royal Librarians prepare the trials-',
   'Castle bells echo across the realm-',
-  'Heroes of Historia answer the call-',
+  'Heroes of Questoria answer the call-',
   'The Crown of Wisdom awaits the worthy-',
   'Scrolls of forgotten knowledge are unsealed-',
 ];
@@ -408,7 +408,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
             <p className="text-xs text-amber-700/60 font-bold uppercase tracking-[0.25em]">{loadingLore}</p>
           </div>
           <div className="ornament-divider max-w-48 mx-auto">
-            <span>Historia</span>
+            <span>Questoria</span>
           </div>
         </div>
       </div>
@@ -546,7 +546,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
           <button
             onClick={() => { sounds.playClick(); setJournalOpen(true); }}
             className="p-2 bg-amber-900/40 border border-amber-800/50 rounded-xl text-amber-500 hover:text-amber-300 hover:bg-amber-800/50 transition-colors"
-            title="Chronicles of Historia"
+            title="Chronicles of Questoria"
           >
             <BookOpen className="w-4 h-4" />
           </button>
@@ -782,7 +782,7 @@ function GameRoomInner({ params }: { params: Promise<{ code: string }> }) {
         </div>
       )}
 
-      {/* -- Sacred Board of Historia ------------------------------------------- */}
+      {/* -- Sacred Board of Questoria ------------------------------------------- */}
       <div className={`max-w-6xl mx-auto ${mobileTab === 'controls' ? 'hidden lg:block' : ''}`}>
         {/* L: Pinch-to-zoom wrapper */}
         <div className="touch-manipulation" style={{ touchAction: 'pinch-zoom' }}>

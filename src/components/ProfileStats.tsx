@@ -210,7 +210,7 @@ export default function ProfileStats({ profile }: ProfileStatsProps) {
         {/* Lore flavor */}
         <div className="p-3 rounded-xl bg-amber-950/10 border border-amber-900/15">
           <p className="text-[9px] text-amber-700/50 italic text-center">
-            "The scrolls of Historia record every trial answered, every relic claimed, and every quest completed by the heroes of the realm."
+            "The scrolls of Questoria record every trial answered, every relic claimed, and every quest completed by the heroes of the realm."
           </p>
         </div>
       </div>

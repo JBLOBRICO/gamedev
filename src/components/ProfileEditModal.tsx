@@ -74,7 +74,7 @@ export default function ProfileEditModal({ profile, onClose, onSave }: ProfileEd
             <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">
               ⚜ Hero Customisation
             </h2>
-            <p className="text-[10px] text-stone-500 italic mt-0.5">Shape your legend in the Kingdom of Historia</p>
+            <p className="text-[10px] text-stone-500 italic mt-0.5">Shape your legend in the Kingdom of Questoria</p>
           </div>
           <button
             onClick={() => { sounds.playClick(); onClose(); }}

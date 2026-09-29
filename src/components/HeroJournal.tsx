@@ -139,7 +139,7 @@ export default function HeroJournal({ isOpen, onClose }: HeroJournalProps) {
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-900/60 mb-4 text-center border-b border-amber-900/20 pb-2 w-full">
-                  Chronicles of Historia
+                  Chronicles of Questoria
                 </p>
                 {portrait}
                 <div className="w-full mt-6 border-t border-amber-900/20 pt-6">
@@ -154,7 +154,7 @@ export default function HeroJournal({ isOpen, onClose }: HeroJournalProps) {
                 <BookOpen className="w-6 h-6" />
               </div>
               <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-900/60 mb-6 text-center border-b border-amber-900/20 pb-2 w-full">
-                Chronicles of Historia
+                Chronicles of Questoria
               </p>
               {portrait}
             </div>

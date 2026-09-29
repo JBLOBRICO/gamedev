@@ -372,7 +372,7 @@ export default function AdminDashboard() {
           <div className="p-6 rounded-2xl border border-stone-800/50 glass-panel space-y-4">
             <h2 className="text-sm font-black text-[#f5f0e8] uppercase tracking-wider flex items-center gap-2">
               <Award className="w-4 h-4 text-amber-500/60" />
-              Chronicles of Historia — Recent Quests
+              Chronicles of Questoria — Recent Quests
             </h2>
 
             <div className="overflow-x-auto">

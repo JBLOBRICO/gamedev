@@ -322,7 +322,7 @@ export default function GameBoard({ players, activePlayerId, round, actions = []
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
       <div className="absolute top-4 left-0 right-0 flex items-center justify-center gap-2 opacity-50 z-20 pointer-events-none">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-800/40" />
-        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-700">⚜ Kingdom of Historia · Sacred Board ⚜</span>
+        <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-700">⚜ Kingdom of Questoria · Sacred Board ⚜</span>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-800/40" />
       </div>
 
